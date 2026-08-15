@@ -18,4 +18,9 @@
 
   window.db   = firebase.firestore();
   window.auth = firebase.auth();
+  
+  // Isolate auth session to the current tab (enables multiple logins in different tabs)
+  window.auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(function(error) {
+    console.error("Auth persistence error:", error);
+  });
 })();

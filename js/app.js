@@ -276,7 +276,7 @@ async function handleAuthSubmit() {
       if (!name) { setErr('Please enter your full name.'); return reset(); }
       if (!selectedRole) { setErr('Please select a role first.'); return reset(); }
       user = await apiSignup({ name, email, password, role: selectedRole, projectRole, subjects, avatarColor: pickColor(name) });
-      localStorage.setItem('currentUser', JSON.stringify(user));
+      sessionStorage.setItem('currentUser', JSON.stringify(user));
     }
     window.location.href = user.role === 'teacher' ? 'teacher-dashboard.html' : 'student-dashboard.html';
   } catch(err) {
@@ -2040,13 +2040,13 @@ async function initProfilePage() {
         
         const formData = new FormData();
         formData.append('photo', file);
-        const token = JSON.parse(localStorage.getItem('currentUser'))?.token || '';
+        const token = JSON.parse(sessionStorage.getItem('currentUser'))?.token || '';
         // Save base64 directly to user profile
         user.photoUrl = selfieBase64;
       } else if (photoInput && photoInput.files.length > 0) {
         const formData = new FormData();
         formData.append('photo', photoInput.files[0]);
-        const token = JSON.parse(localStorage.getItem('currentUser'))?.token || '';
+        const token = JSON.parse(sessionStorage.getItem('currentUser'))?.token || '';
         const file = photoInput.files[0];
         const base64 = await new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -2065,7 +2065,7 @@ async function initProfilePage() {
       closeModal('editProfileModal');
       showToast('Profile updated!');
       Object.assign(user, updateData);
-      localStorage.setItem('currentUser', JSON.stringify(user));
+      sessionStorage.setItem('currentUser', JSON.stringify(user));
       populateSidebar(user);
       if (user.role === 'student' && typeof loadStudentSubjectsGrid === 'function') {
         loadStudentSubjectsGrid();
