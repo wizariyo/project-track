@@ -286,13 +286,13 @@ async function initTeacherDashboard(teacher) {
     // 1. Populate Subject Filter Select
     const filterSelect = document.getElementById('filterSubjectSelect');
     if (filterSelect) {
-      filterSelect.innerHTML = `<option value="">All Subjects</option>${mySubjects.map(s => `<option value="${escapeHtml(sName)}">${escapeHtml(sName)}</option>`).join('')}`;
+      filterSelect.innerHTML = `<option value="">All Subjects</option>${mySubjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('')}`;
     }
 
     // 2. Populate Create Group Subject Select
     const createSubSelect = document.getElementById('newGroupSubject');
     if (createSubSelect) {
-      createSubSelect.innerHTML = `<option value="" disabled selected>Choose a subject...</option>${mySubjects.map(s => `<option value="${escapeHtml(sName)}">${escapeHtml(sName)}</option>`).join('')}`;
+      createSubSelect.innerHTML = `<option value="" disabled selected>Choose a subject...</option>${mySubjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('')}`;
     }
   } catch(e) {
     showToast('Failed to load subjects list.', 'error');
@@ -312,7 +312,7 @@ async function initTeacherDashboard(teacher) {
       getAllTeachers().then(teachers => {
         secSelect.innerHTML = '<option value="">None (Single Faculty)</option>';
         teachers.forEach(t => {
-          if (t.id !== user.id && t._id !== user.id) { // don't include self
+          if (t.id !== teacher.id && t._id !== teacher.id) { // don't include self
             const subjectLabel = t.subjects ? ` (${t.subjects})` : '';
             secSelect.innerHTML += `<option value="${t.id||t._id}">${escapeHtml(t.name)}${escapeHtml(subjectLabel)}</option>`;
           }
@@ -341,10 +341,10 @@ async function initTeacherDashboard(teacher) {
     }
     
     try {
-      await createGroup({ name, projectName, teacherId: user.id || user._id, subject, groupLeadId, secondaryTeacherId });
+      await createGroup({ name, projectName, teacherId: teacher.id || teacher._id, subject, groupLeadId, secondaryTeacherId });
       closeModal('createGroupModal');
       showToast('Group created with Group Lead assigned!');
-      await loadTeacherData(user);
+      await loadTeacherData(teacher);
     } catch(e) { showToast(e.message, 'error'); }
   });
 
@@ -483,12 +483,13 @@ async function renderTeacherOverview(groups, teacher) {
 
     const memberAvatars = members.map(m => {
       return `
-        <div class="member-avatar-wrap" style="position: relative;" title="Remove ${escapeHtml(m.name)} (${m.isLead ? 'Lead' : 'Member'})"
+        <div class="member-avatar-wrap" style="position: relative; margin-right: -8px; display: inline-block;" title="Remove ${escapeHtml(m.name)} (${m.isLead ? 'Lead' : 'Member'})"
           onclick="event.stopPropagation(); if(confirm('Remove ${escapeHtml(m.name)} from group?')) {
             kickStudent('${g.id||g._id}','${m.id||m._id}')
               .then(()=>{ showToast('Removed.'); loadTeacherData(window.__teacher); })
               .catch(e=>showToast(e.message,'error'));
           }">
+          ${avatarHtml(m, 32)}
           ${m.isLead ? `<span style="position:absolute; bottom:-4px; right:-4px; font-size:9px; background:var(--teal); color:#fff; border-radius:50%; width:14px; height:14px; display:grid; place-items:center;" title="Group Lead">✦</span>` : ''}
         </div>`;
     }).join('');
