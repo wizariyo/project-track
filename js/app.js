@@ -1380,22 +1380,8 @@ async function loadStudentSubjectsGrid() {
 }
 
 window.selectSubject = async function(subjectName) {
-  sessionStorage.setItem('activeSubject', subjectName);
-  
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const navSubjects = document.getElementById('navSubjectsItem');
-  if (navSubjects) navSubjects.classList.remove('active');
-  
-  document.querySelectorAll('.workspace-nav-item').forEach(w => w.style.display = 'block');
-  
-  document.querySelectorAll('.section-page').forEach(s => s.classList.remove('active'));
-  const pageKanban = document.getElementById('page-kanban');
-  if (pageKanban) pageKanban.classList.add('active');
-  
-  const navKanban = document.querySelector('.nav-item[data-target="kanban"]');
-  if (navKanban) navKanban.classList.add('active');
-
   const student = window.__student;
+  if (!student) return;
   
   try {
     const group = await getStudentGroupBySubject(student.id||student._id, subjectName);
@@ -1406,6 +1392,20 @@ window.selectSubject = async function(subjectName) {
     const addTask = document.getElementById('addTaskBtn');
 
     if (group) {
+      sessionStorage.setItem('activeSubject', subjectName);
+      
+      // Show workspace navigation
+      document.querySelectorAll('.workspace-nav-item').forEach(w => w.style.display = 'block');
+      
+      // Switch active tab and page to Kanban
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const navKanban = document.querySelector('.nav-item[data-target="kanban"]');
+      if (navKanban) navKanban.classList.add('active');
+      
+      document.querySelectorAll('.section-page').forEach(s => s.classList.remove('active'));
+      const pageKanban = document.getElementById('page-kanban');
+      if (pageKanban) pageKanban.classList.add('active');
+
       window.__group = group;
       window.__isLead = (group.isLead === 1);
       
@@ -1425,7 +1425,10 @@ window.selectSubject = async function(subjectName) {
         document.getElementById('gbMembers').innerHTML = members.map(m => avatarHtml(m, 32)).join('');
       }
       
-      if (noG) noG.style.display = 'none';
+      if (noG) {
+        noG.style.display = 'none';
+        noG.classList.remove('active');
+      }
       
       await renderKanban(group);
       await renderStudentReports(group, student);
@@ -1436,10 +1439,23 @@ window.selectSubject = async function(subjectName) {
       
       if (manageBtn) manageBtn.style.display = 'none';
       if (addTask) addTask.style.display = 'none';
-      
       if (banner) banner.style.display = 'none';
+      
+      // Hide workspace nav items
+      document.querySelectorAll('.workspace-nav-item').forEach(w => w.style.display = 'none');
+      
+      // Keep subjects active
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const navSubjects = document.getElementById('navSubjectsItem');
+      if (navSubjects) navSubjects.classList.add('active');
+      
+      document.querySelectorAll('.section-page').forEach(s => s.classList.remove('active'));
+      const pageSubjects = document.getElementById('page-subjects');
+      if (pageSubjects) pageSubjects.classList.add('active');
+
       if (noG) {
-        noG.style.display = 'block';
+        noG.style.display = 'flex';
+        noG.classList.add('active');
         document.getElementById('noGroupSubjectName').textContent = subjectName;
       }
       
@@ -1451,6 +1467,15 @@ window.selectSubject = async function(subjectName) {
   } catch(e) {
     showToast('Failed to load subject group: ' + e.message, 'error');
   }
+};
+
+window.closeNoGroupModal = function() {
+  const noG = document.getElementById('noGroupState');
+  if (noG) {
+    noG.style.display = 'none';
+    noG.classList.remove('active');
+  }
+  sessionStorage.removeItem('activeSubject');
 };
 
 window.openManageTeamModal = async function() {
