@@ -54,6 +54,14 @@
     clearCurrentUser();
   }
 
+  async function deleteUserAccount() {
+    var u = auth.currentUser;
+    if (!u) throw new Error("Please log out and log back in to delete your account.");
+    await db.collection('users').doc(u.uid).delete();
+    await u.delete();
+    clearCurrentUser();
+  }
+
   /* ─── Users ───────────────────────────────────────────── */
   async function getUser(uid) {
     var doc = await db.collection('users').doc(uid).get();
@@ -295,7 +303,7 @@
   var api = {
     getCurrentUser: getCurrentUser, setCurrentUser: setCurrentUser, clearCurrentUser: clearCurrentUser,
     isTeacher: isTeacher, isStudent: isStudent,
-    apiSignup: apiSignup, apiLogin: apiLogin, logoutUser: logoutUser,
+    apiSignup: apiSignup, apiLogin: apiLogin, logoutUser: logoutUser, deleteUserAccount: deleteUserAccount,
     getUser: getUser, getAllStudents: getAllStudents, getAllTeachers: getAllTeachers, updateUserProfile: updateUserProfile,
     getAllGroups: getAllGroups, getGroupById: getGroupById, getGroupsByTeacher: getGroupsByTeacher,
     getGroupMembers: getGroupMembers, createGroup: createGroup, deleteGroup: deleteGroup,

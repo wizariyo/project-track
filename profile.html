@@ -147,9 +147,12 @@
         <input type="hidden" id="editProfileColorInput"/>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" data-close="editProfileModal">Cancel</button>
-      <button class="btn btn-primary" id="submitEditProfileBtn">Save Changes</button>
+    <div class="modal-footer" style="justify-content: space-between;">
+      <button class="btn btn-danger-ghost" id="deleteProfileBtn" style="color: var(--danger);">Delete Account</button>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-ghost" data-close="editProfileModal">Cancel</button>
+        <button class="btn btn-primary" id="submitEditProfileBtn">Save Changes</button>
+      </div>
     </div>
   </div>
 </div>

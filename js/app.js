@@ -2021,6 +2021,7 @@ async function initProfilePage() {
     const avatarColor = document.getElementById('editProfileColorInput')?.value;
     const password = document.getElementById('editProfilePasswordInput')?.value;
     const subjects = document.getElementById('editProfileSubjectsInput')?.value;
+    const semesterInput = document.getElementById('editProfileSemesterInput')?.value;
     const photoInput = document.getElementById('editProfilePhotoInput');
     const selfieBase64 = document.getElementById('editProfileSelfieBase64')?.value;
     
@@ -2056,13 +2057,19 @@ async function initProfilePage() {
         user.photoUrl = base64;
       }
 
-      await updateUserProfile(user.id||user._id, { name, projectRole, avatarColor, password, subjects });
+      const updateData = { name, projectRole, avatarColor, password, subjects };
+      if (semesterInput) updateData.semester = parseInt(semesterInput);
+
+      await updateUserProfile(user.id||user._id, updateData);
       stopCamera();
       closeModal('editProfileModal');
       showToast('Profile updated!');
-      Object.assign(user, { name, projectRole, avatarColor, subjects });
+      Object.assign(user, updateData);
       localStorage.setItem('currentUser', JSON.stringify(user));
       populateSidebar(user);
+      if (user.role === 'student' && typeof loadStudentSubjectsGrid === 'function') {
+        loadStudentSubjectsGrid();
+      }
       
       const passInput = document.getElementById('editProfilePasswordInput');
       if (passInput) passInput.value = '';
@@ -2071,6 +2078,16 @@ async function initProfilePage() {
       
       await refreshStats();
     } catch(e) { showToast(e.message, 'error'); }
+  });
+
+  document.getElementById('deleteProfileBtn')?.addEventListener('click', async () => {
+    if (!confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
+    try {
+      await window.deleteUserAccount();
+      window.location.href = 'index.html';
+    } catch(e) {
+      showToast(e.message, 'error');
+    }
   });
 
   // Automatically trigger edit modal if URL query specifies edit=true
