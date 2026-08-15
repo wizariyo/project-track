@@ -227,8 +227,7 @@
     }
   }
 
-  // Setup event listener for submit button
-  document.addEventListener('DOMContentLoaded', () => {
+  function initAuth() {
     const submitBtn = document.getElementById('submitAuthBtn');
     if (submitBtn) {
       submitBtn.addEventListener('click', handleAuth);
@@ -239,7 +238,13 @@
     if (user) {
       redirectUser(user.role);
     }
-  });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuth);
+  } else {
+    initAuth();
+  }
 
   async function handleAuth(e) {
     if (e) e.preventDefault();

@@ -139,6 +139,10 @@
   async function deleteTask(tid) {
     await db.collection('tasks').doc(tid).delete();
   }
+  async function getTaskById(tid) {
+    var doc = await db.collection('tasks').doc(tid).get();
+    return doc.exists ? { ...doc.data(), id: doc.id } : null;
+  }
 
   /* ─── Comments ────────────────────────────────────────── */
   async function getTaskComments(tid) {
@@ -243,7 +247,7 @@
     getAllGroups: getAllGroups, getGroupById: getGroupById, getGroupsByTeacher: getGroupsByTeacher,
     getGroupMembers: getGroupMembers, createGroup: createGroup, deleteGroup: deleteGroup,
     addStudentToGroup: addStudentToGroup, kickStudent: kickStudent, joinGroup: joinGroup, leaveGroup: leaveGroup,
-    getTasksByGroup: getTasksByGroup, addTask: addTask, updateTask: updateTask, updateTaskStatus: updateTaskStatus, deleteTask: deleteTask,
+    getTasksByGroup: getTasksByGroup, addTask: addTask, updateTask: updateTask, updateTaskStatus: updateTaskStatus, deleteTask: deleteTask, getTaskById: getTaskById,
     getTaskComments: getTaskComments, addTaskComment: addTaskComment,
     getReportsByGroup: getReportsByGroup, addReport: addReport, addFeedback: addFeedback,
     getSubtasks: getSubtasks, addSubtask: addSubtask, toggleSubtask: toggleSubtask, deleteSubtask: deleteSubtask,
