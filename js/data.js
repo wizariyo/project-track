@@ -1,8 +1,8 @@
 /* =========================================================
    ProjectTrack - data.js (Firebase layer)
    ========================================================= */
-const db = window.db;
-const auth = window.auth;
+var db = window.db;
+var auth = window.auth;
 
 /* ---- Session ---- */
 function getCurrentUser() {
