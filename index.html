@@ -1,348 +1,232 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProjectTrack - Project Management for Students</title>
-    <link rel="stylesheet" href="css/style.css">
-    <style>
-        body { margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; background: #f8fafc; color: #0f172a; }
-        .hero-section { text-align: center; padding: 4rem 2rem; background: linear-gradient(135deg, var(--primary, #6366f1) 0%, var(--accent, #22d3ee) 100%); color: white; margin-bottom: -100px; padding-bottom: 150px; }
-        .hero-title { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; animation: fadeDown 0.8s ease-out; }
-        .hero-subtitle { font-size: 1.25rem; opacity: 0.9; max-width: 600px; margin: 0 auto; animation: fadeUp 0.8s ease-out; }
-        
-        .auth-wrapper { display: flex; justify-content: center; padding: 0 2rem; position: relative; z-index: 10; padding-bottom: 4rem; }
-        .auth-card { background: white; border-radius: 1rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); width: 100%; max-width: 480px; padding: 2.5rem; animation: fadeIn 0.5s ease-out; }
-        
-        .auth-logo { text-align: center; margin-bottom: 1.5rem; }
-        .auth-logo svg { width: 56px; height: 56px; color: var(--primary, #6366f1); }
-        .auth-title { font-size: 1.75rem; font-weight: 700; text-align: center; margin-bottom: 0.5rem; }
-        .auth-sub { text-align: center; color: #64748b; margin-bottom: 2rem; font-size: 0.95rem; }
-        
-        .auth-step { display: none; }
-        .auth-step.active { display: block; animation: slideIn 0.3s ease-out; }
-        
-        .role-cards { display: flex; gap: 1rem; margin-top: 1.5rem; }
-        .role-card { flex: 1; text-align: center; padding: 2rem 1rem; border: 2px solid #e2e8f0; border-radius: 0.75rem; cursor: pointer; transition: all 0.2s ease-in-out; background: #ffffff; }
-        .role-card:hover { border-color: var(--primary, #6366f1); background: #f8fafc; transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .role-card svg { width: 48px; height: 48px; margin-bottom: 1rem; color: #64748b; transition: color 0.2s; }
-        .role-card:hover svg { color: var(--primary, #6366f1); }
-        .role-name { font-weight: 600; font-size: 1.1rem; color: #334155; }
-        
-        .tabs { display: flex; border-bottom: 1px solid #e2e8f0; margin-bottom: 1.5rem; }
-        .tab { flex: 1; text-align: center; padding: 0.75rem; cursor: pointer; color: #64748b; font-weight: 600; border-bottom: 2px solid transparent; transition: all 0.2s; }
-        .tab.active { color: var(--primary, #6366f1); border-bottom-color: var(--primary, #6366f1); }
-        
-        .form-group { margin-bottom: 1.25rem; text-align: left; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #334155; font-size: 0.875rem; }
-        .form-control { width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-family: inherit; font-size: 0.95rem; box-sizing: border-box; transition: all 0.2s; background: #f8fafc; }
-        .form-control:focus { outline: none; border-color: var(--primary, #6366f1); background: #ffffff; box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15); }
-        
-        .btn { display: inline-flex; justify-content: center; align-items: center; width: 100%; padding: 0.875rem; border: none; border-radius: 0.5rem; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; font-family: inherit; }
-        .btn-primary { background: var(--primary, #6366f1); color: white; box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2); }
-        .btn-primary:hover { background: #4f46e5; box-shadow: 0 6px 8px -1px rgba(99, 102, 241, 0.3); transform: translateY(-1px); }
-        .btn-ghost { background: transparent; color: #64748b; margin-top: 1rem; }
-        .btn-ghost:hover { background: #f1f5f9; color: #0f172a; }
-        
-        .auth-error { color: #ef4444; font-size: 0.875rem; text-align: center; margin-bottom: 1.5rem; padding: 0.75rem; border-radius: 0.5rem; background: #fef2f2; border: 1px solid #fecaca; display: none; }
-        .hidden { display: none !important; }
-        
-        @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ProjectTrack — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=1786777543351.0.0" />
+<style>
+  /* Premium Role Card Inline Styles (Guarantees cache-proof rendering) */
+  .role-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 16px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .role-card:hover {
+    border-color: var(--teal);
+    background: var(--surface-2);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-md);
+  }
+  .role-card:hover svg {
+    transform: scale(1.12);
+  }
+  [data-theme="dark"] .role-card:hover {
+    border-color: var(--sage);
+  }
+  .role-card-icon {
+    font-size: 34px;
+    margin-bottom: 12px;
+    line-height: 1;
+  }
+  .role-card-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .role-card-desc {
+    font-size: 11.0px;
+    color: var(--text-3);
+    line-height: 1.4;
+  }
+  .select2-container .select2-selection--multiple { min-height: 44px; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 4px; }
+</style>
+  <!-- Select2 -->
+    <!-- jQuery for Select2 -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
-<body>
+<body data-page="auth">
 
-    <div class="hero-section">
-        <h1 class="hero-title">ProjectTrack</h1>
-        <p class="hero-subtitle">The ultimate platform for students and teachers to seamlessly manage, track, and collaborate on academic projects.</p>
+<div class="auth-shell">
+  <div class="auth-card fade-in-up">
+
+    <div class="auth-brand" style="display: flex; align-items: center; gap: 10px;">
+      <svg class="logo-svg" viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; color: var(--teal); filter: drop-shadow(0 2px 4px rgba(23,67,63,0.12));">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <span>ProjectTrack</span>
     </div>
 
-    <div class="auth-wrapper">
-        <div class="auth-card">
-            
-            <!-- Step 1: Role Selection -->
-            <div id="step-role" class="auth-step active">
-                <div class="auth-logo">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                    </svg>
-                </div>
-                <h2 class="auth-title">Welcome Aboard</h2>
-                <p class="auth-sub">How will you be using ProjectTrack?</p>
-                
-                <div class="role-cards">
-                    <div class="role-card" onclick="selectRole('Student')">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 14l9-5-9-5-9 5 9 5z"></path>
-                            <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path>
-                        </svg>
-                        <div class="role-name">Student</div>
-                    </div>
-                    <div class="role-card" onclick="selectRole('Teacher')">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                        <div class="role-name">Teacher</div>
-                    </div>
-                </div>
-            </div>
+    <!-- STEP 1: Role selection -->
+    <div id="stepRole" class="auth-step active">
+      <h1 class="auth-title">Welcome to ProjectTrack</h1>
+      <p class="auth-sub">Choose your role to get started.</p>
 
-            <!-- Step 2: Auth Form -->
-            <div id="step-auth" class="auth-step">
-                <div class="tabs">
-                    <div class="tab active" id="tab-login" onclick="setMode('login')">Log In</div>
-                    <div class="tab" id="tab-signup" onclick="setMode('signup')">Sign Up</div>
-                </div>
-
-                <div id="auth-error" class="auth-error"></div>
-
-                <form id="auth-form" onsubmit="handleAuth(event)">
-                    
-                    <div id="signup-fields" class="hidden">
-                        <div class="form-group">
-                            <label for="fullName">Full Name</label>
-                            <input type="text" id="fullName" class="form-control" placeholder="John Doe">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="semester">Semester</label>
-                            <select id="semester" class="form-control" onchange="updateSubjects()">
-                                <option value="">Select Semester</option>
-                                <option value="1">Semester 1</option>
-                                <option value="2">Semester 2</option>
-                                <option value="3">Semester 3</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group hidden" id="student-fields">
-                            <label for="projectRole">Project Role</label>
-                            <select id="projectRole" class="form-control">
-                                <option value="Tech Lead">Tech Lead</option>
-                                <option value="Developer">Developer</option>
-                                <option value="Tester">Tester</option>
-                                <option value="QA">QA</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group hidden" id="teacher-fields">
-                            <label for="subjects">Subject</label>
-                            <select id="subjects" class="form-control">
-                                <option value="">Select Subject</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" class="form-control" placeholder="you@example.com" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" class="form-control" placeholder="••••••••" required>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary" id="submit-btn">Log In</button>
-                    <button type="button" class="btn btn-ghost" onclick="goBack()">Back to Roles</button>
-                </form>
-            </div>
-
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px;">
+        <div class="role-card" id="roleTeacher" onclick="selectRole('teacher')">
+          <svg viewBox="0 0 24 24" width="34" height="34" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 12px; stroke: var(--primary); transition: transform 0.22s;">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M6 9.5V17c0 2 3 3.5 6 3.5s6-1.5 6-3.5V9.5"></path>
+            <path d="M22 7v6"></path>
+          </svg>
+          <div class="role-card-title">Teacher</div>
+          <div class="role-card-desc">Create groups & monitor progress</div>
         </div>
+
+        <div class="role-card" id="roleStudent" onclick="selectRole('student')">
+          <svg viewBox="0 0 24 24" width="34" height="34" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 12px; stroke: var(--primary); transition: transform 0.22s;">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+          </svg>
+          <div class="role-card-title">Student</div>
+          <div class="role-card-desc">Join groups & track tasks</div>
+        </div>
+      </div>
     </div>
 
-    <!-- Firebase Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- STEP 2: Auth form -->
+    <div id="stepAuth" class="auth-step">
+      <button class="back-btn" onclick="goBackToRole()">← Back</button>
+      <h1 class="auth-title" id="authHeading">Sign In</h1>
+
+      <div id="authError" class="auth-error hidden"></div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin" onclick="setAuthMode('login')">Sign In</button>
+        <button class="auth-tab" id="tabSignup" onclick="setAuthMode('signup')">Sign Up</button>
+      </div>
+
+      <div id="signupFields" style="display:none;">
+        <div class="form-group">
+          <label for="authName">Full Name</label>
+          <input type="text" id="authName" class="form-control" placeholder="Jane Doe" />
+        </div>
+
+        <div class="form-group" id="authSemesterField" style="display:none;">
+          <label for="authSemester">Semester</label>
+          <select id="authSemester" class="form-control" onchange="updateAuthSubjectCatalog()">
+            <option value="" disabled selected>Select Semester</option>
+            <option value="1">Semester 1</option>
+            <option value="2">Semester 2</option>
+            <option value="3">Semester 3</option>
+            
+          </select>
+        </div>
+                <div id="studentProjectRoleField" class="form-group" style="display:none;">
+          <label for="authProjectRole">Project Role</label>
+          <select id="authProjectRole" class="form-control">
+            <option value="Tech Lead">Tech Lead</option>
+            <option value="Developer">Developer</option>
+            <option value="Tester">Tester</option>
+            <option value="QA">QA</option>
+          </select>
+        </div>
+        <div id="authSubjectsField" class="form-group" style="display:none;">
+          <label for="authTeacherSubjects">Subject Taught</label>
+          <select id="authSubjects" class="form-control">
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="authEmail">Email</label>
+        <input type="email" id="authEmail" class="form-control" placeholder="jane@college.edu" />
+      </div>
+      <div class="form-group">
+        <label for="authPassword">Password</label>
+        <input type="password" id="authPassword" class="form-control" placeholder="••••••••" />
+      </div>
+
+      <button class="btn btn-primary btn-full" id="submitAuthBtn">Sign In</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="js/firebase.js"></script>
+  <script src="js/catalog.js"></script>
+  <script src="js/firestore.js"></script>
+  <script src="js/toast.js"></script>
+<script>
+  window.selectedRole = null;
+  window.authMode = 'login';
+
+  
+  /* Catalog loaded via js/catalog.js */
+  function loadSubjectCatalog() { updateAuthSubjectCatalog && updateAuthSubjectCatalog(); }
+  
+  function updateAuthSubjectCatalog() {
+    const semester = document.getElementById('authSemester').value;
+  const select = document.getElementById('authSubjects');
+    if (!select) return;
     
-    <!-- App Scripts -->
-    <script src="js/firebase.js"></script>
-    <script src="js/catalog.js"></script>
-    <script src="js/firestore.js"></script>
-    <script src="js/toast.js"></script>
+    if (!semester) {
+    select.innerHTML = '<option value="" disabled selected>Please select Semester first</option>';
+    return;
+  }
+    
+    const filtered = window.SUBJECT_CATALOG.filter(c => c.semester == semester);
+    if (filtered.length === 0) {
+      select.innerHTML = '<option value="" disabled selected>No subjects found for this semester</option>';
+    } else {
+      select.innerHTML = filtered.map(c => `<option value="${c.name}">${c.code}: ${c.name}</option>`).join('');
+    }
+  }
+  
+  loadSubjectCatalog();
+  
+  function selectRole(role) {
+    window.selectedRole = role;
+    document.getElementById('stepRole').classList.remove('active');
+    document.getElementById('stepAuth').classList.add('active');
+    document.getElementById('studentProjectRoleField').style.display = role === 'student' ? 'block' : 'none';
+    
+    document.getElementById('authSemesterField').style.display = 'block';
+    document.getElementById('authSubjectsField').style.display = role === 'teacher' ? 'block' : 'none';
 
-    <!-- Page Logic -->
-    <script>
-        // State
-        let selectedRole = '';
-        let authMode = 'login'; // 'login' or 'signup'
-        
-        // DOM Elements
-        const stepRole = document.getElementById('step-role');
-        const stepAuth = document.getElementById('step-auth');
-        const signupFields = document.getElementById('signup-fields');
-        const studentFields = document.getElementById('student-fields');
-        const teacherFields = document.getElementById('teacher-fields');
-        const submitBtn = document.getElementById('submit-btn');
-        const errorDiv = document.getElementById('auth-error');
-        const tabLogin = document.getElementById('tab-login');
-        const tabSignup = document.getElementById('tab-signup');
-        const semesterSelect = document.getElementById('semester');
-        const subjectsSelect = document.getElementById('subjects');
+    setAuthMode('login');
+  }
 
-        // Check if user is already logged in
-        document.addEventListener('DOMContentLoaded', () => {
-            const user = window.getCurrentUser ? window.getCurrentUser() : null;
-            if (user) {
-                redirectUser(user.role);
-            }
-        });
+  function goBackToRole() {
+    document.getElementById('stepAuth').classList.remove('active');
+    document.getElementById('stepRole').classList.add('active');
+    document.getElementById('authError').classList.add('hidden');
+  }
 
-        function selectRole(role) {
-            selectedRole = role;
-            stepRole.classList.remove('active');
-            stepAuth.classList.add('active');
-            
-            // Adjust fields based on role
-            if (role === 'Student') {
-                studentFields.classList.remove('hidden');
-                teacherFields.classList.add('hidden');
-            } else {
-                studentFields.classList.add('hidden');
-                teacherFields.classList.remove('hidden');
-            }
-            
-            // Reset form
-            document.getElementById('auth-form').reset();
-            errorDiv.style.display = 'none';
-            setMode('login'); // Default to login tab
-        }
-
-        function goBack() {
-            stepAuth.classList.remove('active');
-            stepRole.classList.add('active');
-            selectedRole = '';
-        }
-
-        function setMode(mode) {
-            authMode = mode;
-            errorDiv.style.display = 'none';
-            
-            if (mode === 'login') {
-                tabLogin.classList.add('active');
-                tabSignup.classList.remove('active');
-                signupFields.classList.add('hidden');
-                submitBtn.textContent = 'Log In';
-                
-                // Remove required attribute from signup fields
-                document.getElementById('fullName').removeAttribute('required');
-                document.getElementById('semester').removeAttribute('required');
-            } else {
-                tabSignup.classList.add('active');
-                tabLogin.classList.remove('active');
-                signupFields.classList.remove('hidden');
-                submitBtn.textContent = 'Sign Up';
-                
-                // Add required attribute to signup fields
-                document.getElementById('fullName').setAttribute('required', 'true');
-                document.getElementById('semester').setAttribute('required', 'true');
-                
-                updateSubjects(); // Initialize subjects dropdown if needed
-            }
-        }
-
-        function updateSubjects() {
-            if (selectedRole !== 'Teacher') return;
-            
-            const sem = parseInt(semesterSelect.value);
-            subjectsSelect.innerHTML = '<option value="">Select Subject</option>';
-            
-            if (!sem || !window.getSubjects) return;
-            
-            const catalog = window.getSubjects();
-            const filteredSubjects = catalog.filter(s => s.semester === sem);
-            
-            filteredSubjects.forEach(subject => {
-                const option = document.createElement('option');
-                option.value = subject.code;
-                option.textContent = subject.name + ' (' + subject.code + ')';
-                subjectsSelect.appendChild(option);
-            });
-        }
-
-        function showError(msg) {
-            errorDiv.textContent = msg;
-            errorDiv.style.display = 'block';
-        }
-
-        async function handleAuth(e) {
-            e.preventDefault();
-            errorDiv.style.display = 'none';
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Please wait...';
-
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-
-            try {
-                if (authMode === 'login') {
-                    // Call global apiLogin
-                    const user = await window.apiLogin(email, password);
-                    if (!user) throw new Error("Invalid credentials or user not found.");
-                    
-                    // The returned user object should have a role, but we must also ensure 
-                    // it matches what they clicked (optional, but good UX if they clicked Student but are Teacher)
-                    // We'll trust the DB role for redirect
-                    if (window.showToast) window.showToast('Logged in successfully!', 'success');
-                    setTimeout(() => redirectUser(user.role), 500);
-
-                } else {
-                    // Signup mode
-                    const name = document.getElementById('fullName').value.trim();
-                    const semester = parseInt(semesterSelect.value);
-                    
-                    if (!name || !semester) {
-                        throw new Error("Please fill in all required fields.");
-                    }
-
-                    const data = {
-                        name,
-                        email,
-                        password,
-                        role: selectedRole,
-                        semester,
-                        avatarColor: getRandomColor()
-                    };
-
-                    if (selectedRole === 'Student') {
-                        data.projectRole = document.getElementById('projectRole').value;
-                    } else if (selectedRole === 'Teacher') {
-                        const subj = document.getElementById('subjects').value;
-                        if (!subj) throw new Error("Please select a subject.");
-                        data.subjects = [subj]; // Storing as array to support multiple in future
-                    }
-
-                    // Call global apiSignup
-                    const user = await window.apiSignup(data);
-                    if (!user) throw new Error("Signup failed.");
-                    
-                    if (window.showToast) window.showToast('Account created successfully!', 'success');
-                    setTimeout(() => redirectUser(user.role), 500);
-                }
-            } catch (error) {
-                console.error("Auth Error:", error);
-                showError(error.message || "An error occurred during authentication.");
-                submitBtn.disabled = false;
-                submitBtn.textContent = authMode === 'login' ? 'Log In' : 'Sign Up';
-            }
-        }
-
-        function redirectUser(role) {
-            if (role === 'Teacher') {
-                window.location.href = 'teacher-dashboard.html';
-            } else {
-                window.location.href = 'student-dashboard.html';
-            }
-        }
-
-        function getRandomColor() {
-            const colors = ['#f87171', '#fb923c', '#fbbf24', '#a3e635', '#34d399', '#22d3ee', '#818cf8', '#c084fc', '#f472b6'];
-            return colors[Math.floor(Math.random() * colors.length)];
-        }
-    </script>
-</body>
+  function setAuthMode(mode) {
+    window.authMode = mode;
+    document.getElementById('authError').classList.add('hidden');
+    if (mode === 'login') {
+      document.getElementById('tabLogin').classList.add('active');
+      document.getElementById('tabSignup').classList.remove('active');
+      document.getElementById('signupFields').style.display = 'none';
+      document.getElementById('submitAuthBtn').textContent = 'Sign In';
+      document.getElementById('authHeading').textContent = 'Sign In as ' + (window.selectedRole === 'teacher' ? 'Teacher' : 'Student');
+    } else {
+      document.getElementById('tabLogin').classList.remove('active');
+      document.getElementById('tabSignup').classList.add('active');
+      document.getElementById('signupFields').style.display = 'block';
+      document.getElementById('submitAuthBtn').textContent = 'Create Account';
+      document.getElementById('authHeading').textContent = 'Sign Up as ' + (window.selectedRole === 'teacher' ? 'Teacher' : 'Student');
+    }
+  }
+</script>
+  <!-- Select2 JS -->
+  </body>
 </html>

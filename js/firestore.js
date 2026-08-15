@@ -10,13 +10,13 @@
 
   /* ─── Session helpers ─────────────────────────────────── */
   function getCurrentUser() {
-    try { return JSON.parse(localStorage.getItem('ptUser')); } catch(e) { return null; }
+    try { return JSON.parse(localStorage.getItem('currentUser')); } catch(e) { return null; }
   }
   function setCurrentUser(u) {
-    localStorage.setItem('ptUser', JSON.stringify(u));
+    localStorage.setItem('currentUser', JSON.stringify(u));
   }
   function clearCurrentUser() {
-    localStorage.removeItem('ptUser');
+    localStorage.removeItem('currentUser');
   }
   function isTeacher() { var u = getCurrentUser(); return !!u && u.role === 'teacher'; }
   function isStudent() { var u = getCurrentUser(); return !!u && u.role === 'student'; }
