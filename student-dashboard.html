@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ProjectTrack — Student Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=5.0.5" />
+  <!-- Select2 -->
+  </head>
+<body data-page="dashboard" data-role="student">
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-right: 8px;">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      ProjectTrack
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" data-target="subjects" id="navSubjectsItem">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V5A2.5 2.5 0 0 1 6.5 2.5H20v14H6.5a2.5 2.5 0 0 0-2.5 2.5z"/></svg>
+        Select Subject
+      </div>
+      <div class="nav-item workspace-nav-item" data-target="kanban" style="display: none;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="15" rx="1"/></svg>
+        Kanban Board
+      </div>
+      <div class="nav-item workspace-nav-item" data-target="reports" style="display: none;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+        Reports
+        <span class="nav-badge" id="reportsBadge" style="display:none;"></span>
+      </div>
+      <div class="nav-item workspace-nav-item" data-target="files" style="display: none;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        Project Files
+      </div>
+      <div class="nav-item workspace-nav-item" data-target="timeline" style="display: none;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M2 12h20M12 2v20M2 12h20M2 12h20M2 12h20" stroke-width="2"/><path d="M5 9h5v6H5zM14 9h5v6h-5z"/></svg>
+        Timeline
+      </div>
+      <div class="nav-item workspace-nav-item" data-target="calendar" style="display: none;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Calendar
+      </div>
+      <div class="nav-item workspace-nav-item" data-target="assistant" style="display: none;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.816 5.176l.86 2.548 2.548.86-2.548.86-.86 2.548-.86-2.548-2.548-.86 2.548-.86.86-2.548zM18 14.5l.7 2.1 2.1.7-2.1.7-.7 2.1-.7-2.1-2.1-.7 2.1-.7.7-2.1z"/></svg>
+        AI Assistant
+      </div>
+      <!-- Theme Switch Slider (pushed to bottom of nav) -->
+      <div style="margin-top: auto; border-top: 1px solid var(--border); padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 12px; font-weight: 500; color: var(--text-3); white-space: nowrap;">Appearance</span>
+        <label class="day-night-switch">
+          <input type="checkbox" id="sidebarThemeSwitch" onclick="toggleTheme()" />
+          <span class="day-night-slider"></span>
+        </label>
+      </div>
+    </nav>
+    <div class="sidebar-footer" style="padding: 0; border-top: 1px solid var(--border);">
+      <div class="user-chip" id="userChipBtn" style="border: none; width: 100%; box-sizing: border-box;">
+        <div class="avatar" id="sbAvatar">--</div>
+        <div class="info"><div class="name" id="sbName">Loading…</div><div class="role-line" id="sbRole">Student</div></div>
+        
+        <!-- Account Dropdown Menu (Pops Upwards on Hover!) -->
+        <div class="profile-dropdown-menu" id="profileDropdownMenu" style="bottom: 100%; top: auto; left: 12px; right: 12px;">
+          <button class="profile-dropdown-item" onclick="window.location.href='profile.html'">View Profile</button>
+          <div style="border-top: 1px solid var(--border); margin: 6px 0;"></div>
+          <button class="profile-dropdown-item" onclick="logoutUser(); window.location.href='index.html';" style="color: var(--danger);">Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- Global Search -->
+    <div class="global-search-bar" style="padding: 16px 32px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; justify-content: flex-end; position: sticky; top: 0; z-index: 50;">
+      <div style="position: relative; width: 340px;">
+        <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-3);" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="globalSearchInput" class="form-control" style="padding-left: 36px; width: 100%; border-radius: 20px; background: var(--surface-2);" placeholder="Search projects, tasks, or members...">
+        <div id="globalSearchResults" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 4px; box-shadow: var(--shadow-md); max-height: 400px; overflow-y: auto; z-index: 100;"></div>
+      </div>
+    </div>
+    
+    <!-- Group Banner -->
+    <div class="group-banner" id="groupBanner" style="display:none;">
+      <div class="gb-left">
+        <div class="gb-eyebrow">Your Project</div>
+        <h2 id="gbProjectName">—</h2>
+      </div>
+      <div style="flex:1;"></div>
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <button class="btn btn-primary btn-sm" id="manageTeamBtn" style="display:none; padding: 6px 12px; font-size: 12px; border-radius: 6px;" onclick="openManageTeamModal()">Manage Team</button>
+        <div class="gb-members" id="gbMembers"></div>
+      </div>
+    </div>
+
+    <!-- SUBJECTS SELECTOR -->
+    <section class="section-page active" id="page-subjects">
+      <div class="topbar" style="padding: 24px 32px 16px;">
+        <div>
+          <h1>My Subjects</h1>
+          <p class="sub">Select a subject to enter your team workspace and access tasks, files, and calendar.</p>
+        </div>
+      </div>
+      <div class="subjects-grid" id="subjectsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; padding: 16px 32px 32px;">
+        <!-- Subject cards loaded dynamically -->
+      </div>
+    </section>
+
+    <!-- No Group -->
+    <div id="noGroupState" style="display:none; padding: 0 32px 32px;">
+      <div class="card" style="max-width:540px; margin: 40px auto; padding: 32px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; border: 1px solid var(--border);">
+        <div style="font-size: 40px; color: var(--text-3); font-weight: 300;">⬡</div>
+        <h2 style="font-size: 20px; font-weight: 800; color: var(--text); margin: 0;">No Active Group for this Subject</h2>
+        <p style="font-size: 14px; color: var(--text-2); line-height: 1.5; margin: 0;">
+          You do not belong to any project group for the selected subject <b id="noGroupSubjectName" style="color:var(--teal);"></b>.
+        </p>
+        <div style="background: var(--surface-2); border-radius: 8px; padding: 14px; border: 1px solid var(--border); font-size: 12.5px; color: var(--text-3); text-align: left; line-height: 1.45;">
+          ✦ <b>Next Steps:</b> Ask your supervisor/teacher to assign you as the <b>Group Lead</b> for this subject, or request your team's Group Lead to add your account as a team member.
+        </div>
+      </div>
+    </div>
+
+    <!-- KANBAN -->
+    <section class="section-page" id="page-kanban">
+      <div class="topbar">
+        <div><h1>Kanban Board</h1><p class="sub">Drag tasks between columns as work progresses.</p></div>
+        <div style="display:flex; gap:12px;">
+          <button class="btn btn-secondary" onclick="window.exportTasksToCSV()">Export CSV</button>
+          <button class="btn btn-secondary" onclick="window.exportViewToPDF()">Export PDF</button>
+          <button class="btn btn-primary" id="addTaskBtn">+ Add Task</button>
+        </div>
+      </div>
+      <div class="search-row" style="padding: 0 32px 16px;">
+        <input type="text" id="kanbanSearchInput" class="form-control search-input" placeholder="Search tasks by title, description or assignee…"/>
+      </div>
+      <!-- Overview Info Panel (Horizontal Grid) -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 32px 24px;">
+        <div class="card" style="padding: 20px;">
+          <h3 style="font-size: 11px; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3);">Urgent Deadlines</h3>
+          <div id="urgentDeadlinesList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;">
+            <p style="font-size: 12px; color: var(--text-3); text-align: center; padding: 12px 0; grid-column: 1/-1; margin: 0;">No upcoming deadlines.</p>
+          </div>
+        </div>
+        <div class="card" style="padding: 20px;">
+          <h3 style="font-size: 11px; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3);">Recent Supervisor Feedback</h3>
+          <div id="recentFeedbackList" style="display: flex; flex-direction: column; gap: 10px;">
+            <p style="font-size: 12px; color: var(--text-3); text-align: center; padding: 12px 0; margin: 0;">No feedback received yet.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Insights, Project Health, and Calendar Row -->
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; padding: 0 32px 24px;">
+        <div id="studentAiInsightsContainer"></div>
+        <div id="studentProjectHealthContainer"></div>
+        <div class="mini-calendar-card" id="miniCalendarWidget"></div>
+      </div>
+
+      <div class="kanban-board">
+        <div class="kanban-col" data-status="todo">
+          <div class="kanban-col-head">
+            <div class="col-title"><span class="col-dot todo-dot"></span>To Do</div>
+            <div class="count" id="countTodo">0</div>
+          </div>
+          <div class="kanban-cards" id="colTodo"></div>
+        </div>
+        <div class="kanban-col" data-status="inprogress">
+          <div class="kanban-col-head">
+            <div class="col-title"><span class="col-dot inprogress-dot"></span>In Progress</div>
+            <div class="count" id="countInprogress">0</div>
+          </div>
+          <div class="kanban-cards" id="colInprogress"></div>
+        </div>
+        <div class="kanban-col" data-status="done">
+          <div class="kanban-col-head">
+            <div class="col-title"><span class="col-dot done-dot"></span>Done</div>
+            <div class="count" id="countDone">0</div>
+          </div>
+          <div class="kanban-cards" id="colDone"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPORTS -->
+    <section class="section-page" id="page-reports">
+      <div class="topbar">
+        <div><h1>My Reports</h1><p class="sub">Your submitted progress reports and teacher feedback.</p></div>
+        <button class="btn btn-primary" id="addReportBtn">+ Submit Report</button>
+      </div>
+      <div class="timeline" id="reportsTimeline"></div>
+    </section>
+
+    <!-- PROJECT FILES -->
+    <section class="section-page" id="page-files">
+      <div class="topbar">
+        <div><h1>Project Files</h1><p class="sub">Upload and share presentations (PPTs), final reports, and research papers.</p></div>
+      </div>
+
+      <!-- Upload Form Widget -->
+      <div class="card" style="margin: 0 32px 24px; padding: 24px;">
+        <h3 style="font-size: 14.5px; font-weight: 700; margin-bottom: 16px; color: var(--text);">Upload New File</h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- File Type Selection Row -->
+          <div class="form-group" style="margin: 0; max-width: 240px;">
+            <label for="uploadFileType" style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); margin-bottom: 6px; display: block;">Select File Category</label>
+            <select id="uploadFileType" class="form-control" style="padding: 8px 12px; height: 38px;">
+              <option value="ppt">Project Presentation (PPT)</option>
+              <option value="report">Final Project Report</option>
+              <option value="paper">Research Paper / Abstract</option>
+            </select>
+          </div>
+
+          <!-- Drag & Drop / Click to Upload Zone -->
+          <div id="uploadDropZone" style="border: 2px dashed var(--border); border-radius: var(--radius); padding: 32px; text-align: center; background: var(--surface-2); cursor: pointer; transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1); position: relative;">
+            <input type="file" id="uploadFileInput" style="display: none;" accept=".pdf,.ppt,.pptx,.doc,.docx,.txt" />
+            
+            <svg viewBox="0 0 24 24" width="40" height="40" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--text-3); margin-bottom: 12px; transition: stroke 0.2s;">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+
+            <div id="dropZoneText" style="font-size: 13.5px; font-weight: 500; color: var(--text); margin-bottom: 4px;">
+              Drag & drop your file here, or <span style="color: var(--teal); text-decoration: underline; font-weight: 600;">browse</span>
+            </div>
+            <div id="dropZoneSubtext" style="font-size: 11px; color: var(--text-3);">
+              Supports PDF, PPT, PPTX, DOCX, TXT (Max 10MB)
+            </div>
+          </div>
+
+          <!-- Upload Action Button -->
+          <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+            <button class="btn btn-primary" id="submitFileUploadBtn" style="height: 38px; min-width: 120px;">Upload File</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Files Grid Groups -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding: 0 32px 32px;">
+        <!-- PPTs Category -->
+        <div class="folder-card">
+          <h3 style="font-size: 11px; font-weight: 700; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); display: flex; align-items: center; gap: 6px;">Presentations</h3>
+          <div id="fileGroupPPT" style="display: flex; flex-direction: column; gap: 10px;">
+            <p style="font-size: 12px; color: var(--text-3); text-align: center; padding: 14px 0; margin: 0;">No presentations uploaded.</p>
+          </div>
+        </div>
+        <!-- Reports Category -->
+        <div class="folder-card">
+          <h3 style="font-size: 11px; font-weight: 700; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); display: flex; align-items: center; gap: 6px;">Final Reports</h3>
+          <div id="fileGroupReport" style="display: flex; flex-direction: column; gap: 10px;">
+            <p style="font-size: 12px; color: var(--text-3); text-align: center; padding: 14px 0; margin: 0;">No final reports uploaded.</p>
+          </div>
+        </div>
+        <!-- Research Papers Category -->
+        <div class="folder-card">
+          <h3 style="font-size: 11px; font-weight: 700; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); display: flex; align-items: center; gap: 6px;">Research Papers</h3>
+          <div id="fileGroupPaper" style="display: flex; flex-direction: column; gap: 10px;">
+            <p style="font-size: 12px; color: var(--text-3); text-align: center; padding: 14px 0; margin: 0;">No research papers uploaded.</p>
+          </div>
+        </div>
+    </section>
+
+    <!-- TIMELINE (GANTT) -->
+    <section class="section-page" id="page-timeline">
+      <div class="page-header" style="margin-bottom: 20px;">
+        <div>
+          <h1>Project Timeline</h1>
+          <p class="sub">Gantt chart view for task dependencies and scheduling.</p>
+        </div>
+      </div>
+      <div class="card timeline-container" style="overflow-x: auto; padding: 0;">
+        <div id="ganttChart" style="min-width: 800px; display: flex; flex-direction: column;"></div>
+      </div>
+    </section>
+
+    <!-- CALENDAR -->
+    <section class="section-page" id="page-calendar">
+      <div class="topbar">
+        <div><h1>Calendar</h1><p class="sub">Track task deadlines and project updates.</p></div>
+      </div>
+      <div class="card" style="margin: 0 32px 32px; padding: 24px;">
+        <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h2 id="calendarMonthYear" style="font-size: 18px; font-weight: 700; color: var(--text); margin: 0;"></h2>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-ghost btn-sm" id="prevMonthBtn" style="padding: 6px 12px; font-size: 14px;">&larr;</button>
+            <button class="btn btn-ghost btn-sm" id="nextMonthBtn" style="padding: 6px 12px; font-size: 14px;">&rarr;</button>
+          </div>
+        </div>
+        <div class="calendar-grid-header" style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: 600; font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; padding-bottom: 8px; border-bottom: 1px solid var(--border); margin-bottom: 8px;">
+          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+        </div>
+        <div class="calendar-days-grid" id="calendarDays" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;"></div>
+    </section>
+
+    <!-- AI ASSISTANT -->
+    <section class="section-page" id="page-assistant" style="padding: 24px 32px 32px;">
+      <div id="aiAssistantChatContainer"></div>
+    </section>
+  </main>
+</div>
+
+<!-- Add Task Modal -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Add Task</h3><button class="modal-close" data-close="taskModal"></button></div>
+    <div class="form-group"><label for="taskTitle">Task title</label><input type="text" id="taskTitle" class="form-control" placeholder="e.g. Build login screen"/></div>
+    <div class="form-group"><label for="taskDesc">Description (optional)</label><textarea id="taskDesc" class="form-control" placeholder="What needs to be done?"></textarea></div>
+    <div class="field-row-2">
+      <div class="form-group"><label for="taskAssignee">Assignee</label><select id="taskAssignee" class="form-control"></select></div>
+      <div class="form-group"><label for="taskDueDate">Due Date</label><input type="date" id="taskDueDate" class="form-control"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close="taskModal">Cancel</button>
+      <button class="btn btn-primary" id="submitTaskBtn">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Task Modal -->
+<div class="modal-overlay" id="editTaskModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Edit Task</h3><button class="modal-close" data-close="editTaskModal"></button></div>
+    <input type="hidden" id="editTaskId"/>
+    <div class="form-group"><label for="editTaskTitle">Task title</label><input type="text" id="editTaskTitle" class="form-control"/></div>
+    <div class="form-group"><label for="editTaskDesc">Description</label><textarea id="editTaskDesc" class="form-control"></textarea></div>
+    <div class="field-row-2">
+      <div class="form-group"><label for="editTaskAssignee">Assignee</label><select id="editTaskAssignee" class="form-control"></select></div>
+      <div class="form-group"><label for="editTaskDue">Due Date</label><input type="date" id="editTaskDue" class="form-control"/></div>
+    </div>
+    <div class="form-group" style="border-top: 1px solid var(--border); padding-top: 14px; margin-top: 14px;">
+      <label>Task Checklist / Subtasks</label>
+      <div id="editTaskSubtasksList" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; max-height: 140px; overflow-y: auto;">
+        <!-- Subtasks list rendered dynamically -->
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <input type="text" id="newSubtaskTitle" class="form-control" placeholder="Add subtask..." style="font-size: 13px; padding: 6px 12px;"/>
+        <button class="btn btn-ghost btn-sm" id="addNewSubtaskBtn">+ Add</button>
+      </div>
+    </div>
+    <div class="form-group" style="border-top: 1px solid var(--border); padding-top: 14px; margin-top: 14px;">
+      <label>Timesheet (Log Time)</label>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <input type="number" id="logTimeHoursInput" class="form-control" placeholder="Hours (e.g. 1.5)" step="0.5" min="0" style="width: 140px;" />
+        <button class="btn btn-secondary btn-sm" id="submitLogTimeBtn">Add Time</button>
+        <span style="font-size: 12px; color: var(--text-3); margin-left: auto;">Total logged: <strong id="totalTimeSpentDisplay" style="color: var(--text);">0h</strong></span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close="editTaskModal">Cancel</button>
+      <button class="btn btn-primary" id="submitEditTaskBtn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Comments Modal -->
+<div class="modal-overlay" id="commentsModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-head">
+      <h3 id="commentsTaskTitle">Comments</h3>
+      <button class="modal-close" data-close="commentsModal"></button>
+    </div>
+    <input type="hidden" id="commentsTaskId"/>
+    <div id="commentsList" style="max-height:280px;overflow-y:auto;margin-bottom:12px;"></div>
+    <div class="comment-input-row">
+      <input type="text" id="newCommentText" class="form-control" placeholder="Add a comment… (Enter to send)"/>
+      <button class="btn btn-primary btn-sm" id="submitCommentBtn">Send</button>
+    </div>
+    <div class="modal-footer" style="padding-top:12px;margin-top:4px;">
+      <button class="btn btn-ghost" data-close="commentsModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Submit Report Modal -->
+<div class="modal-overlay" id="reportModal">
+  <div class="modal">
+    <div class="modal-head"><h3>Submit Progress Report</h3><button class="modal-close" data-close="reportModal"></button></div>
+    <div class="form-group"><label for="reportTitle">Report title</label><input type="text" id="reportTitle" class="form-control" placeholder="e.g. Week 5 Progress"/></div>
+    <div class="form-group"><label for="reportWork">Work done</label><textarea id="reportWork" class="form-control" placeholder="Summarize what you accomplished…"></textarea></div>
+    <div class="field-row-2">
+      <div class="form-group"><label for="reportHours">Hours spent</label><input type="number" id="reportHours" class="form-control" min="0" step="0.5" placeholder="8"/></div>
+      <div class="form-group"><label for="reportBlockers">Blockers</label><input type="text" id="reportBlockers" class="form-control" placeholder="None"/></div>
+    </div>
+    <div class="form-group"><label for="reportPlan">Next plan</label><textarea id="reportPlan" class="form-control" placeholder="What's next on your list?"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close="reportModal">Cancel</button>
+      <button class="btn btn-primary" id="submitReportBtn">Submit Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- Calendar Day Details Modal -->
+<div class="modal-overlay" id="calendarDayModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="calendarDayModalTitle">Day Details</h3>
+      <button class="modal-close" data-close="calendarDayModal"></button>
+    </div>
+    <div class="modal-body" id="calendarDayModalBody" style="display: flex; flex-direction: column; gap: 14px; padding: 14px 0 0;">
+      <!-- Content loaded dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- Manage Team Modal -->
+<div class="modal-overlay drawer-overlay" id="manageTeamModal">
+  <div class="modal modal-drawer" style="height: 100vh; max-height: 100vh; display: flex; flex-direction: column; padding: 0;">
+    <div class="modal-head" style="flex-shrink: 0; padding: 32px 32px 0;">
+      <h3 style="margin: 0; font-size: 24px;">Manage Team Members</h3>
+      <button class="modal-close" data-close="manageTeamModal"></button>
+    </div>
+    <div style="flex: 1; padding: 24px 32px; overflow-y: auto;">
+    <div style="display: flex; flex-direction: column; gap: 16px; padding: 14px 0 0;">
+      <!-- Add Member -->
+      <div style="border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+        <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-3); display: block; margin-bottom: 8px;">Add New Member</label>
+        <div style="display: flex; gap: 10px;">
+          <select id="addMemberSelect" class="form-control" style="flex: 1;"></select>
+          <button class="btn btn-primary" onclick="handleAddTeamMember()">Add</button>
+        </div>
+      </div>
+      <!-- Current Members -->
+      <div>
+        <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-3); display: block; margin-bottom: 8px;">Current Members</label>
+        <div id="currentMembersList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+      </div>
+    </div>
+    </div>
+    <div class="modal-footer" style="flex-shrink: 0; padding: 24px 32px; background: var(--surface); border-top: 1px solid var(--border); margin: 0;">
+      <button class="btn btn-ghost" data-close="manageTeamModal">Close</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Floating Timer Widget -->
+<div class="floating-timer" id="floatingTimer">
+  <div class="floating-timer-header" id="floatingTimerDragHandle">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <div class="floating-timer-title">Time Tracker</div>
+  </div>
+  <div class="floating-timer-body">
+    <div class="floating-timer-task" id="floatingTimerTaskName">Task Name</div>
+    <div class="floating-timer-clock" id="floatingTimerClock">00:00:00</div>
+    <button class="btn btn-primary" style="width: 100%; background: var(--danger); border-color: var(--danger);" id="floatingTimerStopBtn">Stop & Save</button>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+  <script src="js/firebase-init.js"></script>
+  <script src="js/catalog.js"></script>
+  <script src="js/data.js?v=1786770396766"></script>
+<script src="js/app.js?v=1786770387575"></script>
+  <!-- Select2 JS -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  </body>
+</html>

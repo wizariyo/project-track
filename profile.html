@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ProjectTrack — My Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=4.0.0"/>
+</head>
+<body data-page="profile">
+
+<div style="min-height: 100vh; background: var(--bg); display: flex; flex-direction: column;">
+
+  <!-- Top bar -->
+  <div style="display: flex; align-items: center; gap: 16px; padding: 16px 24px; background: var(--surface); border-bottom: 1px solid var(--border);">
+    <button class="btn btn-ghost btn-sm" onclick="history.back()">← Back</button>
+    <div style="font-size: 15px; font-weight: 700; color: var(--text); flex: 1;">My Profile</div>
+    <button class="settings-item" id="themeToggleBtn" onclick="toggleTheme()" style="font-size: 13px; padding: 6px 14px; border-radius: var(--radius-pill); border: 1px solid var(--border); background: var(--surface-2); color: var(--text);">Dark Mode</button>
+  </div>
+
+  <!-- Profile Redesign Container -->
+  <div class="profile-container" style="max-width: 500px; margin-top: 60px;">
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-md);">
+      
+      <!-- Cover Photo Banner -->
+      <div style="height: 140px; background: linear-gradient(135deg, var(--teal), var(--sage)); position: relative;">
+        <!-- Optional pattern overlay for texture -->
+        <div style="position: absolute; inset: 0; opacity: 0.1; background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 20px 20px;"></div>
+      </div>
+      
+      <!-- Central Column: User Profile Details -->
+      <div style="padding: 0 32px 40px; text-align: center; display: flex; flex-direction: column; align-items: center; margin-top: -55px; position: relative; z-index: 2;">
+        
+        <div class="profile-avatar-lg" id="profileAvatar" style="width: 110px; height: 110px; font-size: 42px; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); border: 5px solid var(--surface); display: flex; align-items: center; justify-content: center;">?</div>
+        
+        <h2 class="profile-name" id="profileName" style="font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 6px; letter-spacing: -0.02em;">Loading…</h2>
+        
+        <div class="profile-role" id="profileRole" style="font-size: 14px; color: var(--text-2); font-weight: 500; margin-bottom: 32px; max-width: 90%; line-height: 1.5;"></div>
+        
+        <button class="btn btn-primary" id="editProfileBtn" style="font-size: 14px; padding: 12px 36px; border-radius: 100px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(23, 67, 63, 0.25); transition: all 0.2s ease;">Edit Profile</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal-overlay" id="editProfileModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Edit Profile</h3>
+      <button class="modal-close" data-close="editProfileModal"></button>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px;">
+      <div class="form-group">
+        <label for="editProfileNameInput">Full Name</label>
+        <input type="text" id="editProfileNameInput" class="form-control" placeholder="Full Name"/>
+      </div>
+      <div class="form-group">
+        <label for="editProfilePasswordInput">New Password (leave blank to keep current)</label>
+        <input type="password" id="editProfilePasswordInput" class="form-control" placeholder="New Password"/>
+      </div>
+      <div class="form-group" id="editProfileProjectRoleGroup" style="display: none;">
+        <label for="editProfileRoleInput">Project Role (Students)</label>
+        <select id="editProfileRoleInput" class="form-control">
+          <option value="Tech Lead">Tech Lead</option>
+          <option value="Developer">Developer</option>
+          <option value="Tester">Tester</option>
+          <option value="QA">QA</option>
+          <option value="Designer">Designer</option>
+        </select>
+      </div>
+      <div class="form-group" id="editProfileBranchGroup">
+        <label for="editProfileBranchInput">Branch</label>
+        <select id="editProfileBranchInput" class="form-control" onchange="window.__updateProfileSubjectCatalog()">
+          <option value="" disabled selected>Select Branch</option>
+          <option value="CSE">Computer Science and Engineering (CSE)</option>
+          <option value="ECE">Electronics and Communication Engineering (ECE)</option>
+          <option value="EEE">Electrical and Electronics Engineering (EEE)</option>
+          <option value="ME">Mechanical Engineering (ME)</option>
+          <option value="CE">Civil Engineering (CE)</option>
+          <option value="AE">Aerospace Engineering (AE)</option>
+          <option value="CHE">Chemical Engineering (CHE)</option>
+          <option value="AI">Artificial Intelligence and Data Science (AI)</option>
+          <option value="CCE">Computer and Communication Engineering (CCE)</option>
+        </select>
+      </div>
+      <div class="form-group" id="editProfileSemesterGroup">
+        <label for="editProfileSemesterInput">Semester</label>
+        <select id="editProfileSemesterInput" class="form-control" onchange="window.__updateProfileSubjectCatalog()">
+          <option value="" disabled selected>Select Semester</option>
+          <option value="1">Semester 1</option>
+          <option value="2">Semester 2</option>
+          <option value="3">Semester 3</option>
+          <option value="4">Semester 4</option>
+          <option value="5">Semester 5</option>
+          <option value="6">Semester 6</option>
+          <option value="7">Semester 7</option>
+          <option value="8">Semester 8</option>
+        </select>
+      </div>
+      <div class="form-group" id="editProfileSubjectsGroup">
+        <label for="editProfileSubjectsInput">Subject</label>
+        <select id="editProfileSubjectsInput" class="form-control"></select>
+      </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px;">
+      <div class="form-group">
+        <label>Profile Photo</label>
+        
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <button type="button" class="btn btn-outline" id="btnUploadPhotoToggle" style="flex: 1; padding: 6px; font-size: 13px;">File Upload</button>
+          <button type="button" class="btn btn-outline" id="btnTakePhotoToggle" style="flex: 1; padding: 6px; font-size: 13px;">Take Selfie</button>
+        </div>
+        
+        <div id="uploadPhotoSection">
+          <input type="file" id="editProfilePhotoInput" class="form-control" accept="image/*"/>
+        </div>
+        
+        <div id="takePhotoSection" style="display: none; flex-direction: column; gap: 10px;">
+          <div style="position: relative; width: 100%; aspect-ratio: 4/3; background: #000; border-radius: var(--radius); overflow: hidden;">
+            <video id="cameraVideo" style="width: 100%; height: 100%; object-fit: cover;" autoplay playsinline></video>
+            <img id="cameraSnapshot" style="display: none; width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;" />
+          </div>
+          <canvas id="cameraCanvas" style="display: none;"></canvas>
+          <input type="hidden" id="editProfileSelfieBase64" />
+          
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-primary" id="btnCapturePhoto" style="flex: 1; font-size: 13px;">Capture</button>
+            <button type="button" class="btn btn-outline" id="btnRetakePhoto" style="flex: 1; font-size: 13px; display: none;">Retake</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Avatar Color</label>
+        <div style="display: flex; gap: 10px; margin-top: 8px;" id="avatarColorPicker">
+          <div class="color-option" data-color="#17433F" style="background:#17433F; width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid transparent;"></div>
+          <div class="color-option" data-color="#4B1426" style="background:#4B1426; width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid transparent;"></div>
+          <div class="color-option" data-color="#558467" style="background:#558467; width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid transparent;"></div>
+          <div class="color-option" data-color="#2E6B5E" style="background:#2E6B5E; width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid transparent;"></div>
+          <div class="color-option" data-color="#6B3A50" style="background:#6B3A50; width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid transparent;"></div>
+        </div>
+        <input type="hidden" id="editProfileColorInput"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close="editProfileModal">Cancel</button>
+      <button class="btn btn-primary" id="submitEditProfileBtn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+  <script src="js/firebase-init.js"></script>
+  <script src="js/catalog.js"></script>
+  <script src="js/data.js?v=1786770396768"></script>
+<script src="js/app.js?v=1786770387581"></script>
+<script>
+  window.__updateProfileSubjectCatalog = async function(preselect = null) {
+    const branch = document.getElementById('editProfileBranchInput')?.value;
+    const sem = document.getElementById('editProfileSemesterInput')?.value;
+    const subjectSelect = document.getElementById('editProfileSubjectsInput');
+    
+    if (!subjectSelect) return;
+    
+    if (!branch || !sem) {
+      subjectSelect.innerHTML = '<option value="" disabled selected>Please select Branch and Semester</option>';
+      return;
+    }
+    
+    subjectSelect.innerHTML = '<option value="" disabled selected>Loading...</option>';
+    
+    try {
+      const userStr = localStorage.getItem('currentUser');
+      const token = userStr ? JSON.parse(userStr).token : '';
+      const res = await fetch(`/api/subjects?branch=${encodeURIComponent(branch)}&sem=${encodeURIComponent(sem)}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const subjects = await res.json();
+        if (subjects && subjects.length > 0) {
+          subjectSelect.innerHTML = subjects.map(s => {
+            const isSelected = (preselect === s.name || preselect === s.code) ? 'selected' : '';
+            return `<option value="${s.name}" ${isSelected}>${s.code ? s.code + ' - ' : ''}${s.name}</option>`;
+          }).join('');
+        } else {
+          subjectSelect.innerHTML = '<option value="" disabled selected>No subjects found for this semester</option>';
+        }
+      } else {
+        subjectSelect.innerHTML = '<option value="" disabled selected>Error loading subjects</option>';
+      }
+    } catch(e) {
+      console.error(e);
+      subjectSelect.innerHTML = '<option value="" disabled selected>Error loading subjects</option>';
+    }
+  };
+</script>
+</body>
+</html>
