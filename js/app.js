@@ -365,7 +365,20 @@ async function initTeacherDashboard(teacher) {
     }
     
     try {
-      await createGroup({ name, projectName, teacherId: teacher.id || teacher._id, subject, groupLeadId: groupLeadId || null, secondaryTeacherId });
+      let groupSemester = null;
+      if (window.SUBJECT_CATALOG) {
+        const subjObj = window.SUBJECT_CATALOG.find(s => s.name === subject || s.code === subject);
+        if (subjObj) groupSemester = subjObj.semester;
+      }
+      await createGroup({ 
+        name, 
+        projectName, 
+        teacherId: teacher.id || teacher._id, 
+        subject, 
+        semester: groupSemester,
+        groupLeadId: groupLeadId || null, 
+        secondaryTeacherId 
+      });
       closeModal('createGroupModal');
       showToast(groupLeadId ? 'Group created and Lead assigned!' : 'Group created successfully!');
       await loadTeacherData(teacher);

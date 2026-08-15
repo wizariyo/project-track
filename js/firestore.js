@@ -271,8 +271,8 @@
     if (!g) return [];
     var all = await getAllStudents();
     return all.filter(function(s) {
-      if (s.groupId && s.groupId !== gid) return false;
-      if (s.semester && String(s.semester) !== String(g.semester)) return false;
+      if (s.groupId) return false;
+      if (s.semester && g.semester && String(s.semester) !== String(g.semester)) return false;
       return true;
     });
   }
