@@ -1354,13 +1354,21 @@ async function loadStudentSubjectsGrid() {
 
     grid.innerHTML = subjects.map(s => {
       const sName = typeof s === 'object' ? s.name : s;
+      const sCode = typeof s === 'object' ? s.code : '';
       const g = subjectGroupMap[sName];
       return `
-        <div class="card" style="cursor:pointer; transition:transform 0.2s, box-shadow 0.2s;" onclick="selectSubject('${sName.replace(/'/g, "\\'")}')" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.transform='none'; this.style.boxShadow='var(--shadow-sm)'">
-          <h3 style="margin-bottom:8px; font-size:16px;">${escapeHtml(sName)}</h3>
-          <div>
-            ${g ? `<span class="badge" style="background:var(--sage); color:#fff; font-size:11px; padding:4px 8px; border-radius:4px;">Team: ${escapeHtml(g.name)}</span>` 
-               : `<span class="badge" style="background:var(--surface-2); color:var(--text-2); font-size:11px; padding:4px 8px; border-radius:4px; border:1px solid var(--border);">No Team Yet</span>`}
+        <div class="card subject-card" 
+             style="cursor:pointer; display: flex; flex-direction: column; padding: 24px; min-height: 180px; border-radius: 12px; background: var(--surface); border: 1.5px solid var(--border); box-shadow: var(--shadow-sm); transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);" 
+             onclick="selectSubject('${sName.replace(/'/g, "\\'")}')"
+             onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--teal)'; this.querySelector('.enter-arrow').style.transform='translateX(4px)'; this.querySelector('.enter-arrow').style.color='var(--teal)';"
+             onmouseout="this.style.transform='none'; this.style.boxShadow='var(--shadow-sm)'; this.style.borderColor='var(--border)'; this.querySelector('.enter-arrow').style.transform='none'; this.querySelector('.enter-arrow').style.color='var(--text-3)';"
+        >
+          ${sCode ? `<span class="badge" style="background: rgba(23, 67, 63, 0.08); color: var(--teal); font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 6px; margin-bottom: 12px; display: inline-block; align-self: flex-start;">${escapeHtml(sCode)}</span>` : ''}
+          <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.4; word-break: break-word;">${escapeHtml(sName)}</h3>
+          <div style="border-top: 1px solid var(--border); padding-top: 14px; margin-top: auto; display: flex; align-items: center; justify-content: space-between;">
+            ${g ? `<span class="badge" style="background: rgba(85, 132, 103, 0.12); color: var(--teal-light); font-weight: 600; font-size: 11px; padding: 4px 8px; border-radius: 4px;">Team: ${escapeHtml(g.name)}</span>` 
+               : `<span class="badge" style="background: var(--surface-2); color: var(--text-3); font-weight: 600; font-size: 11px; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border);">No Group Yet</span>`}
+            <span class="enter-arrow" style="font-size: 14px; color: var(--text-3); transition: transform 0.2s; font-weight: 700;">&rarr;</span>
           </div>
         </div>
       `;
