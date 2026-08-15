@@ -62,6 +62,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       const el = document.getElementById('page-' + target);
       if (el) el.classList.add('active');
 
+      if (target === 'chat') {
+        const currentRole = document.body.getAttribute('data-role');
+        if (currentRole === 'student') {
+          if (window.loadStudentChatChannels) window.loadStudentChatChannels();
+        } else if (currentRole === 'teacher') {
+          if (window.loadTeacherChatChannels) window.loadTeacherChatChannels();
+        }
+      }
+
       if (target === 'files') {
         const currentRole = document.body.getAttribute('data-role');
         window.__role = currentRole;
@@ -2424,6 +2433,15 @@ window.switchPage = function(target) {
   if (el) {
     el.classList.add('active');
   }
+
+  if (target === 'chat') {
+    const currentRole = document.body.getAttribute('data-role');
+    if (currentRole === 'student') {
+      if (window.loadStudentChatChannels) window.loadStudentChatChannels();
+    } else if (currentRole === 'teacher') {
+      if (window.loadTeacherChatChannels) window.loadTeacherChatChannels();
+    }
+  }
 };
 
 window.openGroupInspectionModal = async function(groupId) {
@@ -2614,22 +2632,6 @@ window.submitInspectFeedback = async function(reportId) {
     await loadTeacherData(teacher);
   } catch(e) {
     showToast(e.message, 'error');
-  }
-};
-
-window.saveGroupRemarks = async function() {
-  if (!activeInspectionGroupId) return;
-  const textarea = document.getElementById('inspectTeacherRemarksInput');
-  if (!textarea) return;
-  const text = textarea.value.trim();
-  try {
-    await window.updateGroupRemarks(activeInspectionGroupId, text);
-    showToast('Remarks saved successfully!');
-    // If needed, refresh group data locally
-    const groupIdx = window.__teacherGroups.findIndex(g => (g.id||g._id) === activeInspectionGroupId);
-    if (groupIdx >= 0) window.__teacherGroups[groupIdx].remarks = text;
-  } catch(e) {
-    showToast('Failed to save remarks: ' + e.message, 'error');
   }
 };
 
@@ -3767,3 +3769,192 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// Chat Logic Variables
+let activeChatUnsubscribe = null;
+let currentChatId = null;
+let currentChatTitle = '';
+
+// Format time
+function formatChatTime(ts) {
+  if (!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  let hours = d.getHours();
+  let minutes = d.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  minutes = minutes < 10 ? '0' + minutes : minutes;
+  return hours + ':' + minutes + ' ' + ampm;
+}
+
+window.loadStudentChatChannels = async function() {
+  const listEl = document.getElementById('studentChatList');
+  if (!listEl) return;
+  listEl.innerHTML = '';
+  
+  if (!window.__group) {
+    listEl.innerHTML = '<p style="color:var(--text-3); font-size:12px;">No group assigned.</p>';
+    return;
+  }
+  
+  const groupId = window.__group.id || window.__group._id;
+  
+  // Channels
+  const channels = [
+    { id: `team_${groupId}`, title: 'Team Chat', sub: 'Chat with your group members', type: 'team' },
+    { id: `faculty_team_${groupId}`, title: 'Faculty Chat', sub: 'Group chat with your supervisor', type: 'faculty' }
+  ];
+  
+  // Add direct messages with teammates
+  const members = window.__group.members || [];
+  members.forEach(member => {
+    if (member.id !== window.__currentUser.uid) {
+      const ids = [window.__currentUser.uid, member.id].sort();
+      channels.push({
+        id: `dm_${ids[0]}_${ids[1]}`,
+        title: member.name || member.email,
+        sub: 'Direct Message',
+        type: 'dm'
+      });
+    }
+  });
+
+  channels.forEach(ch => {
+    const el = document.createElement('div');
+    el.className = 'chat-channel';
+    el.id = `chat-ch-${ch.id}`;
+    let icon = '#';
+    if(ch.type === 'faculty') icon = '👨‍🏫';
+    if(ch.type === 'dm') icon = '💬';
+    
+    el.innerHTML = `
+      <div class="ch-icon">${icon}</div>
+      <div class="ch-details">
+        <div class="ch-title">${escapeHtml(ch.title)}</div>
+        <div class="ch-sub">${escapeHtml(ch.sub)}</div>
+      </div>
+    `;
+    el.onclick = () => openChatChannel(ch.id, ch.title, ch.sub, 'student');
+    listEl.appendChild(el);
+  });
+  
+  if (channels.length > 0) {
+    openChatChannel(channels[0].id, channels[0].title, channels[0].sub, 'student');
+  }
+};
+
+window.loadTeacherChatChannels = async function() {
+  const listEl = document.getElementById('teacherChatList');
+  if (!listEl) return;
+  listEl.innerHTML = '';
+  
+  const groups = window.__teacherGroups || [];
+  if (groups.length === 0) {
+    listEl.innerHTML = '<p style="color:var(--text-3); font-size:12px;">No groups supervised.</p>';
+    return;
+  }
+  
+  const channels = [];
+  groups.forEach(g => {
+    const groupId = g.id || g._id;
+    channels.push({
+      id: `faculty_team_${groupId}`,
+      title: g.groupName + ' (Faculty Chat)',
+      sub: g.projectName,
+      type: 'faculty'
+    });
+  });
+
+  channels.forEach(ch => {
+    const el = document.createElement('div');
+    el.className = 'chat-channel';
+    el.id = `chat-ch-${ch.id}`;
+    el.innerHTML = `
+      <div class="ch-icon">👨‍🏫</div>
+      <div class="ch-details">
+        <div class="ch-title">${escapeHtml(ch.title)}</div>
+        <div class="ch-sub">${escapeHtml(ch.sub)}</div>
+      </div>
+    `;
+    el.onclick = () => openChatChannel(ch.id, ch.title, ch.sub, 'teacher');
+    listEl.appendChild(el);
+  });
+  
+  if (channels.length > 0) {
+    openChatChannel(channels[0].id, channels[0].title, channels[0].sub, 'teacher');
+  }
+};
+
+window.openChatChannel = function(chatId, title, sub, rolePrefix) {
+  currentChatId = chatId;
+  currentChatTitle = title;
+  
+  // Highlight active channel
+  document.querySelectorAll('.chat-channel').forEach(el => el.classList.remove('active'));
+  const activeEl = document.getElementById(`chat-ch-${chatId}`);
+  if (activeEl) activeEl.classList.add('active');
+  
+  // Update Header
+  document.getElementById(`${rolePrefix}ChatActiveTitle`).textContent = title;
+  document.getElementById(`${rolePrefix}ChatActiveSub`).textContent = sub;
+  
+  // Enable inputs
+  const input = document.getElementById(`${rolePrefix}ChatInputBox`);
+  const btn = document.getElementById(`${rolePrefix}ChatSendBtn`);
+  if (input) {
+    input.disabled = false;
+    input.focus();
+    input.onkeypress = (e) => { if (e.key === 'Enter') handleSendChat(rolePrefix); };
+  }
+  if (btn) {
+    btn.disabled = false;
+    btn.onclick = () => handleSendChat(rolePrefix);
+  }
+  
+  // Listen for messages
+  if (activeChatUnsubscribe) activeChatUnsubscribe();
+  activeChatUnsubscribe = window.listenToChatMessages(chatId, (msgs) => {
+    renderChatMessages(msgs, rolePrefix);
+  });
+};
+
+window.handleSendChat = async function(rolePrefix) {
+  if (!currentChatId) return;
+  const input = document.getElementById(`${rolePrefix}ChatInputBox`);
+  const text = input.value.trim();
+  if (!text) return;
+  
+  input.value = '';
+  try {
+    await window.sendMessage(currentChatId, text);
+  } catch (err) {
+    console.error(err);
+    showToast('Error sending message', 'error');
+  }
+};
+
+window.renderChatMessages = function(msgs, rolePrefix) {
+  const area = document.getElementById(`${rolePrefix}ChatMessagesArea`);
+  if (!area) return;
+  
+  if (msgs.length === 0) {
+    area.innerHTML = '<div style="margin:auto; color:var(--text-3); font-size:13px; font-style:italic;">No messages yet. Start the conversation!</div>';
+    return;
+  }
+  
+  const myUid = window.__currentUser ? window.__currentUser.uid : '';
+  
+  area.innerHTML = msgs.map(m => {
+    const isMine = m.senderId === myUid;
+    return `
+      <div class="chat-msg ${isMine ? 'mine' : 'others'}">
+        ${!isMine ? `<div class="chat-sender">${escapeHtml(m.senderName)}</div>` : ''}
+        <div class="chat-bubble">${escapeHtml(m.text)}</div>
+        <div class="chat-time">${formatChatTime(m.timestamp)}</div>
+      </div>
+    `;
+  }).join('');
+  
+  area.scrollTop = area.scrollHeight; // Auto-scroll to bottom
+};

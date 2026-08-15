@@ -22,6 +22,10 @@
       ProjectTrack
     </div>
     <nav class="sidebar-nav">
+      <div class="nav-item" data-target="chat">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        Chat
+      </div>
       <div class="nav-item active" data-target="subjects" id="navSubjectsItem">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20M4 19.5V5A2.5 2.5 0 0 1 6.5 2.5H20v14H6.5a2.5 2.5 0 0 0-2.5 2.5z"/></svg>
         Select Subject
@@ -157,17 +161,11 @@
         <input type="text" id="kanbanSearchInput" class="form-control search-input" placeholder="Search tasks by title, description or assignee…"/>
       </div>
       <!-- Overview Info Panel (Horizontal Grid) -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 0 32px 24px;">
+      <div style="padding: 0 32px 24px;">
         <div class="card" style="padding: 20px;">
           <h3 style="font-size: 11px; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3);">Urgent Deadlines</h3>
           <div id="urgentDeadlinesList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;">
             <p style="font-size: 12px; color: var(--text-3); text-align: center; padding: 12px 0; grid-column: 1/-1; margin: 0;">No upcoming deadlines.</p>
-          </div>
-        </div>
-        <div class="card" style="padding: 20px;">
-          <h3 style="font-size: 11px; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3);">Recent Supervisor Feedback</h3>
-          <div id="recentFeedbackList" style="display: flex; flex-direction: column; gap: 10px;">
-            <p style="font-size: 12px; color: var(--text-3); text-align: center; padding: 12px 0; margin: 0;">No feedback received yet.</p>
           </div>
         </div>
       </div>
@@ -207,7 +205,7 @@
     <!-- REPORTS -->
     <section class="section-page" id="page-reports">
       <div class="topbar">
-        <div><h1>My Reports</h1><p class="sub">Your submitted progress reports and teacher feedback.</p></div>
+        <div><h1>My Reports</h1><p class="sub">Your submitted progress reports.</p></div>
         <button class="btn btn-primary" id="addReportBtn">+ Submit Report</button>
       </div>
       <div class="timeline" id="reportsTimeline"></div>
@@ -319,6 +317,35 @@
     <!-- AI ASSISTANT -->
     <section class="section-page" id="page-assistant" style="padding: 24px 32px 32px;">
       <div id="aiAssistantChatContainer"></div>
+    </section>
+    
+    <!-- CHAT SECTION -->
+    <section class="section-page" id="page-chat">
+      <div class="topbar">
+        <div><h1>Chat</h1><p class="sub">Communicate with your team and supervisors.</p></div>
+      </div>
+      <div class="chat-container">
+        <div class="chat-sidebar">
+          <div class="chat-sidebar-header">Channels</div>
+          <div class="chat-list" id="studentChatList"></div>
+        </div>
+        <div class="chat-main">
+          <div class="chat-header">
+            <div class="ch-icon" id="studentChatActiveIcon">#</div>
+            <div class="chat-header-info">
+              <h2 id="studentChatActiveTitle">Select a chat</h2>
+              <p id="studentChatActiveSub"></p>
+            </div>
+          </div>
+          <div class="chat-messages" id="studentChatMessagesArea"></div>
+          <div class="chat-input-area">
+            <input type="text" id="studentChatInputBox" class="chat-input" placeholder="Type a message..." disabled>
+            <button class="chat-send-btn" id="studentChatSendBtn" disabled>
+              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 </div>

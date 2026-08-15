@@ -321,3 +321,40 @@
 
   Object.keys(api).forEach(function(k) { window[k] = api[k]; });
 })();
+
+// CHAT FUNCTIONS
+window.sendMessage = async function(chatId, text) {
+  if (!window.db) throw new Error('Firestore not initialized');
+  if (!window.__currentUser) throw new Error('Not logged in');
+  
+  const msg = {
+    text: text,
+    senderId: window.__currentUser.uid,
+    senderName: window.__currentUser.displayName || window.__currentUser.email,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  
+  await window.db.collection('chats').doc(chatId).collection('messages').add(msg);
+  
+  // Also update the latest message on the chat document itself
+  await window.db.collection('chats').doc(chatId).set({
+    lastMessage: text,
+    lastMessageTime: firebase.firestore.FieldValue.serverTimestamp(),
+    lastSenderId: window.__currentUser.uid
+  }, { merge: true });
+};
+
+window.listenToChatMessages = function(chatId, callback) {
+  if (!window.db) return null;
+  return window.db.collection('chats').doc(chatId).collection('messages')
+    .orderBy('timestamp', 'asc')
+    .onSnapshot(snap => {
+      const msgs = [];
+      snap.forEach(doc => {
+        msgs.push({ id: doc.id, ...doc.data() });
+      });
+      callback(msgs);
+    }, err => {
+      console.error("Chat listener error:", err);
+    });
+};
