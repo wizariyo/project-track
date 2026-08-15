@@ -1868,7 +1868,8 @@ async function initProfilePage() {
       if (el('profileName'))   el('profileName').textContent   = user.name;
       if (el('profileRole')) {
         if (user.role === 'teacher') {
-          el('profileRole').textContent = `TEACHER${user.subjects ? ' · ' + user.subjects : ''}`;
+          const tRole = user.projectRole ? user.projectRole.toUpperCase() + ' · ' : '';
+          el('profileRole').textContent = `${tRole}TEACHER${user.subjects ? ' · ' + user.subjects : ''}`;
         } else {
           el('profileRole').textContent = (user.projectRole || 'Student') + (user.role ? ' · ' + user.role.charAt(0).toUpperCase() + user.role.slice(1) : '');
         }

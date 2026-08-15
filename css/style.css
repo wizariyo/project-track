@@ -25,30 +25,34 @@
   --accent:        #4B1426;
   --danger:        #EF4444;
 
-  --radius:      12px;
-  --radius-sm:   8px;
+  --radius:      16px;
+  --radius-sm:   10px;
   --radius-pill: 9999px;
-  --shadow-sm:   0 1px 3px rgba(0,0,0,0.05);
-  --shadow-md:   0 4px 12px rgba(0,0,0,0.05);
-  --shadow-lg:   0 12px 32px rgba(0,0,0,0.08);
-  --sidebar-w:   260px;
-  --transition:  0.2s cubic-bezier(0.4,0,0.2,1);
+  --shadow-sm:   0 2px 8px rgba(23, 67, 63, 0.05);
+  --shadow-md:   0 8px 24px rgba(23, 67, 63, 0.08);
+  --shadow-lg:   0 16px 40px rgba(23, 67, 63, 0.12);
+  --sidebar-w:   280px;
+  --transition:  0.3s cubic-bezier(0.25,0.8,0.25,1);
+  --glass-bg:    rgba(255, 255, 255, 0.85);
+  --glass-border:rgba(255, 255, 255, 0.4);
 }
 
 [data-theme="dark"] {
   --bg:       #0A1211; /* Very dark teal/charcoal */
   --surface:  #101C1A; /* Dark teal surface */
   --surface-2:#162826; /* Slightly lighter teal */
-  --border:   rgba(239, 234, 187, 0.1); /* Cream border with low opacity */
-  --text:     #EFEABB; /* Cream text */
+  --border:   rgba(239, 234, 187, 0.08); /* Cream border with low opacity */
+  --text:     #F8F6E6; /* Cream text brighter */
   --text-2:   #A9C2B4; /* Light sage */
   --text-3:   #759986; /* Medium sage */
-  --primary:  #449E95; /* Brightened teal */
-  --primary-hover: #52BDB2; /* Brighter teal for hover */
-  --accent:   #8C2C4A; /* Brightened maroon */
-  --shadow-sm:   0 1px 3px rgba(0,0,0,0.25);
-  --shadow-md:   0 6px 18px -4px rgba(0,0,0,0.45);
-  --shadow-lg:   0 20px 40px -12px rgba(0,0,0,0.65);
+  --primary:  #52BDB2; /* Brightened teal */
+  --primary-hover: #63CFC4; /* Brighter teal for hover */
+  --accent:   #A33457; /* Brightened maroon */
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.3);
+  --shadow-md:   0 8px 24px rgba(0,0,0,0.45);
+  --shadow-lg:   0 16px 40px rgba(0,0,0,0.6);
+  --glass-bg:    rgba(16, 28, 26, 0.85);
+  --glass-border:rgba(239, 234, 187, 0.05);
 }
 
 /* ---- Reset ---- */
@@ -112,12 +116,24 @@ label {
   white-space: nowrap;
 }
 .btn-primary {
-  background: var(--teal);
-  color: var(--cream);
+  background: linear-gradient(135deg, var(--primary), var(--teal-light));
+  color: var(--surface);
+  box-shadow: 0 4px 12px rgba(23, 67, 63, 0.2);
 }
-.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
-[data-theme="dark"] .btn-primary { background: var(--sage); color: var(--teal); }
-[data-theme="dark"] .btn-primary:hover { background: #6aaa7e; }
+.btn-primary:hover { 
+  background: linear-gradient(135deg, var(--primary-hover), var(--teal));
+  transform: translateY(-2px); 
+  box-shadow: 0 8px 16px rgba(23, 67, 63, 0.3); 
+}
+[data-theme="dark"] .btn-primary { 
+  background: linear-gradient(135deg, var(--primary), var(--teal-light)); 
+  color: #101C1A; 
+  box-shadow: 0 4px 12px rgba(82, 189, 178, 0.25);
+}
+[data-theme="dark"] .btn-primary:hover { 
+  background: linear-gradient(135deg, var(--primary-hover), var(--primary));
+  box-shadow: 0 8px 16px rgba(82, 189, 178, 0.4);
+}
 
 .btn-ghost {
   background: transparent;
@@ -152,8 +168,10 @@ label {
 .sidebar {
   width: var(--sidebar-w);
   flex-shrink: 0;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -305,7 +323,7 @@ label {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 28px 32px 20px;
+  padding: 24px 32px 16px;
   gap: 16px;
 }
 .topbar h1 {
@@ -340,6 +358,11 @@ label {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 /* ---- Stat Cards (Teacher) ---- */
@@ -359,6 +382,11 @@ label {
   border-radius: var(--radius);
   padding: 14px 18px;
   box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 .stat-card .stat-label {
   font-size: 11px;
