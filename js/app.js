@@ -90,8 +90,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (page === 'auth') {
     initAuthPage();
   } else if (page === 'dashboard') {
-    const user = getCurrentUser();
+    let user = getCurrentUser();
     if (!user) { window.location.href = 'index.html'; return; }
+    
+    try {
+      const fresh = await getUser(user.id || user._id);
+      if (fresh) {
+        setCurrentUser(fresh);
+        user = fresh;
+      }
+    } catch (e) {
+      console.error("Failed to refresh user session:", e);
+    }
+    
     populateSidebar(user);
     if (role === 'teacher') await initTeacherDashboard(user);
     if (role === 'student') await initStudentDashboard(user);
@@ -1814,8 +1825,13 @@ async function renderStudentReports(group, student) {
    Profile Page
    ========================================================= */
 async function initProfilePage() {
-  const user = getCurrentUser();
+  let user = getCurrentUser();
   if (!user) { window.location.href = 'index.html'; return; }
+  try {
+    const fresh = await getUser(user.id || user._id);
+    if (fresh) { setCurrentUser(fresh); user = fresh; }
+  } catch (e) { console.error("Failed to refresh user session:", e); }
+  
   const saved = localStorage.getItem('theme');
   if (saved) document.documentElement.setAttribute('data-theme', saved);
   updateThemeBtn();
