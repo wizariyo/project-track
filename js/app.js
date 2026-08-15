@@ -1334,15 +1334,19 @@ async function loadStudentSubjectsGrid() {
   
   grid.innerHTML = '<p style="color:var(--text-3); text-align:center; grid-column:1/-1;">Loading subjects...</p>';
   try {
+    const student = window.__student;
     let subjects = await getSubjects();
-    if (student.semester) {
+    if (student && student.semester) {
       subjects = subjects.filter(s => String(s.semester) === String(student.semester));
     } else {
       subjects = [];
     }
-    const student = window.__student;
     
-    const myGroups = await api(`/users/${student.id||student._id}/groups`);
+    let myGroups = [];
+    if (student && student.groupId) {
+      const g = await window.getGroupById(student.groupId);
+      if (g) myGroups.push(g);
+    }
     const subjectGroupMap = {};
     myGroups.forEach(g => {
       subjectGroupMap[g.subject] = g;
@@ -1494,7 +1498,7 @@ window.handleAddTeamMember = async function() {
   if (!group || !studentId) { showToast('Please select a student first.', 'error'); return; }
   
   try {
-    await api(`/groups/${group.id||group._id}/addStudent`, { method: 'POST', body: { studentId } });
+    await window.addStudentToGroup(group.id||group._id, studentId);
     showToast('Member added successfully!');
     const members = await getGroupMembers(group.id||group._id);
     window.__groupMembers = members;
@@ -1511,7 +1515,7 @@ window.handleRemoveTeamMember = async function(studentId) {
   if (!confirm('Are you sure you want to kick this member from the group?')) return;
 
   try {
-    await api(`/groups/${group.id||group._id}/kick/${studentId}`, { method: 'POST' });
+    await window.kickStudent(group.id||group._id, studentId);
     showToast('Member removed.');
     const members = await getGroupMembers(group.id||group._id);
     window.__groupMembers = members;
@@ -2456,7 +2460,7 @@ async function reloadInspectionDetails() {
     }).join('') : '<p style="font-size:12px;color:var(--text-3);text-align:center;padding:20px 0;">No reports submitted yet.</p>';
 
     // Activities
-    const res = await api(`/groups/${gid}/activities`);
+    const res = []; // Mock activity feed
     activityList.innerHTML = res.length ? res.map((a, idx) => {
       const isLast = idx === res.length - 1;
       const lineDisplay = isLast ? 'display:none;' : '';
@@ -2500,7 +2504,7 @@ window.saveGroupRemarks = async function() {
   if (!textarea) return;
   const text = textarea.value.trim();
   try {
-    await api(`/groups/${activeInspectionGroupId}/remarks`, 'POST', { remarks: text });
+    await window.updateGroupRemarks(activeInspectionGroupId, text);
     showToast('Remarks saved successfully!');
     // If needed, refresh group data locally
     const groupIdx = window.__teacherGroups.findIndex(g => (g.id||g._id) === activeInspectionGroupId);

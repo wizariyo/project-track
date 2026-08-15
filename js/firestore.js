@@ -224,6 +224,10 @@
     return studs.filter(function(s) { return !s.groupId; });
   }
 
+  async function updateGroupRemarks(gid, remarks) {
+    await db.collection('groups').doc(gid).update({ remarks: remarks });
+  }
+
   /* ─── Progress helpers ────────────────────────────────── */
   async function getGroupProgress(gid) {
     var tasks = await getTasksByGroup(gid);
@@ -254,7 +258,7 @@
     getProjectFiles: getProjectFiles, uploadProjectFile: uploadProjectFile, deleteProjectFile: deleteProjectFile,
     getSubjects: getSubjects, getStudentGroupBySubject: getStudentGroupBySubject,
     getEligibleStudents: getEligibleStudents, getUnassignedLeads: getUnassignedLeads,
-    getGroupProgress: getGroupProgress, getGroupStatus: getGroupStatus
+    getGroupProgress: getGroupProgress, getGroupStatus: getGroupStatus, updateGroupRemarks: updateGroupRemarks
   };
 
   Object.keys(api).forEach(function(k) { window[k] = api[k]; });
