@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1786777516279.0.0" />
+<link rel="stylesheet" href="css/style.css?v=1786777543351.0.0" />
 <style>
   /* Premium Role Card Inline Styles (Guarantees cache-proof rendering) */
   .role-card {
@@ -162,23 +162,15 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
   <script src="js/firebase-init.js"></script>
   <script src="js/catalog.js"></script>
-  <script src="js/data.js?v=1786777516279"></script>
-<script src="js/app.js?v=1786777516279"></script>
+  <script src="js/data.js?v=1786777543351"></script>
+<script src="js/app.js?v=1786777543351"></script>
 <script>
   window.selectedRole = null;
   window.authMode = 'login';
 
   
-  window.__fullSubjectCatalog = [];
-  async function loadSubjectCatalog() {
-    try {
-      const res = await fetch('/api/subject-catalog');
-      window.__fullSubjectCatalog = await res.json();
-      updateAuthSubjectCatalog();
-    } catch (e) {
-      console.error('Failed to load subject catalog', e);
-    }
-  }
+  /* Catalog loaded via js/catalog.js */
+  function loadSubjectCatalog() { updateAuthSubjectCatalog && updateAuthSubjectCatalog(); }
   
   function updateAuthSubjectCatalog() {
     const semester = document.getElementById('authSemester').value;
