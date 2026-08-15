@@ -199,7 +199,7 @@ function populateSidebar(user) {
   }
   if (sbN) sbN.textContent = user.name;
   if (sbR) {
-    if (user.role === 'teacher') {
+    if (user.role === 'teacher' || document.body.getAttribute('data-role') === 'teacher') {
       sbR.textContent = 'Faculty / Supervisor';
     } else {
       sbR.textContent = user.projectRole || 'Student';
@@ -344,15 +344,15 @@ async function initTeacherDashboard(teacher) {
     const groupLeadId = document.getElementById('newGroupLead')?.value;
     const secondaryTeacherId = document.getElementById('newGroupSecondaryTeacher')?.value;
     
-    if (!name || !projectName || !subject || !groupLeadId) { 
-      showToast('Please fill all fields (Name, Project, Subject, and Group Lead).', 'error'); 
+    if (!name || !projectName || !subject) { 
+      showToast('Please fill all fields (Name, Project, Subject).', 'error'); 
       return; 
     }
     
     try {
-      await createGroup({ name, projectName, teacherId: teacher.id || teacher._id, subject, groupLeadId, secondaryTeacherId });
+      await createGroup({ name, projectName, teacherId: teacher.id || teacher._id, subject, groupLeadId: groupLeadId || null, secondaryTeacherId });
       closeModal('createGroupModal');
-      showToast('Group created with Group Lead assigned!');
+      showToast(groupLeadId ? 'Group created and Lead assigned!' : 'Group created successfully!');
       await loadTeacherData(teacher);
     } catch(e) { showToast(e.message, 'error'); }
   });

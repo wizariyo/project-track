@@ -180,23 +180,19 @@
     subjectSelect.innerHTML = '<option value="" disabled selected>Loading...</option>';
     
     try {
-      const userStr = localStorage.getItem('currentUser');
-      const token = userStr ? JSON.parse(userStr).token : '';
-      const res = await fetch(`/api/subjects?branch=${encodeURIComponent(branch)}&sem=${encodeURIComponent(sem)}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const subjects = await res.json();
-        if (subjects && subjects.length > 0) {
-          subjectSelect.innerHTML = subjects.map(s => {
-            const isSelected = (preselect === s.name || preselect === s.code) ? 'selected' : '';
-            return `<option value="${s.name}" ${isSelected}>${s.code ? s.code + ' - ' : ''}${s.name}</option>`;
-          }).join('');
-        } else {
-          subjectSelect.innerHTML = '<option value="" disabled selected>No subjects found for this semester</option>';
-        }
+      if (!window.SUBJECT_CATALOG) {
+        throw new Error("Catalog not loaded");
+      }
+      
+      const subjects = window.SUBJECT_CATALOG.filter(s => String(s.semester) === String(sem));
+      
+      if (subjects && subjects.length > 0) {
+        subjectSelect.innerHTML = subjects.map(s => {
+          const isSelected = (preselect === s.name || preselect === s.code) ? 'selected' : '';
+          return `<option value="${s.name}" ${isSelected}>${s.code ? s.code + ' - ' : ''}${s.name}</option>`;
+        }).join('');
       } else {
-        subjectSelect.innerHTML = '<option value="" disabled selected>Error loading subjects</option>';
+        subjectSelect.innerHTML = '<option value="" disabled selected>No subjects found for this semester</option>';
       }
     } catch(e) {
       console.error(e);

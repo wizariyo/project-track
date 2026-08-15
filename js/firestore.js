@@ -59,6 +59,42 @@
     var doc = await db.collection('users').doc(uid).get();
     return doc.exists ? { ...doc.data(), id: doc.id } : null;
   }
+
+  async function getUserStats(uid) {
+    try {
+      const user = await getUser(uid);
+      if (!user) throw new Error("User not found");
+      
+      let done = 0, total = 0, hours = 0, reportsCount = 0, feedbackReceived = 0;
+      
+      if (user.role === 'student' && user.groupId) {
+        // Fetch tasks
+        const tasksSnap = await db.collection('tasks').where('groupId', '==', user.groupId).get();
+        tasksSnap.forEach(doc => {
+          const t = doc.data();
+          if (t.assigneeId === uid || t.assigneeName === user.name) {
+            total++;
+            if (t.status === 'Completed' || t.status === 'done') done++;
+          }
+        });
+        
+        // Fetch reports
+        const reportsSnap = await db.collection('reports').where('groupId', '==', user.groupId).get();
+        reportsSnap.forEach(doc => {
+          const r = doc.data();
+          if (r.submittedBy === uid || r.studentId === uid) {
+            reportsCount++;
+            if (r.feedback) feedbackReceived++;
+          }
+        });
+        hours = done * 2; // mockup
+      }
+      return { taskStats: { done, total }, totalHours: hours, reportsCount, feedbackReceived };
+    } catch(e) {
+      console.error("getUserStats error:", e);
+      return { taskStats: { done: 0, total: 0 }, totalHours: 0, reportsCount: 0, feedbackReceived: 0 };
+    }
+  }
   async function getAllStudents() {
     var snap = await db.collection('users').where('role','==','student').get();
     return snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
@@ -271,7 +307,8 @@
     getProjectFiles: getProjectFiles, uploadProjectFile: uploadProjectFile, deleteProjectFile: deleteProjectFile,
     getSubjects: getSubjects, getStudentGroupBySubject: getStudentGroupBySubject,
     getEligibleStudents: getEligibleStudents, getUnassignedLeads: getUnassignedLeads,
-    getGroupProgress: getGroupProgress, getGroupStatus: getGroupStatus, updateGroupRemarks: updateGroupRemarks
+    getGroupProgress: getGroupProgress, getGroupStatus: getGroupStatus, updateGroupRemarks: updateGroupRemarks,
+    getUserStats: getUserStats
   };
 
   Object.keys(api).forEach(function(k) { window[k] = api[k]; });
