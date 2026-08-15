@@ -88,12 +88,25 @@
     return snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
   }
   async function getGroupMembers(gid) {
+    var group = await getGroupById(gid);
     var snap = await db.collection('users').where('groupId','==',gid).get();
-    return snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
+    return snap.docs.map(function(d) {
+      var u = d.data();
+      u.id = d.id;
+      if (group && group.groupLeadId === d.id) {
+        u.isLead = 1;
+      } else {
+        u.isLead = 0;
+      }
+      return u;
+    });
   }
   async function createGroup(data) {
     data.createdAt = TS();
     var ref = await db.collection('groups').add(data);
+    if (data.groupLeadId) {
+      await db.collection('users').doc(data.groupLeadId).update({ groupId: ref.id });
+    }
     return { ...data, id: ref.id };
   }
   async function deleteGroup(gid) {

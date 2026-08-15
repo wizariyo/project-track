@@ -198,7 +198,13 @@ function populateSidebar(user) {
     }
   }
   if (sbN) sbN.textContent = user.name;
-  if (sbR) sbR.textContent = user.projectRole || (user.role === 'teacher' ? 'Teacher' : 'Student');
+  if (sbR) {
+    if (user.role === 'teacher') {
+      sbR.textContent = 'Faculty / Supervisor';
+    } else {
+      sbR.textContent = user.projectRole || 'Student';
+    }
+  }
 }
 
 /* =========================================================
@@ -278,6 +284,10 @@ async function initTeacherDashboard(teacher) {
 
   // Initialize subjects dropdowns
   try {
+    const displayEl = document.getElementById('topbarSubjectDisplay');
+    if (displayEl && teacher.subjects) {
+      displayEl.textContent = teacher.subjects;
+    }
     let mySubjects = [];
     if (teacher.subjects) {
       mySubjects = teacher.subjects.split(',').map(s => s.trim()).filter(Boolean);
@@ -303,8 +313,7 @@ async function initTeacherDashboard(teacher) {
     document.getElementById('newGroupName').value = '';
     document.getElementById('newProjectName').value = '';
     
-    // Load subjects and leads
-    loadSubjectsDropdown();
+    // Load subjects and leads (already populated on load)
     
     // Load secondary teachers
     const secSelect = document.getElementById('newGroupSecondaryTeacher');
@@ -374,6 +383,10 @@ async function initTeacherDashboard(teacher) {
   // Subject Filter change handler
   window.handleTeacherSubjectFilterChange = async function() {
     const filterSubject = document.getElementById('filterSubjectSelect')?.value;
+    const displayEl = document.getElementById('topbarSubjectDisplay');
+    if (displayEl) {
+      displayEl.textContent = filterSubject || window.__teacher.subjects || 'Supervised Subjects';
+    }
     const teacher = window.__teacher;
     if (!teacher) return;
 
@@ -1408,7 +1421,7 @@ window.selectSubject = async function(subjectName) {
       if (pageKanban) pageKanban.classList.add('active');
 
       window.__group = group;
-      window.__isLead = (group.isLead === 1);
+      window.__isLead = (group.groupLeadId === student.id || group.groupLeadId === student._id);
       
       if (manageBtn) {
         manageBtn.style.display = window.__isLead ? 'block' : 'none';

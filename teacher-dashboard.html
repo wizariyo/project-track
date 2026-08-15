@@ -82,11 +82,15 @@
 
   <main class="main">
     <!-- Global Search -->
-    <div class="global-search-bar" style="padding: 16px 32px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; justify-content: flex-end; position: sticky; top: 0; z-index: 50;">
-      <div style="position: relative; width: 340px;">
-        <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-3);" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="globalSearchInput" class="form-control" style="padding-left: 36px; width: 100%; border-radius: 20px; background: var(--surface-2);" placeholder="Search projects, tasks, or members...">
-        <div id="globalSearchResults" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 4px; box-shadow: var(--shadow-md); max-height: 400px; overflow-y: auto; z-index: 100;"></div>
+    <div class="global-search-bar" style="padding: 16px 32px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50;">
+      <div style="font-size: 14px; font-weight: 600; color: var(--teal); visibility: hidden; width: 340px;" id="topbarLeftPlaceholder"></div>
+      <div id="topbarSubjectDisplay" style="font-size: 15px; font-weight: 700; color: var(--teal); text-align: center; flex: 1; letter-spacing: -0.01em; font-family: inherit;">Supervised Subjects</div>
+      <div style="position: relative; width: 340px; display: flex; justify-content: flex-end;">
+        <div style="position: relative; width: 100%;">
+          <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-3);" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="globalSearchInput" class="form-control" style="padding-left: 36px; width: 100%; border-radius: 20px; background: var(--surface-2);" placeholder="Search projects, tasks, or members...">
+          <div id="globalSearchResults" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 4px; box-shadow: var(--shadow-md); max-height: 400px; overflow-y: auto; z-index: 100;"></div>
+        </div>
       </div>
     </div>
     
