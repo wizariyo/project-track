@@ -89,7 +89,7 @@
         <div style="position: relative; width: 100%;">
           <svg style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-3);" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text" id="globalSearchInput" class="form-control" style="padding-left: 36px; width: 100%; border-radius: 20px; background: var(--surface-2);" placeholder="Search projects, tasks, or members...">
-          <div id="globalSearchResults" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 4px; box-shadow: var(--shadow-md); max-height: 400px; overflow-y: auto; z-index: 100;"></div>
+          <div id="globalSearchResults" style=" position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 4px; box-shadow: var(--shadow-md); max-height: 400px; overflow-y: auto; z-index: 100;"></div>
         </div>
       </div>
     </div>
@@ -287,6 +287,67 @@
     <section class="section-page" id="page-assistant" style="padding: 24px 32px 32px;">
       <div id="aiAssistantChatContainer"></div>
     </section>
+    <!-- FULL PAGE GROUP DETAILS -->
+    <section class="section-page" id="page-group-details" style="padding: 0;">
+      <!-- Header -->
+      <div class="topbar" style="padding: 24px 32px 16px; display: flex; align-items: center; justify-content: space-between; background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; z-index: 10;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <button class="btn btn-ghost" onclick="switchPage('overview')" style="padding: 8px 12px; border-radius: var(--radius-sm); border: none; background: var(--surface-2);">
+            &larr; Back
+          </button>
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+              <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--teal); letter-spacing: 0.05em; background: rgba(23, 67, 63, 0.08); padding: 4px 10px; border-radius: 99px;">Group Details</span>
+              <span id="inspectGroupProject" style="font-size: 11px; color: var(--text-3); font-weight: 600; border: 1px solid var(--border); padding: 3px 8px; border-radius: 4px;">Project Name</span>
+            </div>
+            <h1 id="inspectGroupName" style="margin: 0; font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.02em;">Group Name</h1>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <button class="btn btn-secondary" onclick="window.exportGroupDataToCSV(window.activeInspectionGroupId)">Export Group Data</button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="inspect-tabs" style="display: flex; gap: 24px; border-bottom: 1px solid var(--border); padding: 0 32px; background: var(--surface); position: sticky; top: 88px; z-index: 9;">
+        <button class="inspect-tab-btn active" id="tabInspectTasks" onclick="switchInspectTab('tasks')" style="padding: 16px 0; font-weight: 700; font-size: 14px; margin-bottom: -1px; border-radius:0; background:transparent!important; border-bottom: 2px solid transparent;">Tasks</button>
+        <button class="inspect-tab-btn" id="tabInspectWorkload" onclick="switchInspectTab('workload')" style="padding: 16px 0; font-weight: 700; font-size: 14px; margin-bottom: -1px; border-radius:0; background:transparent!important; border-bottom: 2px solid transparent;">Workload</button>
+        <button class="inspect-tab-btn" id="tabInspectReports" onclick="switchInspectTab('reports')" style="padding: 16px 0; font-weight: 700; font-size: 14px; margin-bottom: -1px; border-radius:0; background:transparent!important; border-bottom: 2px solid transparent;">Reports</button>
+        <button class="inspect-tab-btn" id="tabInspectFiles" onclick="switchInspectTab('files')" style="padding: 16px 0; font-weight: 700; font-size: 14px; margin-bottom: -1px; border-radius:0; background:transparent!important; border-bottom: 2px solid transparent;">Files</button>
+        <button class="inspect-tab-btn" id="tabInspectActivity" onclick="switchInspectTab('activity')" style="padding: 16px 0; font-weight: 600; font-size: 14px; margin-bottom: -1px; border-radius:0; background:transparent!important; border-bottom: 2px solid transparent; color: var(--text-3);">Activity</button>
+      </div>
+
+      <!-- Content -->
+      <div style="padding: 24px 32px; max-width: 1000px; margin: 0 auto; width: 100%;">
+        <div class="inspect-tab-content active" id="inspect-tab-tasks" style="flex-direction: column; gap: 16px;">
+          <div id="inspectTasksList" style="display: flex; flex-direction: column; gap: 16px;"></div>
+        </div>
+        
+        <div class="inspect-tab-content" id="inspect-tab-workload" style="flex-direction: column; gap: 16px; ">
+          <div id="inspectWorkloadList" style="display: flex; flex-direction: column; gap: 16px;"></div>
+        </div>
+        
+        <div class="inspect-tab-content" id="inspect-tab-reports" style="flex-direction: column; gap: 16px; ">
+          <div id="inspectReportsList" style="display: flex; flex-direction: column; gap: 16px;"></div>
+        </div>
+        
+        <div class="inspect-tab-content" id="inspect-tab-remarks" style="flex-direction: column; gap: 24px; ">
+          <div style="background: var(--surface-2); border: 1px solid var(--border); border-radius: 16px; padding: 24px;">
+            <h4 style="margin-bottom: 12px; font-size: 16px; font-weight: 700; color: var(--text);">Overall Feedback</h4>
+            <p style="font-size: 13px; color: var(--text-3); margin-bottom: 20px;">Leave private remarks or feedback for this group.</p>
+            <textarea id="inspectTeacherRemarksInput" class="form-control" rows="6" placeholder="Type your notes here..." style="resize: vertical; font-size: 14px; padding: 16px; border-radius: 12px;"></textarea>
+            <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+              <button class="btn btn-primary" onclick="saveGroupRemarks()" style="padding: 10px 24px; font-size: 14px; border-radius: 8px;">Save Notes</button>
+            </div>
+          </div>
+          <div id="inspectRemarksList" style="display: flex; flex-direction: column; gap: 16px;"></div>
+        </div>
+        
+        <div class="inspect-tab-content" id="inspect-tab-activity" style="flex-direction: column; gap: 12px; ">
+          <div id="inspectActivityList" style="display: flex; flex-direction: column; gap: 2px; position: relative; padding-top: 8px;"></div>
+        </div>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -332,69 +393,7 @@
     </div>
   </div>
 
-<div class="modal-overlay drawer-overlay" id="inspectGroupModal">
-  <!-- Right Side Drawer -->
-  <div class="modal modal-drawer" style="height: 100vh; max-height: 100vh; display: flex; flex-direction: column; padding: 0;">
-    
-    <!-- Drawer Header -->
-    <div style="flex-shrink: 0; padding: 32px 32px 0; background: var(--surface);">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
-        <div>
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--teal); letter-spacing: 0.05em; background: rgba(23, 67, 63, 0.08); padding: 4px 10px; border-radius: 99px;">Group Inspect</span>
-            <span id="inspectGroupProject" style="font-size: 11px; color: var(--text-3); font-weight: 600; border: 1px solid var(--border); padding: 3px 8px; border-radius: 4px;">Project Name</span>
-          </div>
-          <h3 id="inspectGroupName" style="margin: 0; font-size: 28px; font-weight: 800; color: var(--text); letter-spacing: -0.02em;">Group Details</h3>
-        </div>
-        <div style="display:flex; gap:12px;">
-          <button class="btn btn-secondary" onclick="window.exportGroupDataToCSV(window.activeInspectionGroupId)">Export Group Data</button>
-          <button class="modal-close" data-close="inspectGroupModal" style="position: static; background: var(--surface-2); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; box-shadow: none; border: 1px solid var(--border); transition: all 0.2s;"></button>
-        </div>
-      </div>
-
-      <!-- Drawer Tabs -->
-      <div class="inspect-tabs" style="display: flex; gap: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px;">
-        <button class="inspect-tab-btn active" id="tabInspectTasks" onclick="switchInspectTab('tasks')" style="padding: 0 0 12px; font-weight: 700; font-size: 14px; margin-bottom: -1px; border-radius:0; background:transparent!important;">Tasks</button>
-        <button class="inspect-tab-btn" id="tabInspectWorkload" onclick="switchInspectTab('workload')" style="padding: 0 0 12px; font-weight: 700; font-size: 14px; margin-bottom: -1px; border-radius:0; background:transparent!important;">Workload</button>
-        <button class="inspect-tab-btn" id="tabInspectReports" onclick="switchInspectTab('reports')" style="padding: 0 0 12px; font-weight: 700; font-size: 14px; margin-bottom: -1px; border-radius:0; background:transparent!important;">Reports</button>
-        <button class="inspect-tab-btn" id="tabInspectFiles" onclick="switchInspectTab('files')" style="padding: 0 0 12px; font-weight: 700; font-size: 14px; margin-bottom: -1px; border-radius:0; background:transparent!important;">Files</button>
-        <button class="inspect-tab-btn" id="tabInspectActivity" onclick="switchInspectTab('activity')" style="padding: 0 0 12px; font-weight: 600; font-size: 14px; color: var(--text-3); margin-bottom: -1px; border-radius:0; background:transparent!important;">Activity</button>
-      </div>
-    </div>
-
-    <!-- Drawer Content (Scrollable) -->
-    <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 24px 32px 40px; background: var(--surface); overflow-y: auto;">
-      
-      <div class="inspect-tab-content active" id="inspect-tab-tasks" style="flex: 1; flex-direction: column; gap: 12px;">
-        <div id="inspectTasksList" style="display: flex; flex-direction: column; gap: 12px;"></div>
-      </div>
-      <div class="inspect-tab-content" id="inspect-tab-workload" style="flex: 1; flex-direction: column; gap: 12px; display: none;">
-        <div id="inspectWorkloadList" style="display: flex; flex-direction: column; gap: 12px;"></div>
-      </div>
-      
-      <div class="inspect-tab-content" id="inspect-tab-reports" style="flex: 1; flex-direction: column; gap: 16px;">
-        <div id="inspectReportsList" style="display: flex; flex-direction: column; gap: 16px;"></div>
-      </div>
-      
-      <div class="inspect-tab-content" id="inspect-tab-remarks" style="flex: 1; flex-direction: column; gap: 20px;">
-        <div style="background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
-          <h4 style="margin-bottom: 12px; font-size: 14px; font-weight: 700; color: var(--text);">Overall Feedback</h4>
-          <p style="font-size: 12px; color: var(--text-3); margin-bottom: 16px;">Leave private remarks or feedback for this group.</p>
-          <textarea id="inspectTeacherRemarksInput" class="form-control" rows="6" placeholder="Type your notes here..." style="resize: vertical; font-size: 13px; padding: 12px; border-radius: 8px;"></textarea>
-          <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
-            <button class="btn btn-primary" onclick="saveGroupRemarks()" style="padding: 8px 16px; font-size: 13px; border-radius: 6px;">Save Notes</button>
-          </div>
-        </div>
-        <div id="inspectRemarksList" style="display: flex; flex-direction: column; gap: 12px;"></div>
-      </div>
-      
-      <div class="inspect-tab-content" id="inspect-tab-activity" style="flex: 1; flex-direction: column; gap: 12px;">
-        <div id="inspectActivityList" style="display: flex; flex-direction: column; gap: 2px; position: relative; padding-top: 8px;"></div>
-      </div>
-      
-    </div>
-  </div>
-</div>
+<!-- Group Inspect Section Moved -->
 
 <!-- Calendar Day Details Modal -->
 <div class="modal-overlay" id="calendarDayModal">

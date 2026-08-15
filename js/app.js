@@ -2405,9 +2405,30 @@ window.switchInspectTab = function(tabId) {
   if (activeContent) activeContent.classList.add('active');
 };
 
+window.switchPage = function(target) {
+  // Deselect all nav items
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  
+  // Try to find the matching nav item to make active
+  const navItem = document.querySelector(`.nav-item[data-target="${target}"]`);
+  if (navItem) navItem.classList.add('active');
+  
+  // Hide all section pages
+  document.querySelectorAll('.section-page').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = ''; // Clear any inline display style
+  });
+  
+  // Show target page
+  const el = document.getElementById('page-' + target);
+  if (el) {
+    el.classList.add('active');
+  }
+};
+
 window.openGroupInspectionModal = async function(groupId) {
   activeInspectionGroupId = groupId;
-  openModal('inspectGroupModal');
+  window.switchPage('group-details');
   switchInspectTab('tasks');
 
   try {
