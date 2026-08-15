@@ -226,6 +226,94 @@
       document.getElementById('authHeading').textContent = 'Sign Up as ' + (window.selectedRole === 'teacher' ? 'Teacher' : 'Student');
     }
   }
+
+  // Setup event listener for submit button
+  document.addEventListener('DOMContentLoaded', () => {
+    const submitBtn = document.getElementById('submitAuthBtn');
+    if (submitBtn) {
+      submitBtn.addEventListener('click', handleAuth);
+    }
+    
+    // Check if user is already logged in
+    const user = window.getCurrentUser();
+    if (user) {
+      redirectUser(user.role);
+    }
+  });
+
+  async function handleAuth(e) {
+    if (e) e.preventDefault();
+    
+    const errorDiv = document.getElementById('authError');
+    const submitBtn = document.getElementById('submitAuthBtn');
+    
+    errorDiv.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Please wait...';
+
+    const email = document.getElementById('authEmail').value.trim();
+    const password = document.getElementById('authPassword').value;
+
+    try {
+      if (window.authMode === 'login') {
+        const user = await window.apiLogin(email, password);
+        if (!user) throw new Error("Invalid credentials or user not found.");
+        
+        if (window.showToast) window.showToast('Logged in successfully!', 'success');
+        setTimeout(() => redirectUser(user.role), 500);
+      } else {
+        const name = document.getElementById('authName').value.trim();
+        const semester = parseInt(document.getElementById('authSemester').value);
+        
+        if (!name || !semester) {
+          throw new Error("Please fill in all required fields.");
+        }
+
+        const data = {
+          name,
+          email,
+          password,
+          role: window.selectedRole === 'teacher' ? 'teacher' : 'student',
+          semester,
+          avatarColor: getRandomColor()
+        };
+
+        if (window.selectedRole === 'student') {
+          data.projectRole = document.getElementById('authProjectRole').value;
+        } else if (window.selectedRole === 'teacher') {
+          const subj = document.getElementById('authSubjects').value;
+          if (!subj) throw new Error("Please select a subject.");
+          data.subjects = [subj];
+        }
+
+        const user = await window.apiSignup(data);
+        if (!user) throw new Error("Signup failed.");
+        
+        if (window.showToast) window.showToast('Account created successfully!', 'success');
+        setTimeout(() => redirectUser(user.role), 500);
+      }
+    } catch (error) {
+      console.error("Auth Error:", error);
+      errorDiv.textContent = error.message || "An error occurred during authentication.";
+      errorDiv.classList.remove('hidden');
+      submitBtn.disabled = false;
+      submitBtn.textContent = window.authMode === 'login' ? 'Sign In' : 'Sign Up';
+    }
+  }
+
+  function redirectUser(role) {
+    if (role === 'teacher') {
+      window.location.href = 'teacher-dashboard.html';
+    } else {
+      window.location.href = 'student-dashboard.html';
+    }
+  }
+
+  function getRandomColor() {
+    const colors = ['#f87171', '#fb923c', '#fbbf24', '#34d399', '#2dd4bf', '#38bdf8', '#818cf8', '#a78bfa', '#f472b6'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
 </script>
   <!-- Select2 JS -->
   </body>
