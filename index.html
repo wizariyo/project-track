@@ -288,7 +288,7 @@
         } else if (window.selectedRole === 'teacher') {
           const subj = document.getElementById('authSubjects').value;
           if (!subj) throw new Error("Please select a subject.");
-          data.subjects = [subj];
+          data.subjects = subj;
         }
 
         const user = await window.apiSignup(data);

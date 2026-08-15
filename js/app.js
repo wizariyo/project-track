@@ -290,7 +290,11 @@ async function initTeacherDashboard(teacher) {
     }
     let mySubjects = [];
     if (teacher.subjects) {
-      mySubjects = teacher.subjects.split(',').map(s => s.trim()).filter(Boolean);
+      if (Array.isArray(teacher.subjects)) {
+        mySubjects = teacher.subjects;
+      } else {
+        mySubjects = teacher.subjects.split(',').map(s => s.trim()).filter(Boolean);
+      }
     }
     
     // 1. Populate Subject Filter Select

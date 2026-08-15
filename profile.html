@@ -188,7 +188,12 @@
       
       if (subjects && subjects.length > 0) {
         subjectSelect.innerHTML = subjects.map(s => {
-          const isSelected = (preselect === s.name || preselect === s.code) ? 'selected' : '';
+          let isSelected = '';
+          if (Array.isArray(preselect)) {
+            isSelected = (preselect.includes(s.name) || preselect.includes(s.code)) ? 'selected' : '';
+          } else {
+            isSelected = (preselect === s.name || preselect === s.code) ? 'selected' : '';
+          }
           return `<option value="${s.name}" ${isSelected}>${s.code ? s.code + ' - ' : ''}${s.name}</option>`;
         }).join('');
       } else {
