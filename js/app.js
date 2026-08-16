@@ -3930,7 +3930,7 @@ window.handleSendChat = async function(rolePrefix) {
     await window.sendMessage(currentChatId, text);
   } catch (err) {
     console.error(err);
-    showToast('Error sending message', 'error');
+    showToast('Error: ' + err.message, 'error');
   }
 };
 
