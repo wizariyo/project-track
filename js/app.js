@@ -341,16 +341,25 @@ async function initTeacherDashboard(teacher) {
       }
     }
     
-    // 1. Populate Subject Filter Select
-    const filterSelect = document.getElementById('filterSubjectSelect');
-    if (filterSelect) {
-      filterSelect.innerHTML = `<option value="">All Subjects</option>${mySubjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('')}`;
+    // 1. Populate Subject Filter Select (filtered by active semester workspace)
+    const activeSem = sessionStorage.getItem('activeTeacherSemester');
+    let filteredSubjects = mySubjects;
+    if (activeSem && window.SUBJECT_CATALOG) {
+      filteredSubjects = mySubjects.filter(s => {
+        const catObj = window.SUBJECT_CATALOG.find(cat => cat.name === s);
+        return catObj && String(catObj.semester) === String(activeSem);
+      });
     }
 
-    // 2. Populate Create Group Subject Select
+    const filterSelect = document.getElementById('filterSubjectSelect');
+    if (filterSelect) {
+      filterSelect.innerHTML = `<option value="">All Subjects</option>${filteredSubjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('')}`;
+    }
+
+    // 2. Populate Create Group Subject Select (filtered by active semester workspace)
     const createSubSelect = document.getElementById('newGroupSubject');
     if (createSubSelect) {
-      createSubSelect.innerHTML = `<option value="" disabled selected>Choose a subject...</option>${mySubjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('')}`;
+      createSubSelect.innerHTML = `<option value="" disabled selected>Choose a subject...</option>${filteredSubjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('')}`;
     }
   } catch(e) {
     showToast('Failed to load subjects list.', 'error');
@@ -496,7 +505,11 @@ async function loadTeacherData(teacher) {
   window.__teacherGroups = groups;
   window.__teacher = teacher;
 
-  const semesters = [...new Set(groups.map(g => g.semester).filter(Boolean))].sort((a,b) => a - b);
+  const semesters = [...new Set(
+    (Array.isArray(teacher.semesters) && teacher.semesters.length > 0)
+      ? teacher.semesters 
+      : (groups.map(g => g.semester).filter(Boolean))
+  )].map(Number).sort((a,b) => a - b);
   const semestersNav = document.getElementById('navTeacherSemesters');
   
   let activeSemester = sessionStorage.getItem('activeTeacherSemester');
