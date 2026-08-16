@@ -8,6 +8,31 @@
   var auth = window.auth;
   var TS   = firebase.firestore.FieldValue.serverTimestamp;
 
+  /* ─── Cache System ────────────────────────────────────── */
+  window.__queryCache = {
+    getUser: {},
+    getGroupById: {},
+    getGroupMembers: {},
+    getTasksByGroup: {},
+    getReportsByGroup: {},
+    getEligibleStudents: {},
+    getGroupProgress: {},
+    getGroupStatus: {}
+  };
+
+  window.clearQueryCache = function() {
+    window.__queryCache = {
+      getUser: {},
+      getGroupById: {},
+      getGroupMembers: {},
+      getTasksByGroup: {},
+      getReportsByGroup: {},
+      getEligibleStudents: {},
+      getGroupProgress: {},
+      getGroupStatus: {}
+    };
+  };
+
   /* ─── Session helpers ─────────────────────────────────── */
   function getCurrentUser() {
     try { return JSON.parse(sessionStorage.getItem('currentUser')); } catch(e) { return null; }
@@ -69,8 +94,13 @@
 
   /* ─── Users ───────────────────────────────────────────── */
   async function getUser(uid) {
-    var doc = await db.collection('users').doc(uid).get();
-    return doc.exists ? { ...doc.data(), id: doc.id } : null;
+    if (window.__queryCache && window.__queryCache.getUser[uid]) return window.__queryCache.getUser[uid];
+    var promise = (async () => {
+      var doc = await db.collection('users').doc(uid).get();
+      return doc.exists ? { ...doc.data(), id: doc.id } : null;
+    })();
+    if (window.__queryCache) window.__queryCache.getUser[uid] = promise;
+    return promise;
   }
 
   async function getUserStats(uid) {
@@ -137,26 +167,36 @@
     return snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
   }
   async function getGroupById(gid) {
-    var doc = await db.collection('groups').doc(gid).get();
-    return doc.exists ? { ...doc.data(), id: doc.id } : null;
+    if (window.__queryCache && window.__queryCache.getGroupById[gid]) return window.__queryCache.getGroupById[gid];
+    var promise = (async () => {
+      var doc = await db.collection('groups').doc(gid).get();
+      return doc.exists ? { ...doc.data(), id: doc.id } : null;
+    })();
+    if (window.__queryCache) window.__queryCache.getGroupById[gid] = promise;
+    return promise;
   }
   async function getGroupsByTeacher(tid) {
     var snap = await db.collection('groups').where('teacherId','==',tid).get();
     return snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
   }
   async function getGroupMembers(gid) {
-    var group = await getGroupById(gid);
-    var snap = await db.collection('users').where('groupId','==',gid).get();
-    return snap.docs.map(function(d) {
-      var u = d.data();
-      u.id = d.id;
-      if (group && group.groupLeadId === d.id) {
-        u.isLead = 1;
-      } else {
-        u.isLead = 0;
-      }
-      return u;
-    });
+    if (window.__queryCache && window.__queryCache.getGroupMembers[gid]) return window.__queryCache.getGroupMembers[gid];
+    var promise = (async () => {
+      var group = await getGroupById(gid);
+      var snap = await db.collection('users').where('groupId','==',gid).get();
+      return snap.docs.map(function(d) {
+        var u = d.data();
+        u.id = d.id;
+        if (group && group.groupLeadId === d.id) {
+          u.isLead = 1;
+        } else {
+          u.isLead = 0;
+        }
+        return u;
+      });
+    })();
+    if (window.__queryCache) window.__queryCache.getGroupMembers[gid] = promise;
+    return promise;
   }
   async function createGroup(data) {
     data.createdAt = TS();
@@ -192,8 +232,13 @@
 
   /* ─── Tasks ───────────────────────────────────────────── */
   async function getTasksByGroup(gid) {
-    var snap = await db.collection('tasks').where('groupId','==',gid).get();
-    return snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
+    if (window.__queryCache && window.__queryCache.getTasksByGroup[gid]) return window.__queryCache.getTasksByGroup[gid];
+    var promise = (async () => {
+      var snap = await db.collection('tasks').where('groupId','==',gid).get();
+      return snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
+    })();
+    if (window.__queryCache) window.__queryCache.getTasksByGroup[gid] = promise;
+    return promise;
   }
   async function addTask(data) {
     data.createdAt = TS();
@@ -226,9 +271,14 @@
 
   /* ─── Reports ─────────────────────────────────────────── */
   async function getReportsByGroup(gid) {
-    var snap = await db.collection('reports').where('groupId','==',gid).get();
-    var arr = snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
-    return arr.sort(function(a,b) { return (b.timestamp||0) - (a.timestamp||0); });
+    if (window.__queryCache && window.__queryCache.getReportsByGroup[gid]) return window.__queryCache.getReportsByGroup[gid];
+    var promise = (async () => {
+      var snap = await db.collection('reports').where('groupId','==',gid).get();
+      var arr = snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
+      return arr.sort(function(a,b) { return (b.timestamp||0) - (a.timestamp||0); });
+    })();
+    if (window.__queryCache) window.__queryCache.getReportsByGroup[gid] = promise;
+    return promise;
   }
   async function addReport(data) {
     data.timestamp = Date.now();
@@ -280,14 +330,19 @@
     return (g && g.subject === subject) ? g : null;
   }
   async function getEligibleStudents(gid) {
-    var g = await getGroupById(gid);
-    if (!g) return [];
-    var all = await getAllStudents();
-    return all.filter(function(s) {
-      if (s.groupId) return false;
-      if (s.semester && g.semester && String(s.semester) !== String(g.semester)) return false;
-      return true;
-    });
+    if (window.__queryCache && window.__queryCache.getEligibleStudents[gid]) return window.__queryCache.getEligibleStudents[gid];
+    var promise = (async () => {
+      var g = await getGroupById(gid);
+      if (!g) return [];
+      var all = await getAllStudents();
+      return all.filter(function(s) {
+        if (s.groupId) return false;
+        if (s.semester && g.semester && String(s.semester) !== String(g.semester)) return false;
+        return true;
+      });
+    })();
+    if (window.__queryCache) window.__queryCache.getEligibleStudents[gid] = promise;
+    return promise;
   }
   async function getUnassignedLeads(subject) {
     var studs = await getAllStudents();
@@ -300,16 +355,26 @@
 
   /* ─── Progress helpers ────────────────────────────────── */
   async function getGroupProgress(gid) {
-    var tasks = await getTasksByGroup(gid);
-    if (!tasks.length) return 0;
-    var done = tasks.filter(function(t) { return t.status === 'Completed'; }).length;
-    return Math.round((done / tasks.length) * 100);
+    if (window.__queryCache && window.__queryCache.getGroupProgress[gid]) return window.__queryCache.getGroupProgress[gid];
+    var promise = (async () => {
+      var tasks = await getTasksByGroup(gid);
+      if (!tasks.length) return 0;
+      var done = tasks.filter(function(t) { return t.status === 'Completed'; }).length;
+      return Math.round((done / tasks.length) * 100);
+    })();
+    if (window.__queryCache) window.__queryCache.getGroupProgress[gid] = promise;
+    return promise;
   }
   async function getGroupStatus(gid) {
-    var p = await getGroupProgress(gid);
-    if (p < 30) return 'At Risk';
-    if (p < 70) return 'Behind Schedule';
-    return 'On Track';
+    if (window.__queryCache && window.__queryCache.getGroupStatus[gid]) return window.__queryCache.getGroupStatus[gid];
+    var promise = (async () => {
+      var p = await getGroupProgress(gid);
+      if (p < 30) return 'At Risk';
+      if (p < 70) return 'Behind Schedule';
+      return 'On Track';
+    })();
+    if (window.__queryCache) window.__queryCache.getGroupStatus[gid] = promise;
+    return promise;
   }
 
   /* ─── Expose everything to window ─────────────────────── */

@@ -499,6 +499,7 @@ async function initTeacherDashboard(teacher) {
 }
 
 async function loadTeacherData(teacher) {
+  if (typeof window.clearQueryCache === 'function') window.clearQueryCache();
   let groups = [];
   try { 
     groups = await getGroupsByTeacher(teacher.id || teacher._id); 
