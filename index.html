@@ -209,6 +209,40 @@
   </div>
 </div>
 
+<!-- Email OTP Verification Modal -->
+<div class="modal-overlay" id="otpModal">
+  <div class="modal" style="max-width: 400px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; text-align: center;">
+    <div class="modal-head" style="justify-content: center; margin-bottom: 8px;">
+      <h3 style="font-size: 20px; font-weight: 700; color: var(--text); margin: 0;">Email Verification</h3>
+    </div>
+    <div class="modal-body" style="display: flex; flex-direction: column; gap: 20px; margin-top: 12px;">
+      <p style="font-size: 13px; color: var(--text-3); line-height: 1.5; margin: 0;">We've sent a 6-digit verification code to <strong id="otpEmailSpan" style="color: var(--text);"></strong>. Please enter it below.</p>
+      
+      <!-- Premium OTP Input Row -->
+      <div style="display: flex; gap: 8px; justify-content: center; margin: 10px 0;" id="otpInputsContainer">
+        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
+        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
+        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
+        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
+        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
+        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
+      </div>
+
+      <div id="otpError" class="auth-error hidden" style="font-size: 12.5px; padding: 10px; margin: 0; border-radius: var(--radius);"></div>
+      
+      <div style="font-size: 12.5px; color: var(--text-3);">
+        Didn't receive the code? 
+        <span id="otpResendLink" style="color: var(--teal); font-weight: 600; cursor: pointer; text-decoration: underline;">Resend</span>
+        <span id="otpTimerSpan" style="display: none;">in <strong id="otpCountdown">30</strong>s</span>
+      </div>
+    </div>
+    <div class="modal-footer" style="margin-top: 24px; display: flex; gap: 10px;">
+      <button class="btn btn-ghost" data-close="otpModal" style="flex: 1; justify-content: center;">Cancel</button>
+      <button class="btn btn-primary" id="btnVerifyOTP" style="flex: 1; justify-content: center;">Verify & Proceed</button>
+    </div>
+  </div>
+</div>
+
 <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -217,6 +251,7 @@
   <script src="js/catalog.js?v=1786815004806"></script>
   <script src="js/firestore.js?v=1786815004806"></script>
   <script src="js/toast.js?v=1786815004806"></script>
+  <script src="js/otp.js"></script>
 <script>
   function openModal(id)  { const m = document.getElementById(id); if (m) m.classList.add('open'); }
   function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('open'); }
@@ -315,6 +350,9 @@
     initAuth();
   }
 
+  let tempAuthData = null;
+  let resendInterval = null;
+
   async function handleAuth(e) {
     if (e) e.preventDefault();
     
@@ -329,13 +367,32 @@
     const password = document.getElementById('authPassword').value;
 
     try {
+      if (!email || !password) {
+        throw new Error("Please enter both email and password.");
+      }
+
       if (window.authMode === 'login') {
-        const user = await window.apiLogin(email, password);
-        if (!user) throw new Error("Invalid credentials or user not found.");
+        // Validate password first by trying a quick sign-in
+        const cred = await window.auth.signInWithEmailAndPassword(email, password);
+        const doc = await window.db.collection('users').doc(cred.user.uid).get();
+        if (!doc.exists) {
+          await window.auth.signOut();
+          throw new Error('User profile not found in database.');
+        }
         
-        if (window.showToast) window.showToast('Logged in successfully!', 'success');
-        setTimeout(() => redirectUser(user.role), 500);
+        // Log out immediately so they aren't fully authenticated yet
+        await window.auth.signOut();
+        
+        // Save temp data
+        tempAuthData = {
+          mode: 'login',
+          email,
+          password,
+          name: doc.data().name || 'User',
+          otp: window.OTP.generate()
+        };
       } else {
+        // Signup
         const name = document.getElementById('authName').value.trim();
         const semester = parseInt(document.getElementById('authSemester').value);
         
@@ -360,12 +417,34 @@
           data.subjects = subj;
         }
 
-        const user = await window.apiSignup(data);
-        if (!user) throw new Error("Signup failed.");
-        
-        if (window.showToast) window.showToast('Account created successfully!', 'success');
-        setTimeout(() => redirectUser(user.role), 500);
+        // Quick check if email already exists
+        const methods = await window.auth.fetchSignInMethodsForEmail(email);
+        if (methods.length > 0) {
+          throw new Error("Email is already in use.");
+        }
+
+        // Save temp data
+        tempAuthData = {
+          mode: 'signup',
+          email,
+          name,
+          payload: data,
+          otp: window.OTP.generate()
+        };
       }
+
+      // Open OTP Verification
+      document.getElementById('otpEmailSpan').textContent = email;
+      openModal('otpModal');
+      resetOtpInputs();
+      
+      await window.OTP.send(tempAuthData.email, tempAuthData.name, tempAuthData.otp);
+      
+      startOtpResendTimer();
+      
+      submitBtn.disabled = false;
+      submitBtn.textContent = window.authMode === 'login' ? 'Sign In' : 'Sign Up';
+
     } catch (error) {
       console.error("Auth Error:", error);
       errorDiv.textContent = error.message || "An error occurred during authentication.";
@@ -374,6 +453,126 @@
       submitBtn.textContent = window.authMode === 'login' ? 'Sign In' : 'Sign Up';
     }
   }
+
+  // OTP Verification helper functions
+  function resetOtpInputs() {
+    const inputs = document.querySelectorAll('.otp-box');
+    inputs.forEach(input => {
+      input.value = '';
+    });
+    document.getElementById('otpError').classList.add('hidden');
+    
+    const verifyBtn = document.getElementById('btnVerifyOTP');
+    if (verifyBtn) {
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = 'Verify & Proceed';
+    }
+    
+    if (inputs.length > 0) inputs[0].focus();
+  }
+
+  // Handle auto-focus shift for OTP boxes
+  document.querySelectorAll('.otp-box').forEach((box, idx, arr) => {
+    box.addEventListener('input', (e) => {
+      box.value = box.value.replace(/[^0-9]/g, '');
+      if (box.value && idx < arr.length - 1) {
+        arr[idx + 1].focus();
+      }
+    });
+
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !box.value && idx > 0) {
+        arr[idx - 1].focus();
+      }
+    });
+  });
+
+  // Resend Timer logic
+  function startOtpResendTimer() {
+    const link = document.getElementById('otpResendLink');
+    const timerSpan = document.getElementById('otpTimerSpan');
+    const countdown = document.getElementById('otpCountdown');
+    
+    if (!link || !timerSpan || !countdown) return;
+    
+    link.style.display = 'none';
+    timerSpan.style.display = 'inline';
+    
+    let secondsLeft = 30;
+    countdown.textContent = secondsLeft;
+    
+    clearInterval(resendInterval);
+    resendInterval = setInterval(() => {
+      secondsLeft--;
+      countdown.textContent = secondsLeft;
+      if (secondsLeft <= 0) {
+        clearInterval(resendInterval);
+        link.style.display = 'inline';
+        timerSpan.style.display = 'none';
+      }
+    }, 1000);
+  }
+
+  // Resend Click
+  document.getElementById('otpResendLink')?.addEventListener('click', async () => {
+    if (!tempAuthData) return;
+    try {
+      tempAuthData.otp = window.OTP.generate();
+      resetOtpInputs();
+      await window.OTP.send(tempAuthData.email, tempAuthData.name, tempAuthData.otp);
+      startOtpResendTimer();
+    } catch (err) {
+      document.getElementById('otpError').textContent = err.message;
+      document.getElementById('otpError').classList.remove('hidden');
+    }
+  });
+
+  // Verify OTP button click
+  document.getElementById('btnVerifyOTP')?.addEventListener('click', async () => {
+    if (!tempAuthData) return;
+    
+    const inputs = document.querySelectorAll('.otp-box');
+    let enteredCode = '';
+    inputs.forEach(input => enteredCode += input.value);
+    
+    const errorDiv = document.getElementById('otpError');
+    errorDiv.classList.add('hidden');
+    
+    if (enteredCode.length < 6) {
+      errorDiv.textContent = "Please enter the 6-digit code.";
+      errorDiv.classList.remove('hidden');
+      return;
+    }
+    
+    if (enteredCode !== tempAuthData.otp) {
+      errorDiv.textContent = "Invalid verification code. Please try again.";
+      errorDiv.classList.remove('hidden');
+      return;
+    }
+    
+    const verifyBtn = document.getElementById('btnVerifyOTP');
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = 'Verifying...';
+    
+    try {
+      if (tempAuthData.mode === 'login') {
+        const user = await window.apiLogin(tempAuthData.email, tempAuthData.password);
+        if (window.showToast) window.showToast('Logged in successfully!', 'success');
+        closeModal('otpModal');
+        setTimeout(() => redirectUser(user.role), 500);
+      } else {
+        const user = await window.apiSignup(tempAuthData.payload);
+        if (window.showToast) window.showToast('Account created successfully!', 'success');
+        closeModal('otpModal');
+        setTimeout(() => redirectUser(user.role), 500);
+      }
+    } catch (err) {
+      errorDiv.textContent = err.message || "Authentication failed.";
+      errorDiv.classList.remove('hidden');
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = 'Verify & Proceed';
+    }
+  });
 
   function redirectUser(role) {
     if (role === 'teacher') {
