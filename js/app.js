@@ -56,6 +56,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadStudentSubjectsGrid();
       }
 
+      if (target === 'semesters') {
+        sessionStorage.removeItem('activeTeacherSemester');
+        document.querySelectorAll('.workspace-nav-item').forEach(w => w.style.display = 'none');
+        loadTeacherData(window.__teacher);
+      }
+
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       item.classList.add('active');
       document.querySelectorAll('.section-page').forEach(s => s.classList.remove('active'));
@@ -490,6 +496,40 @@ async function loadTeacherData(teacher) {
   window.__teacherGroups = groups;
   window.__teacher = teacher;
 
+  const semesters = [...new Set(groups.map(g => g.semester).filter(Boolean))].sort((a,b) => a - b);
+  const semestersNav = document.getElementById('navTeacherSemesters');
+  
+  let activeSemester = sessionStorage.getItem('activeTeacherSemester');
+
+  if (semesters.length > 1) {
+    if (semestersNav) semestersNav.style.display = 'block';
+    
+    if (!activeSemester) {
+      document.querySelectorAll('.workspace-nav-item').forEach(w => w.style.display = 'none');
+      window.switchPage('semesters');
+      renderTeacherSemestersGrid(semesters);
+      return;
+    } else {
+      document.querySelectorAll('.workspace-nav-item').forEach(w => w.style.display = 'block');
+      groups = groups.filter(g => String(g.semester) === String(activeSemester));
+      
+      const displayEl = document.getElementById('topbarSubjectDisplay');
+      if (displayEl) {
+        displayEl.textContent = `Semester ${activeSemester} Workspace`;
+      }
+    }
+  } else {
+    if (semestersNav) semestersNav.style.display = 'none';
+    document.querySelectorAll('.workspace-nav-item').forEach(w => w.style.display = 'block');
+    if (semesters.length === 1) {
+      sessionStorage.setItem('activeTeacherSemester', semesters[0]);
+      const displayEl = document.getElementById('topbarSubjectDisplay');
+      if (displayEl) {
+        displayEl.textContent = `Semester ${semesters[0]} Workspace`;
+      }
+    }
+  }
+
   let allTasks = [];
   let allMembers = [];
   for (const g of groups) {
@@ -530,6 +570,34 @@ async function loadTeacherData(teacher) {
     teacherProjectHealthEl.innerHTML = window.AI.metricsCard();
   }
 }
+
+function renderTeacherSemestersGrid(semesters) {
+  const grid = document.getElementById('teacherSemestersGrid');
+  if (!grid) return;
+  grid.innerHTML = semesters.map(sem => `
+    <div class="card subject-card" 
+         style="cursor:pointer; display: flex; flex-direction: column; padding: 24px; min-height: 140px; border-radius: 12px; background: var(--surface); border: 1.5px solid var(--border); box-shadow: var(--shadow-sm); transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);" 
+         onclick="selectTeacherSemester(${sem})"
+         onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--teal)'; this.querySelector('.enter-arrow').style.transform='translateX(4px)'; this.querySelector('.enter-arrow').style.color='var(--teal)';"
+         onmouseout="this.style.transform='none'; this.style.boxShadow='var(--shadow-sm)'; this.style.borderColor='var(--border)'; this.querySelector('.enter-arrow').style.transform='none'; this.querySelector('.enter-arrow').style.color='var(--text-3)';"
+    >
+      <span class="badge" style="background: rgba(23, 67, 63, 0.08); color: var(--teal); font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 6px; margin-bottom: 12px; display: inline-block; align-self: flex-start;">Academic</span>
+      <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.4;">Semester ${sem}</h3>
+      <div style="border-top: 1px solid var(--border); padding-top: 14px; margin-top: auto; display: flex; align-items: center; justify-content: space-between;">
+        <span style="font-size: 12.5px; color: var(--text-3);">Manage all groups in this semester</span>
+        <span class="enter-arrow" style="font-size: 14px; color: var(--text-3); transition: transform 0.2s; font-weight: 700;">&rarr;</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.selectTeacherSemester = function(sem) {
+  sessionStorage.setItem('activeTeacherSemester', sem);
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const overviewNavItem = document.getElementById('navOverview');
+  if (overviewNavItem) overviewNavItem.classList.add('active');
+  loadTeacherData(window.__teacher);
+};
 
 async function updateFeedbackBadge(groups) {
   let pending = 0;
@@ -1498,6 +1566,24 @@ window.selectSubject = async function(subjectName) {
         banner.style.display = 'flex';
         document.getElementById('gbProjectName').textContent = group.projectName || group.name;
         
+        const gradeBadge = document.getElementById('gbGradeBadge');
+        if (gradeBadge) {
+          if (group.grade) {
+            gradeBadge.textContent = `Grade: ${group.grade}`;
+            if (group.score !== undefined && group.score !== '') {
+              gradeBadge.textContent += ` (${group.score}/100)`;
+            }
+            gradeBadge.style.display = 'inline-block';
+            if (group.evaluationRemarks) {
+              gradeBadge.title = `Remarks: ${group.evaluationRemarks}`;
+            } else {
+              gradeBadge.removeAttribute('title');
+            }
+          } else {
+            gradeBadge.style.display = 'none';
+          }
+        }
+        
         const members = await getGroupMembers(group.id||group._id);
         window.__groupMembers = members;
         document.getElementById('gbMembers').innerHTML = members.map(m => avatarHtml(m, 32)).join('');
@@ -2455,6 +2541,7 @@ window.switchInspectTab = function(tabId) {
     reports: 'tabInspectReports',
     files: 'tabInspectFiles',
     remarks: 'tabInspectRemarks',
+    evaluation: 'tabInspectEvaluation',
     activity: 'tabInspectActivity'
   };
   const activeBtn = document.getElementById(activeBtnMap[tabId]);
@@ -2508,6 +2595,15 @@ window.openGroupInspectionModal = async function(groupId) {
     if (remarksInput) {
       remarksInput.value = group.remarks || '';
     }
+
+    // Populate Evaluation Tab Inputs
+    const evalGrade = document.getElementById('evalGradeSelect');
+    const evalScore = document.getElementById('evalScoreInput');
+    const evalRemarks = document.getElementById('evalRemarksTextarea');
+    
+    if (evalGrade) evalGrade.value = group.grade || '';
+    if (evalScore) evalScore.value = group.score !== undefined ? group.score : '';
+    if (evalRemarks) evalRemarks.value = group.evaluationRemarks || '';
 
     await reloadInspectionDetails();
   } catch (e) {
@@ -3977,4 +4073,124 @@ window.renderChatMessages = function(msgs, rolePrefix) {
   }).join('');
   
   area.scrollTop = area.scrollHeight; // Auto-scroll to bottom
+};
+
+window.saveGroupEvaluation = async function() {
+  if (!activeInspectionGroupId) return;
+  const grade = document.getElementById('evalGradeSelect')?.value;
+  const scoreVal = document.getElementById('evalScoreInput')?.value;
+  const remarks = document.getElementById('evalRemarksTextarea')?.value.trim();
+
+  const score = scoreVal !== '' ? parseInt(scoreVal) : '';
+
+  const btn = document.getElementById('btnSaveEvaluation');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+  }
+
+  try {
+    await window.db.collection('groups').doc(activeInspectionGroupId).update({
+      grade: grade || null,
+      score: score !== '' ? score : null,
+      evaluationRemarks: remarks || null,
+      evaluatedAt: new Date().toISOString()
+    });
+    
+    showToast('Group evaluation updated successfully!', 'success');
+    
+    // Refresh local groups list in state
+    const teacher = window.__teacher;
+    if (teacher) {
+      await loadTeacherData(teacher);
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Error saving evaluation: ' + err.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Save Evaluation';
+    }
+  }
+};
+
+window.exportCombinedGradesReport = async function() {
+  const teacher = window.__teacher;
+  if (!teacher) return;
+
+  const btn = document.querySelector('button[onclick="exportCombinedGradesReport()"]');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Exporting...';
+  }
+
+  try {
+    let groups = await getGroupsByTeacher(teacher.id || teacher._id);
+    
+    const activeSem = sessionStorage.getItem('activeTeacherSemester');
+    if (activeSem) {
+      groups = groups.filter(g => String(g.semester) === String(activeSem));
+    }
+
+    if (groups.length === 0) {
+      showToast('No groups found to export.', 'error');
+      return;
+    }
+
+    const rows = [
+      ['Group Name', 'Project Name', 'Subject', 'Semester', 'Grade', 'Score (out of 100)', 'Evaluation Remarks', 'Evaluated At', 'Team Members']
+    ];
+
+    for (const g of groups) {
+      let memberNamesStr = '';
+      try {
+        const members = await getGroupMembers(g.id || g._id);
+        memberNamesStr = members.map(m => m.name).join(', ');
+      } catch (err) {
+        console.error('Failed to load group members for csv', err);
+      }
+
+      rows.push([
+        g.name || 'Unnamed',
+        g.projectName || 'None',
+        g.subject || 'General',
+        g.semester || 'N/A',
+        g.grade || 'Not Graded',
+        g.score !== undefined && g.score !== null ? g.score : 'N/A',
+        g.evaluationRemarks || 'No Remarks',
+        g.evaluatedAt ? new Date(g.evaluatedAt).toLocaleString() : 'N/A',
+        memberNamesStr || 'No Members'
+      ]);
+    }
+
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + rows.map(r => r.map(val => {
+          let str = String(val).replace(/"/g, '""');
+          if (str.search(/("|,|\n)/g) >= 0) {
+            str = `"${str}"`;
+          }
+          return str;
+        }).join(',')).join('\n');
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    
+    const semSuffix = activeSem ? `_Semester_${activeSem}` : '';
+    link.setAttribute("download", `Combined_Grades_Report${semSuffix}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast('Grades report exported successfully!', 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to export grades report: ' + err.message, 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Export Combined Grades';
+    }
+  }
 };

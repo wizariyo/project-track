@@ -372,27 +372,12 @@
       }
 
       if (window.authMode === 'login') {
-        // Validate password first by trying a quick sign-in
-        const cred = await window.auth.signInWithEmailAndPassword(email, password);
-        const doc = await window.db.collection('users').doc(cred.user.uid).get();
-        if (!doc.exists) {
-          await window.auth.signOut();
-          throw new Error('User profile not found in database.');
-        }
+        const user = await window.apiLogin(email, password);
+        if (!user) throw new Error("Invalid credentials or user not found.");
         
-        // Log out immediately so they aren't fully authenticated yet
-        await window.auth.signOut();
-        
-        // Save temp data
-        tempAuthData = {
-          mode: 'login',
-          email,
-          password,
-          name: doc.data().name || 'User',
-          otp: window.OTP.generate()
-        };
+        if (window.showToast) window.showToast('Logged in successfully!', 'success');
+        setTimeout(() => redirectUser(user.role), 500);
       } else {
-        // Signup
         const name = document.getElementById('authName').value.trim();
         const semester = parseInt(document.getElementById('authSemester').value);
         
@@ -417,34 +402,12 @@
           data.subjects = subj;
         }
 
-        // Quick check if email already exists
-        const methods = await window.auth.fetchSignInMethodsForEmail(email);
-        if (methods.length > 0) {
-          throw new Error("Email is already in use.");
-        }
-
-        // Save temp data
-        tempAuthData = {
-          mode: 'signup',
-          email,
-          name,
-          payload: data,
-          otp: window.OTP.generate()
-        };
+        const user = await window.apiSignup(data);
+        if (!user) throw new Error("Signup failed.");
+        
+        if (window.showToast) window.showToast('Account created successfully!', 'success');
+        setTimeout(() => redirectUser(user.role), 500);
       }
-
-      // Open OTP Verification
-      document.getElementById('otpEmailSpan').textContent = email;
-      openModal('otpModal');
-      resetOtpInputs();
-      
-      await window.OTP.send(tempAuthData.email, tempAuthData.name, tempAuthData.otp);
-      
-      startOtpResendTimer();
-      
-      submitBtn.disabled = false;
-      submitBtn.textContent = window.authMode === 'login' ? 'Sign In' : 'Sign Up';
-
     } catch (error) {
       console.error("Auth Error:", error);
       errorDiv.textContent = error.message || "An error occurred during authentication.";
