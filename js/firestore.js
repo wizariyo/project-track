@@ -325,12 +325,13 @@
 // CHAT FUNCTIONS
 window.sendMessage = async function(chatId, text) {
   if (!window.db) throw new Error('Firestore not initialized');
-  if (!window.__currentUser) throw new Error('Not logged in');
+  const user = window.getCurrentUser();
+  if (!user) throw new Error('Not logged in');
   
   const msg = {
     text: text,
-    senderId: window.__currentUser.uid,
-    senderName: window.__currentUser.displayName || window.__currentUser.email,
+    senderId: user.id || user._id,
+    senderName: user.name || user.email,
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   };
   
@@ -340,7 +341,7 @@ window.sendMessage = async function(chatId, text) {
   await window.db.collection('chats').doc(chatId).set({
     lastMessage: text,
     lastMessageTime: firebase.firestore.FieldValue.serverTimestamp(),
-    lastSenderId: window.__currentUser.uid
+    lastSenderId: user.id || user._id
   }, { merge: true });
 };
 

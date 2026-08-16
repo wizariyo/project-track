@@ -3807,10 +3807,12 @@ window.loadStudentChatChannels = async function() {
   ];
   
   // Add direct messages with teammates
+  const user = window.getCurrentUser();
+  const myId = user ? (user.id || user._id) : '';
   const members = window.__group.members || [];
   members.forEach(member => {
-    if (member.id !== window.__currentUser.uid) {
-      const ids = [window.__currentUser.uid, member.id].sort();
+    if (member.id !== myId) {
+      const ids = [myId, member.id].sort();
       channels.push({
         id: `dm_${ids[0]}_${ids[1]}`,
         title: member.name || member.email,
@@ -3943,7 +3945,8 @@ window.renderChatMessages = function(msgs, rolePrefix) {
     return;
   }
   
-  const myUid = window.__currentUser ? window.__currentUser.uid : '';
+  const user = window.getCurrentUser();
+  const myUid = user ? (user.id || user._id) : '';
   
   area.innerHTML = msgs.map(m => {
     const isMine = m.senderId === myUid;
