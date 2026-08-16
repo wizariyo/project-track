@@ -138,10 +138,16 @@
           <select id="authSubjects" class="form-control">
           </select>
         </div>
-        <div id="teacherSignupSubjectsField" class="form-group" style="display:none;">
-          <label style="font-weight: 600; font-size: 13px; margin-bottom: 8px; display: block; color: var(--text);">Taught Subjects (Select All That Apply)</label>
-          <div id="teacherSignupSubjectsContainer" style="max-height: 180px; overflow-y: auto; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); display: flex; flex-direction: column; gap: 12px;">
+        <div id="teacherSignupSemestersField" class="form-group" style="display:none;">
+          <label style="font-weight: 600; font-size: 13px; margin-bottom: 8px; display: block; color: var(--text);">Select Semesters You Teach</label>
+          <div id="teacherSignupSemestersContainer" style="display: flex; gap: 12px; flex-wrap: wrap; background: var(--surface-2); padding: 12px; border: 1px solid var(--border); border-radius: var(--radius);">
             <!-- Rendered dynamically -->
+          </div>
+        </div>
+        <div id="teacherSignupSubjectsField" class="form-group" style="display:none;">
+          <label style="font-weight: 600; font-size: 13px; margin-bottom: 8px; display: block; color: var(--text);">Select Subjects Taught in Chosen Semesters</label>
+          <div id="teacherSignupSubjectsContainer" style="max-height: 180px; overflow-y: auto; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); display: flex; flex-direction: column; gap: 12px;">
+            <p style="font-size:12px; color:var(--text-3); margin:0;">Please select one or more semesters above first.</p>
           </div>
         </div>
       </div>
@@ -208,10 +214,16 @@
         <label for="googleSubjects">Subject Taught</label>
         <select id="googleSubjects" class="form-control"></select>
       </div>
-      <div class="form-group" id="googleTeacherSubjectsField" style="display: none;">
-        <label style="font-weight: 600; font-size: 13px; margin-bottom: 8px; display: block; color: var(--text);">Taught Subjects (Select All That Apply)</label>
-        <div id="googleTeacherSubjectsContainer" style="max-height: 180px; overflow-y: auto; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); display: flex; flex-direction: column; gap: 12px;">
+      <div class="form-group" id="googleTeacherSemestersField" style="display: none;">
+        <label style="font-weight: 600; font-size: 13px; margin-bottom: 8px; display: block; color: var(--text);">Select Semesters You Teach</label>
+        <div id="googleTeacherSemestersContainer" style="display: flex; gap: 12px; flex-wrap: wrap; background: var(--surface-2); padding: 12px; border: 1px solid var(--border); border-radius: var(--radius);">
           <!-- Rendered dynamically -->
+        </div>
+      </div>
+      <div class="form-group" id="googleTeacherSubjectsField" style="display: none;">
+        <label style="font-weight: 600; font-size: 13px; margin-bottom: 8px; display: block; color: var(--text);">Select Subjects Taught in Chosen Semesters</label>
+        <div id="googleTeacherSubjectsContainer" style="max-height: 180px; overflow-y: auto; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); display: flex; flex-direction: column; gap: 12px;">
+          <p style="font-size:12px; color:var(--text-3); margin:0;">Please select one or more semesters above first.</p>
         </div>
       </div>
     </div>
@@ -275,7 +287,7 @@
   /* Catalog loaded via js/catalog.js */
   function loadSubjectCatalog() {
     updateAuthSubjectCatalog && updateAuthSubjectCatalog();
-    renderTeacherSignupSubjects();
+    renderTeacherSignupSemesters();
   }
   
   function updateAuthSubjectCatalog() {
@@ -296,15 +308,52 @@
     }
   }
 
+  window.__selectedSignupSubjects = new Set();
+  window.__selectedSignupSemesters = new Set();
+
+  function renderTeacherSignupSemesters() {
+    const container = document.getElementById('teacherSignupSemestersContainer');
+    if (!container) return;
+
+    const sems = [...new Set(window.SUBJECT_CATALOG.map(s => s.semester))].sort((a,b) => a-b);
+    
+    container.innerHTML = sems.map(sem => `
+      <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);">
+        <input type="checkbox" class="signup-semester-checkbox" value="${sem}" style="width: 16px; height: 16px;" onchange="toggleSignupSemester(this, ${sem})" />
+        <span>Sem ${sem}</span>
+      </label>
+    `).join('');
+  }
+
+  window.toggleSignupSemester = function(el, sem) {
+    if (el.checked) {
+      window.__selectedSignupSemesters.add(sem);
+    } else {
+      window.__selectedSignupSemesters.delete(sem);
+      // Remove any previously selected subjects of this deselected semester
+      window.SUBJECT_CATALOG.filter(s => s.semester === sem).forEach(s => {
+        window.__selectedSignupSubjects.delete(s.name);
+      });
+    }
+    renderTeacherSignupSubjects();
+  };
+
   function renderTeacherSignupSubjects() {
     const container = document.getElementById('teacherSignupSubjectsContainer');
     if (!container) return;
 
+    if (window.__selectedSignupSemesters.size === 0) {
+      container.innerHTML = '<p style="font-size:12px; color:var(--text-3); margin:0;">Please select one or more semesters above first.</p>';
+      return;
+    }
+
     let html = '';
     const grouped = {};
     window.SUBJECT_CATALOG.forEach(s => {
-      if (!grouped[s.semester]) grouped[s.semester] = [];
-      grouped[s.semester].push(s);
+      if (window.__selectedSignupSemesters.has(s.semester)) {
+        if (!grouped[s.semester]) grouped[s.semester] = [];
+        grouped[s.semester].push(s);
+      }
     });
 
     Object.keys(grouped).forEach(sem => {
@@ -312,18 +361,29 @@
         <div style="margin-bottom: 8px;">
           <h4 style="font-size: 11px; text-transform: uppercase; color: var(--text-3); font-weight: 700; margin: 0 0 6px 0;">Semester ${sem}</h4>
           <div style="display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
-            ${grouped[sem].map(s => `
-              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);">
-                <input type="checkbox" class="signup-teacher-subject-checkbox" value="${s.name}" data-semester="${sem}" style="width: 16px; height: 16px;" />
-                <span>${s.code ? s.code + ' - ' : ''}${s.name}</span>
-              </label>
-            `).join('')}
+            ${grouped[sem].map(s => {
+              const isChecked = window.__selectedSignupSubjects.has(s.name) ? 'checked' : '';
+              return `
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);">
+                  <input type="checkbox" class="signup-teacher-subject-checkbox" value="${s.name}" data-semester="${sem}" ${isChecked} onchange="toggleSignupSubjectSelection(this)" style="width: 16px; height: 16px;" />
+                  <span>${s.code ? s.code + ' - ' : ''}${s.name}</span>
+                </label>
+              `;
+            }).join('')}
           </div>
         </div>
       `;
     });
     container.innerHTML = html;
   }
+
+  window.toggleSignupSubjectSelection = function(el) {
+    if (el.checked) {
+      window.__selectedSignupSubjects.add(el.value);
+    } else {
+      window.__selectedSignupSubjects.delete(el.value);
+    }
+  };
   
   loadSubjectCatalog();
   
@@ -335,6 +395,7 @@
     
     document.getElementById('authSemesterField').style.display = role === 'student' ? 'block' : 'none';
     document.getElementById('authSubjectsField').style.display = 'none';
+    document.getElementById('teacherSignupSemestersField').style.display = role === 'teacher' ? 'block' : 'none';
     document.getElementById('teacherSignupSubjectsField').style.display = role === 'teacher' ? 'block' : 'none';
 
     setAuthMode('login');
@@ -635,30 +696,67 @@
     }
   }
 
+  window.__googleSelectedSubjects = new Set();
+  window.__googleSelectedSemesters = new Set();
+
   window.toggleGoogleFields = function() {
     const role = document.getElementById('googleRole').value;
     document.getElementById('googleSemesterGroup').style.display = role === 'student' ? 'block' : 'none';
     document.getElementById('googleProjectRoleGroup').style.display = role === 'student' ? 'block' : 'none';
     document.getElementById('googleSubjectsGroup').style.display = 'none';
     
-    const teacherField = document.getElementById('googleTeacherSubjectsField');
-    if (teacherField) {
-      teacherField.style.display = role === 'teacher' ? 'block' : 'none';
-      if (role === 'teacher') {
-        window.renderGoogleTeacherSubjects();
-      }
+    const semField = document.getElementById('googleTeacherSemestersField');
+    const subjField = document.getElementById('googleTeacherSubjectsField');
+    
+    if (semField) semField.style.display = role === 'teacher' ? 'block' : 'none';
+    if (subjField) subjField.style.display = role === 'teacher' ? 'block' : 'none';
+    
+    if (role === 'teacher') {
+      window.renderGoogleTeacherSemesters();
+      window.renderGoogleTeacherSubjects();
     }
+  };
+
+  window.renderGoogleTeacherSemesters = function() {
+    const container = document.getElementById('googleTeacherSemestersContainer');
+    if (!container) return;
+    const sems = [...new Set(window.SUBJECT_CATALOG.map(s => s.semester))].sort((a,b) => a-b);
+    container.innerHTML = sems.map(sem => `
+      <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);">
+        <input type="checkbox" class="google-semester-checkbox" value="${sem}" style="width: 16px; height: 16px;" onchange="toggleGoogleSemester(this, ${sem})" />
+        <span>Sem ${sem}</span>
+      </label>
+    `).join('');
+  };
+
+  window.toggleGoogleSemester = function(el, sem) {
+    if (el.checked) {
+      window.__googleSelectedSemesters.add(sem);
+    } else {
+      window.__googleSelectedSemesters.delete(sem);
+      window.SUBJECT_CATALOG.filter(s => s.semester === sem).forEach(s => {
+        window.__googleSelectedSubjects.delete(s.name);
+      });
+    }
+    window.renderGoogleTeacherSubjects();
   };
 
   window.renderGoogleTeacherSubjects = function() {
     const container = document.getElementById('googleTeacherSubjectsContainer');
     if (!container) return;
 
+    if (window.__googleSelectedSemesters.size === 0) {
+      container.innerHTML = '<p style="font-size:12px; color:var(--text-3); margin:0;">Please select one or more semesters above first.</p>';
+      return;
+    }
+
     let html = '';
     const grouped = {};
     window.SUBJECT_CATALOG.forEach(s => {
-      if (!grouped[s.semester]) grouped[s.semester] = [];
-      grouped[s.semester].push(s);
+      if (window.__googleSelectedSemesters.has(s.semester)) {
+        if (!grouped[s.semester]) grouped[s.semester] = [];
+        grouped[s.semester].push(s);
+      }
     });
 
     Object.keys(grouped).forEach(sem => {
@@ -666,12 +764,15 @@
         <div style="margin-bottom: 8px;">
           <h4 style="font-size: 11px; text-transform: uppercase; color: var(--text-3); font-weight: 700; margin: 0 0 6px 0;">Semester ${sem}</h4>
           <div style="display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
-            ${grouped[sem].map(s => `
-              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);">
-                <input type="checkbox" class="google-teacher-subject-checkbox" value="${s.name}" data-semester="${sem}" style="width: 16px; height: 16px;" />
-                <span>${s.code ? s.code + ' - ' : ''}${s.name}</span>
-              </label>
-            `).join('')}
+            ${grouped[sem].map(s => {
+              const isChecked = window.__googleSelectedSubjects.has(s.name) ? 'checked' : '';
+              return `
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);">
+                  <input type="checkbox" class="google-teacher-subject-checkbox" value="${s.name}" data-semester="${sem}" ${isChecked} onchange="toggleGoogleSubjectSelection(this)" style="width: 16px; height: 16px;" />
+                  <span>${s.code ? s.code + ' - ' : ''}${s.name}</span>
+                </label>
+              `;
+            }).join('')}
           </div>
         </div>
       `;
@@ -679,8 +780,16 @@
     container.innerHTML = html;
   };
 
+  window.toggleGoogleSubjectSelection = function(el) {
+    if (el.checked) {
+      window.__googleSelectedSubjects.add(el.value);
+    } else {
+      window.__googleSelectedSubjects.delete(el.value);
+    }
+  };
+
   window.updateGoogleSubjects = function() {
-    // Keep as fallback or dummy
+    // Keep dummy
   };
 
   document.getElementById('submitGoogleConfigBtn')?.addEventListener('click', async () => {
@@ -706,20 +815,16 @@
       data.semester = parseInt(semesterInput);
       data.projectRole = document.getElementById('googleProjectRole').value;
     } else {
-      const selectedSubjs = [];
-      const selectedSems = new Set();
-      document.querySelectorAll('.google-teacher-subject-checkbox:checked').forEach(cb => {
-        selectedSubjs.push(cb.value);
-        selectedSems.add(parseInt(cb.getAttribute('data-semester')));
-      });
+      const selectedSubjs = Array.from(window.__googleSelectedSubjects);
+      const selectedSems = Array.from(window.__googleSelectedSemesters);
       
       if (selectedSubjs.length === 0) {
         alert("Please select at least one subject you teach.");
         return;
       }
       data.subjects = selectedSubjs;
-      data.semesters = Array.from(selectedSems);
-      data.semester = data.semesters[0];
+      data.semesters = selectedSems;
+      data.semester = selectedSems[0];
     }
     
     try {

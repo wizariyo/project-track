@@ -106,10 +106,16 @@
         <label for="editProfileSubjectsInput">Subject</label>
         <select id="editProfileSubjectsInput" class="form-control"></select>
       </div>
+      <div class="form-group" id="editProfileTeacherSemestersGroup" style="display: none; grid-column: 1 / -1;">
+        <label style="font-weight: 600; font-size: 13px; margin-bottom: 8px; display: block; color: var(--text);">Select Semesters You Teach</label>
+        <div id="editProfileTeacherSemestersContainer" style="display: flex; gap: 12px; flex-wrap: wrap; background: var(--surface-2); padding: 12px; border: 1px solid var(--border); border-radius: var(--radius);">
+          <!-- Loaded dynamically as checkboxes -->
+        </div>
+      </div>
       <div class="form-group" id="editProfileTeacherSubjectsGroup" style="display: none; grid-column: 1 / -1;">
-        <label style="font-weight: 600; font-size: 13px; margin-bottom: 8px; display: block; color: var(--text);">Taught Subjects (Select All That Apply)</label>
+        <label style="font-weight: 600; font-size: 13px; margin-bottom: 8px; display: block; color: var(--text);">Select Subjects Taught in Chosen Semesters</label>
         <div id="editProfileTeacherSubjectsContainer" style="max-height: 180px; overflow-y: auto; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); display: flex; flex-direction: column; gap: 12px;">
-          <!-- Loaded dynamically as checkboxes grouped by semester -->
+          <p style="font-size:12px; color:var(--text-3); margin:0;">Please select one or more semesters above first.</p>
         </div>
       </div>
     </div>

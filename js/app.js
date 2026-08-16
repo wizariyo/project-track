@@ -2040,11 +2040,13 @@ async function initProfilePage() {
       if (colorInput) colorInput.value = user.avatarColor || pickColor(user.id||user._id);
       
       const teacherSubjectsGroup = document.getElementById('editProfileTeacherSubjectsGroup');
+      const teacherSemestersGroup = document.getElementById('editProfileTeacherSemestersGroup');
       if (user.role === 'student') {
         if (subjectsGroup) subjectsGroup.style.display = 'block';
         if (branchInput) branchInput.parentElement.style.display = 'block';
         if (semesterInput) semesterInput.parentElement.style.display = 'block';
         if (teacherSubjectsGroup) teacherSubjectsGroup.style.display = 'none';
+        if (teacherSemestersGroup) teacherSemestersGroup.style.display = 'none';
         
         if (branchInput) branchInput.value = user.branch || '';
         if (semesterInput) semesterInput.value = user.semester || '';
@@ -2055,38 +2057,30 @@ async function initProfilePage() {
         if (subjectsGroup) subjectsGroup.style.display = 'none';
         if (branchInput) branchInput.parentElement.style.display = 'none';
         if (semesterInput) semesterInput.parentElement.style.display = 'none';
-        if (teacherSubjectsGroup) {
-          teacherSubjectsGroup.style.display = 'block';
-          const container = document.getElementById('editProfileTeacherSubjectsContainer');
-          if (container) {
-            const preselectedArr = Array.isArray(user.subjects) ? user.subjects : (user.subjects ? [user.subjects] : []);
-            let html = '';
-            const grouped = {};
-            window.SUBJECT_CATALOG.forEach(s => {
-              if (!grouped[s.semester]) grouped[s.semester] = [];
-              grouped[s.semester].push(s);
-            });
-            Object.keys(grouped).forEach(sem => {
-              html += `
-                <div style="margin-bottom: 8px;">
-                  <h4 style="font-size: 11px; text-transform: uppercase; color: var(--text-3); font-weight: 700; margin: 0 0 6px 0;">Semester ${sem}</h4>
-                  <div style="display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
-                    ${grouped[sem].map(s => {
-                      const isChecked = preselectedArr.includes(s.name) ? 'checked' : '';
-                      return `
-                        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);">
-                          <input type="checkbox" class="profile-teacher-subject-checkbox" value="${s.name}" data-semester="${sem}" ${isChecked} style="width: 16px; height: 16px;" />
-                          <span>${s.code ? s.code + ' - ' : ''}${s.name}</span>
-                        </label>
-                      `;
-                    }).join('')}
-                  </div>
-                </div>
-              `;
-            });
-            container.innerHTML = html;
-          }
+        
+        window.__profileSelectedSubjects = new Set(Array.isArray(user.subjects) ? user.subjects : (user.subjects ? [user.subjects] : []));
+        window.__profileSelectedSemesters = new Set(Array.isArray(user.semesters) ? user.semesters.map(Number) : (user.semester ? [Number(user.semester)] : []));
+
+        if (teacherSemestersGroup) teacherSemestersGroup.style.display = 'block';
+        if (teacherSubjectsGroup) teacherSubjectsGroup.style.display = 'block';
+
+        // Render Semesters Checkboxes
+        const semContainer = document.getElementById('editProfileTeacherSemestersContainer');
+        if (semContainer) {
+          const sems = [...new Set(window.SUBJECT_CATALOG.map(s => s.semester))].sort((a,b) => a-b);
+          semContainer.innerHTML = sems.map(sem => {
+            const isChecked = window.__profileSelectedSemesters.has(sem) ? 'checked' : '';
+            return `
+              <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);">
+                <input type="checkbox" class="profile-semester-checkbox" value="${sem}" ${isChecked} style="width: 16px; height: 16px;" onchange="toggleProfileSemester(this, ${sem})" />
+                <span>Sem ${sem}</span>
+              </label>
+            `;
+          }).join('');
         }
+
+        // Render Subjects Checkboxes
+        window.renderProfileTeacherSubjects();
       }
 
       const curColor = colorInput?.value;
@@ -2254,19 +2248,15 @@ async function initProfilePage() {
         updateData.subjects = subjects;
         if (semesterInput) updateData.semester = parseInt(semesterInput);
       } else {
-        const selectedSubjs = [];
-        const selectedSems = new Set();
-        document.querySelectorAll('.profile-teacher-subject-checkbox:checked').forEach(cb => {
-          selectedSubjs.push(cb.value);
-          selectedSems.add(parseInt(cb.getAttribute('data-semester')));
-        });
+        const selectedSubjs = Array.from(window.__profileSelectedSubjects || []);
+        const selectedSems = Array.from(window.__profileSelectedSemesters || []);
         if (selectedSubjs.length === 0) {
           showToast('Please select at least one subject you teach.', 'error');
           return;
         }
         updateData.subjects = selectedSubjs;
-        updateData.semesters = Array.from(selectedSems);
-        updateData.semester = updateData.semesters[0];
+        updateData.semesters = selectedSems;
+        updateData.semester = selectedSems[0];
       }
       if (user.photoUrl) updateData.photoUrl = user.photoUrl;
 
@@ -2306,6 +2296,65 @@ async function initProfilePage() {
     document.getElementById('editProfileBtn')?.click();
   }
 }
+
+window.toggleProfileSemester = function(el, sem) {
+  if (el.checked) {
+    window.__profileSelectedSemesters.add(sem);
+  } else {
+    window.__profileSelectedSemesters.delete(sem);
+    window.SUBJECT_CATALOG.filter(s => s.semester === sem).forEach(s => {
+      window.__profileSelectedSubjects.delete(s.name);
+    });
+  }
+  window.renderProfileTeacherSubjects();
+};
+
+window.renderProfileTeacherSubjects = function() {
+  const container = document.getElementById('editProfileTeacherSubjectsContainer');
+  if (!container) return;
+  
+  if (!window.__profileSelectedSemesters || window.__profileSelectedSemesters.size === 0) {
+    container.innerHTML = '<p style="font-size:12px; color:var(--text-3); margin:0;">Please select one or more semesters above first.</p>';
+    return;
+  }
+  
+  let html = '';
+  const grouped = {};
+  window.SUBJECT_CATALOG.forEach(s => {
+    if (window.__profileSelectedSemesters.has(s.semester)) {
+      if (!grouped[s.semester]) grouped[s.semester] = [];
+      grouped[s.semester].push(s);
+    }
+  });
+
+  Object.keys(grouped).forEach(sem => {
+    html += `
+      <div style="margin-bottom: 8px;">
+        <h4 style="font-size: 11px; text-transform: uppercase; color: var(--text-3); font-weight: 700; margin: 0 0 6px 0;">Semester ${sem}</h4>
+        <div style="display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
+          ${grouped[sem].map(s => {
+            const isChecked = window.__profileSelectedSubjects.has(s.name) ? 'checked' : '';
+            return `
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);">
+                <input type="checkbox" class="profile-teacher-subject-checkbox" value="${s.name}" data-semester="${sem}" ${isChecked} onchange="toggleProfileSubjectSelection(this)" style="width: 16px; height: 16px;" />
+                <span>${s.code ? s.code + ' - ' : ''}${s.name}</span>
+              </label>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  });
+  container.innerHTML = html;
+};
+
+window.toggleProfileSubjectSelection = function(el) {
+  if (el.checked) {
+    window.__profileSelectedSubjects.add(el.value);
+  } else {
+    window.__profileSelectedSubjects.delete(el.value);
+  }
+};
 
 /* =========================================================
    PROJECT FILES RENDER & MANAGEMENT
