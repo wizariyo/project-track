@@ -562,12 +562,14 @@ async function loadTeacherData(teacher) {
 
   let allTasks = [];
   let allMembers = [];
-  for (const g of groups) {
-    try {
-      const m = await getGroupMembers(g.id || g._id);
-      allMembers.push(...m);
-
-      const t = await getTasksByGroup(g.id || g._id);
+  
+  try {
+    const groupDataPromises = groups.map(async (g) => {
+      const gid = g.id || g._id;
+      const [m, t] = await Promise.all([
+        getGroupMembers(gid),
+        getTasksByGroup(gid)
+      ]);
       t.forEach(x => {
         x._groupName = g.name;
         if (x.assigneeId) {
@@ -576,8 +578,16 @@ async function loadTeacherData(teacher) {
           x.assignee = null;
         }
       });
-      allTasks.push(...t);
-    } catch(e) {}
+      return { members: m, tasks: t };
+    });
+
+    const results = await Promise.all(groupDataPromises);
+    results.forEach(res => {
+      allMembers.push(...res.members);
+      allTasks.push(...res.tasks);
+    });
+  } catch (err) {
+    console.error("Parallel loading failed:", err);
   }
   window.__allTeacherTasks = allTasks;
   window.__teacherGroupMembers = allMembers;
