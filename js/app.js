@@ -500,7 +500,18 @@ async function initTeacherDashboard(teacher) {
 
 async function loadTeacherData(teacher) {
   let groups = [];
-  try { groups = await getGroupsByTeacher(teacher.id || teacher._id); }
+  try { 
+    groups = await getGroupsByTeacher(teacher.id || teacher._id); 
+    // Backwards compatibility: Auto-resolve missing semesters from subject catalog
+    groups.forEach(g => {
+      if (!g.semester && g.subject && window.SUBJECT_CATALOG) {
+        const catObj = window.SUBJECT_CATALOG.find(cat => cat.name === g.subject || cat.code === g.subject);
+        if (catObj) {
+          g.semester = catObj.semester;
+        }
+      }
+    });
+  }
   catch(e) { showToast('Could not load groups.', 'error'); return; }
   window.__teacherGroups = groups;
   window.__teacher = teacher;
