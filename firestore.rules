@@ -14,8 +14,10 @@ service cloud.firestore {
     // Users Collection
     match /users/{userId} {
       allow read: if signedIn();
-      // Allow signup (creating new user document) and updating their own profile
-      allow create, update: if signedIn() && isOwner(userId);
+      // Allow signup (creating new user document)
+      allow create: if signedIn() && isOwner(userId);
+      // Allow updating their own profile, or if the requester is a teacher
+      allow update: if signedIn() && (isOwner(userId) || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher');
       allow delete: if signedIn() && isOwner(userId);
     }
 
