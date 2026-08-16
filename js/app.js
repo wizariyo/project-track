@@ -482,12 +482,19 @@ async function loadTeacherData(teacher) {
   let allMembers = [];
   for (const g of groups) {
     try {
-      const t = await getTasksByGroup(g.id || g._id);
-      t.forEach(x => x._groupName = g.name);
-      allTasks.push(...t);
-
       const m = await getGroupMembers(g.id || g._id);
       allMembers.push(...m);
+
+      const t = await getTasksByGroup(g.id || g._id);
+      t.forEach(x => {
+        x._groupName = g.name;
+        if (x.assigneeId) {
+          x.assignee = m.find(member => (member.id || member._id) === x.assigneeId) || null;
+        } else {
+          x.assignee = null;
+        }
+      });
+      allTasks.push(...t);
     } catch(e) {}
   }
   window.__allTeacherTasks = allTasks;
@@ -1623,8 +1630,20 @@ let draggedTaskId = null;
 
 async function renderKanban(group) {
   let tasks = [];
-  try { tasks = await getTasksByGroup(group.id||group._id); }
+  let members = [];
+  try { 
+    tasks = await getTasksByGroup(group.id||group._id); 
+    members = await getGroupMembers(group.id||group._id);
+  }
   catch(e) { showToast('Could not load tasks.', 'error'); }
+
+  tasks.forEach(t => {
+    if (t.assigneeId) {
+      t.assignee = members.find(m => (m.id || m._id) === t.assigneeId) || null;
+    } else {
+      t.assignee = null;
+    }
+  });
 
   window.__group = group;
   window.__groupTasks = tasks;
@@ -2090,6 +2109,7 @@ async function initProfilePage() {
 
       const updateData = { name, projectRole, avatarColor, password, subjects };
       if (semesterInput) updateData.semester = parseInt(semesterInput);
+      if (user.photoUrl) updateData.photoUrl = user.photoUrl;
 
       await updateUserProfile(user.id||user._id, updateData);
       stopCamera();
