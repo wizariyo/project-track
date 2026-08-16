@@ -530,6 +530,12 @@ async function loadTeacherData(teacher) {
       if (displayEl) {
         displayEl.textContent = `Semester ${activeSemester} Workspace`;
       }
+
+      // Ensure Overview page and nav item are active when entering a workspace
+      const currentActivePage = document.querySelector('.section-page.active');
+      if (!currentActivePage || currentActivePage.id === 'page-semesters') {
+        window.switchPage('overview');
+      }
     }
   } else {
     if (semestersNav) semestersNav.style.display = 'none';
@@ -606,9 +612,7 @@ function renderTeacherSemestersGrid(semesters) {
 
 window.selectTeacherSemester = function(sem) {
   sessionStorage.setItem('activeTeacherSemester', sem);
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const overviewNavItem = document.getElementById('navOverview');
-  if (overviewNavItem) overviewNavItem.classList.add('active');
+  window.switchPage('overview');
   loadTeacherData(window.__teacher);
 };
 
