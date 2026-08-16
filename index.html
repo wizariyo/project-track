@@ -218,6 +218,9 @@
   <script src="js/firestore.js?v=1786815004806"></script>
   <script src="js/toast.js?v=1786815004806"></script>
 <script>
+  function openModal(id)  { const m = document.getElementById(id); if (m) m.classList.add('open'); }
+  function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('open'); }
+
   window.selectedRole = null;
   window.authMode = 'login';
 
@@ -290,6 +293,14 @@
     if (googleBtn) {
       googleBtn.addEventListener('click', handleGoogleAuth);
     }
+    
+    // Wire close modal buttons
+    document.querySelectorAll('[data-close]').forEach(btn => {
+      btn.addEventListener('click', () => closeModal(btn.getAttribute('data-close')));
+    });
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay.id); });
+    });
     
     // Check if user is already logged in
     const user = window.getCurrentUser();
