@@ -112,6 +112,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.error("Failed to refresh user session:", e);
     }
     
+    // Enforce role authorization check
+    if (user.role !== role) {
+      if (user.role === 'teacher') {
+        window.location.href = 'teacher-dashboard.html';
+      } else if (user.role === 'student') {
+        window.location.href = 'student-dashboard.html';
+      } else {
+        window.location.href = 'index.html';
+      }
+      return;
+    }
+
     populateSidebar(user);
     if (role === 'teacher') await initTeacherDashboard(user);
     if (role === 'student') await initStudentDashboard(user);

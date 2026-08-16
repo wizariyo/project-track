@@ -49,9 +49,14 @@
     return user;
   }
 
-  function logoutUser() {
-    auth.signOut();
+  async function logoutUser() {
+    try {
+      await auth.signOut();
+    } catch(e) {
+      console.error("Signout error:", e);
+    }
     clearCurrentUser();
+    window.location.href = 'index.html';
   }
 
   async function deleteUserAccount() {
