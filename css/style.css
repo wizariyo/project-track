@@ -2404,6 +2404,20 @@ input:checked + .day-night-slider::after {
   margin-bottom: 6px;
   border: 1px solid transparent;
 }
+.chat-subject-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 14px 16px 8px;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+.chat-subject-header:first-of-type {
+  border-top: none;
+  margin-top: 0;
+}
 .chat-channel:hover {
   background: rgba(33, 160, 160, 0.08);
   border-color: rgba(33, 160, 160, 0.15);

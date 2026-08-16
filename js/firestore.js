@@ -112,6 +112,14 @@
     return snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
   }
   async function updateUserProfile(uid, data) {
+    if (data.password && data.password.trim() !== '') {
+      var user = auth.currentUser;
+      if (user) {
+        await user.updatePassword(data.password.trim());
+      }
+    }
+    delete data.password; // Never store plain-text passwords in Firestore
+    
     await db.collection('users').doc(uid).update(data);
     var fresh = await getUser(uid);
     setCurrentUser(fresh);

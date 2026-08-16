@@ -3853,34 +3853,48 @@ window.loadTeacherChatChannels = async function() {
   
   const groups = window.__teacherGroups || [];
   if (groups.length === 0) {
-    listEl.innerHTML = '<p style="color:var(--text-3); font-size:12px;">No groups supervised.</p>';
+    listEl.innerHTML = '<p style="color:var(--text-3); font-size:12px; padding: 16px;">No groups supervised.</p>';
     return;
   }
   
-  const channels = [];
+  // Group groups by subject
+  const subjectsMap = {};
   groups.forEach(g => {
-    const groupId = g.id || g._id;
-    channels.push({
-      id: `faculty_team_${groupId}`,
-      title: g.groupName + ' (Faculty Chat)',
-      sub: g.projectName,
-      type: 'faculty'
-    });
+    const subj = g.subject || 'Other';
+    if (!subjectsMap[subj]) subjectsMap[subj] = [];
+    subjectsMap[subj].push(g);
   });
 
-  channels.forEach(ch => {
-    const el = document.createElement('div');
-    el.className = 'chat-channel';
-    el.id = `chat-ch-${ch.id}`;
-    el.innerHTML = `
-      <div class="ch-icon">👨‍🏫</div>
-      <div class="ch-details">
-        <div class="ch-title">${escapeHtml(ch.title)}</div>
-        <div class="ch-sub">${escapeHtml(ch.sub)}</div>
-      </div>
-    `;
-    el.onclick = () => openChatChannel(ch.id, ch.title, ch.sub, 'teacher');
-    listEl.appendChild(el);
+  const channels = []; // to keep track of channels for auto-selection
+  
+  Object.keys(subjectsMap).forEach(subjName => {
+    // Render Subject Header
+    const headerEl = document.createElement('div');
+    headerEl.className = 'chat-subject-header';
+    headerEl.textContent = subjName;
+    listEl.appendChild(headerEl);
+    
+    subjectsMap[subjName].forEach(g => {
+      const groupId = g.id || g._id;
+      const chId = `faculty_team_${groupId}`;
+      const title = g.name || 'Unnamed Group';
+      const sub = g.projectName || 'No Project Name';
+      
+      channels.push({ id: chId, title: title, sub: sub, type: 'faculty' });
+      
+      const el = document.createElement('div');
+      el.className = 'chat-channel';
+      el.id = `chat-ch-${chId}`;
+      el.innerHTML = `
+        <div class="ch-icon">👥</div>
+        <div class="ch-details">
+          <div class="ch-title">${escapeHtml(title)}</div>
+          <div class="ch-sub">${escapeHtml(sub)}</div>
+        </div>
+      `;
+      el.onclick = () => openChatChannel(chId, title, sub, 'teacher');
+      listEl.appendChild(el);
+    });
   });
   
   if (channels.length > 0) {
