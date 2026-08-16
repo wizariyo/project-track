@@ -130,6 +130,12 @@ function debounce(func, delay = 200) {
   };
 }
 
+function formatFileDate(ts) {
+  if (!ts) return 'Unknown Date';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return isNaN(d.getTime()) ? 'Unknown Date' : d.toLocaleDateString();
+}
+
 function showToast(msg, type = 'success') {
   let c = document.getElementById('toast-container');
   if (!c) { c = document.createElement('div'); c.id = 'toast-container'; c.className = 'toast-container'; document.body.appendChild(c); }
@@ -1322,8 +1328,10 @@ async function initStudentDashboard(student) {
           await uploadProjectFile(group.id||group._id, {
             fileName: file.name,
             fileType: type,
-            fileData: reader.result,
-            uploadedBy: student.id||student._id
+            fileContent: reader.result,
+            uploadedBy: student.id||student._id,
+            uploaderName: student.name || 'Student',
+            uploadedAt: Date.now()
           });
           showToast('File uploaded successfully!');
           if (fileInput) fileInput.value = '';
@@ -2138,21 +2146,26 @@ async function renderStudentFiles(group, student) {
     const reports = files.filter(f => f.fileType === 'report');
     const papers = files.filter(f => f.fileType === 'paper');
 
-    const drawFile = (f) => `
-      <div style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; display:flex; flex-direction:column; gap:6px;">
-        <div style="font-size:13px; font-weight:600; color:var(--text); word-break:break-all;" title="${escapeHtml(f.fileName)}">${escapeHtml(f.fileName)}</div>
-        <div style="font-size:10.5px; color:var(--text-3); display:flex; justify-content:space-between; align-items:center;">
-          <span>${escapeHtml(f.uploaderName || 'Student')}</span>
-          <span>${new Date(f.uploadedAt).toLocaleDateString()}</span>
+    const drawFile = (f) => {
+      const fileUrl = f.fileContent || f.fileData || '#';
+      const uploader = f.uploaderName || 'Student';
+      const fileDate = formatFileDate(f.timestamp || f.uploadedAt);
+      return `
+        <div style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; display:flex; flex-direction:column; gap:6px;">
+          <div style="font-size:13px; font-weight:600; color:var(--text); word-break:break-all;" title="${escapeHtml(f.fileName)}">${escapeHtml(f.fileName)}</div>
+          <div style="font-size:10.5px; color:var(--text-3); display:flex; justify-content:space-between; align-items:center;">
+            <span>${escapeHtml(uploader)}</span>
+            <span>${fileDate}</span>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <a href="${fileUrl}" download="${f.fileName}" class="btn btn-sm" style="flex:1; justify-content:center; background:var(--teal); color:var(--cream); padding:5px 8px; font-size:11px;">Download</a>
+            ${f.uploadedBy === (student.id || student._id) ? `
+              <button class="btn btn-sm btn-danger-ghost" style="padding:4px 8px; font-size:11px;" onclick="handleDeleteFile('${f.id}')">Delete</button>
+            ` : ''}
+          </div>
         </div>
-        <div style="display:flex; gap:8px; margin-top:4px;">
-          <a href="${f.fileContent || '#'}" download="${f.fileName}" class="btn btn-sm" style="flex:1; justify-content:center; background:var(--teal); color:var(--cream); padding:5px 8px; font-size:11px;">Download</a>
-          ${f.uploadedBy === (student.id || student._id) ? `
-            <button class="btn btn-sm btn-danger-ghost" style="padding:4px 8px; font-size:11px;" onclick="handleDeleteFile('${f.id}')">Delete</button>
-          ` : ''}
-        </div>
-      </div>
-    `;
+      `;
+    };
 
     listPPT.innerHTML = ppts.length ? ppts.map(drawFile).join('') : '<p style="font-size:12px; color:var(--text-3); text-align:center; padding:14px 0; margin:0;">No presentations uploaded.</p>';
     listReport.innerHTML = reports.length ? reports.map(drawFile).join('') : '<p style="font-size:12px; color:var(--text-3); text-align:center; padding:14px 0; margin:0;">No final reports uploaded.</p>';
@@ -2198,19 +2211,24 @@ async function renderTeacherFiles(groupId) {
     const reports = files.filter(f => f.fileType === 'report');
     const papers = files.filter(f => f.fileType === 'paper');
 
-    const drawFile = (f) => `
-      <div style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; display:flex; flex-direction:column; gap:6px;">
-        <div style="font-size:13px; font-weight:600; color:var(--text); word-break:break-all;" title="${escapeHtml(f.fileName)}">${escapeHtml(f.fileName)}</div>
-        <div style="font-size:10.5px; color:var(--text-3); display:flex; justify-content:space-between; align-items:center;">
-          <span>${escapeHtml(f.uploaderName || 'Student')}</span>
-          <span>${new Date(f.uploadedAt).toLocaleDateString()}</span>
+    const drawFile = (f) => {
+      const fileUrl = f.fileContent || f.fileData || '#';
+      const uploader = f.uploaderName || 'Student';
+      const fileDate = formatFileDate(f.timestamp || f.uploadedAt);
+      return `
+        <div style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; display:flex; flex-direction:column; gap:6px;">
+          <div style="font-size:13px; font-weight:600; color:var(--text); word-break:break-all;" title="${escapeHtml(f.fileName)}">${escapeHtml(f.fileName)}</div>
+          <div style="font-size:10.5px; color:var(--text-3); display:flex; justify-content:space-between; align-items:center;">
+            <span>${escapeHtml(uploader)}</span>
+            <span>${fileDate}</span>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:4px;">
+            <a href="${fileUrl}" download="${f.fileName}" class="btn btn-sm" style="flex:1; justify-content:center; background:var(--teal); color:var(--cream); padding:5px 8px; font-size:11px;">Download</a>
+            <button class="btn btn-sm btn-danger-ghost" style="padding:4px 8px; font-size:11px;" onclick="handleDeleteFile('${f.id}')">Delete</button>
+          </div>
         </div>
-        <div style="display:flex; gap:8px; margin-top:4px;">
-          <a href="${f.fileContent || '#'}" download="${f.fileName}" class="btn btn-sm" style="flex:1; justify-content:center; background:var(--teal); color:var(--cream); padding:5px 8px; font-size:11px;">Download</a>
-          <button class="btn btn-sm btn-danger-ghost" style="padding:4px 8px; font-size:11px;" onclick="handleDeleteFile('${f.id}')">Delete</button>
-        </div>
-      </div>
-    `;
+      `;
+    };
 
     listPPT.innerHTML = ppts.length ? ppts.map(drawFile).join('') : '<p style="font-size:12px; color:var(--text-3); text-align:center; padding:14px 0; margin:0;">No presentations uploaded.</p>';
     listReport.innerHTML = reports.length ? reports.map(drawFile).join('') : '<p style="font-size:12px; color:var(--text-3); text-align:center; padding:14px 0; margin:0;">No final reports uploaded.</p>';
@@ -3721,54 +3739,7 @@ async function renderWorkloadChart(groups) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const fileUploadBtn = document.getElementById('submitFileUploadBtn');
-  const fileInput = document.getElementById('uploadFileInput');
-  const fileTypeSelect = document.getElementById('uploadFileType');
-  
-  if (fileUploadBtn && fileInput && fileTypeSelect) {
-    fileUploadBtn.addEventListener('click', async () => {
-      const group = window.__group;
-      if (!group) return showToast('No active group workspace.', 'error');
-      
-      const file = fileInput.files[0];
-      if (!file) return showToast('Please select a file to upload.', 'error');
-      
-      const fileType = fileTypeSelect.value;
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('fileType', fileType);
-      
-      fileUploadBtn.disabled = true;
-      fileUploadBtn.textContent = 'Uploading...';
-      
-      try {
-        const res = await fetch(`/api/groups/${group.id||group._id}/files`, {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
-          body: formData
-        });
-        
-        if (!res.ok) throw new Error('Upload failed');
-        
-        showToast('File uploaded successfully!');
-        fileInput.value = '';
-        fileInput.dispatchEvent(new Event('change')); // Reset UI
-        
-        if (window.__role === 'student') {
-          await renderStudentFiles(window.__group, window.__student);
-        } else {
-          await renderTeacherFiles(window.__group.id||window.__group._id);
-        }
-      } catch (err) {
-        showToast(err.message, 'error');
-      } finally {
-        fileUploadBtn.disabled = false;
-        fileUploadBtn.textContent = 'Upload File';
-      }
-    });
-  }
-});
+
 
 // Chat Logic Variables
 let activeChatUnsubscribe = null;
