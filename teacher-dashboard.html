@@ -357,36 +357,15 @@
         </div>
 
         <div class="inspect-tab-content" id="inspect-tab-evaluation" style="flex-direction: column; gap: 20px;">
-          <div class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);">
-            <h3 style="font-size: 16px; font-weight: 700; margin: 0; color: var(--text);">Group Project Grading & Evaluation</h3>
-            <p style="font-size: 13px; color: var(--text-3); margin: 0;">Evaluate the overall performance of this group. Assign a grade and score, and add assessment remarks for the team.</p>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-              <div class="form-group" style="margin: 0;">
-                <label for="evalGradeSelect" style="font-size: 12.5px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; display: block;">Letter Grade</label>
-                <select id="evalGradeSelect" class="form-control">
-                  <option value="">Select Grade...</option>
-                  <option value="A+">A+</option>
-                  <option value="A">A</option>
-                  <option value="B+">B+</option>
-                  <option value="B">B</option>
-                  <option value="C">C</option>
-                  <option value="D">D</option>
-                  <option value="F">F</option>
-                </select>
-              </div>
-              <div class="form-group" style="margin: 0;">
-                <label for="evalScoreInput" style="font-size: 12.5px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; display: block;">Score / Marks (out of 100)</label>
-                <input type="number" id="evalScoreInput" min="0" max="100" class="form-control" placeholder="e.g. 85" />
-              </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h3 style="font-size: 16px; font-weight: 700; margin: 0; color: var(--text);">Student-wise Evaluation & Grading</h3>
+              <p style="font-size: 13px; color: var(--text-3); margin: 4px 0 0 0;">Assign individual grades, scores, and feedback for each student in this group.</p>
             </div>
-
-            <div class="form-group" style="margin: 0;">
-              <label for="evalRemarksTextarea" style="font-size: 12.5px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; display: block;">Evaluation Remarks & Feedback</label>
-              <textarea id="evalRemarksTextarea" class="form-control" style="height: 120px; resize: vertical;" placeholder="Provide feedback on their project defense, teamwork, repository quality..."></textarea>
-            </div>
-
-            <button class="btn btn-primary" id="btnSaveEvaluation" style="align-self: flex-start;" onclick="saveGroupEvaluation()">Save Evaluation</button>
+            <button class="btn btn-primary" id="btnSaveAllEvaluations" onclick="saveAllStudentEvaluations()">Save All Grades</button>
+          </div>
+          <div id="evalStudentsList" style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- Loaded dynamically with group members' cards -->
           </div>
         </div>
         

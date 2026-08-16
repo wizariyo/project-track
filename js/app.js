@@ -1568,14 +1568,16 @@ window.selectSubject = async function(subjectName) {
         
         const gradeBadge = document.getElementById('gbGradeBadge');
         if (gradeBadge) {
-          if (group.grade) {
-            gradeBadge.textContent = `Grade: ${group.grade}`;
-            if (group.score !== undefined && group.score !== '') {
-              gradeBadge.textContent += ` (${group.score}/100)`;
+          const studentGrades = group.studentGrades || {};
+          const sg = studentGrades[student.id || student._id] || null;
+          if (sg && sg.grade) {
+            gradeBadge.textContent = `Grade: ${sg.grade}`;
+            if (sg.score !== undefined && sg.score !== null && sg.score !== '') {
+              gradeBadge.textContent += ` (${sg.score}/100)`;
             }
             gradeBadge.style.display = 'inline-block';
-            if (group.evaluationRemarks) {
-              gradeBadge.title = `Remarks: ${group.evaluationRemarks}`;
+            if (sg.remarks) {
+              gradeBadge.title = `Remarks: ${sg.remarks}`;
             } else {
               gradeBadge.removeAttribute('title');
             }
@@ -2037,12 +2039,54 @@ async function initProfilePage() {
       if (roleInput) roleInput.value = user.projectRole || 'Developer';
       if (colorInput) colorInput.value = user.avatarColor || pickColor(user.id||user._id);
       
-      if (subjectsGroup) subjectsGroup.style.display = 'block';
-      if (branchInput) branchInput.value = user.branch || '';
-      if (semesterInput) semesterInput.value = user.semester || '';
-      
-      if (window.__updateProfileSubjectCatalog) {
-        window.__updateProfileSubjectCatalog(user.subjects);
+      const teacherSubjectsGroup = document.getElementById('editProfileTeacherSubjectsGroup');
+      if (user.role === 'student') {
+        if (subjectsGroup) subjectsGroup.style.display = 'block';
+        if (branchInput) branchInput.parentElement.style.display = 'block';
+        if (semesterInput) semesterInput.parentElement.style.display = 'block';
+        if (teacherSubjectsGroup) teacherSubjectsGroup.style.display = 'none';
+        
+        if (branchInput) branchInput.value = user.branch || '';
+        if (semesterInput) semesterInput.value = user.semester || '';
+        if (window.__updateProfileSubjectCatalog) {
+          window.__updateProfileSubjectCatalog(user.subjects);
+        }
+      } else {
+        if (subjectsGroup) subjectsGroup.style.display = 'none';
+        if (branchInput) branchInput.parentElement.style.display = 'none';
+        if (semesterInput) semesterInput.parentElement.style.display = 'none';
+        if (teacherSubjectsGroup) {
+          teacherSubjectsGroup.style.display = 'block';
+          const container = document.getElementById('editProfileTeacherSubjectsContainer');
+          if (container) {
+            const preselectedArr = Array.isArray(user.subjects) ? user.subjects : (user.subjects ? [user.subjects] : []);
+            let html = '';
+            const grouped = {};
+            window.SUBJECT_CATALOG.forEach(s => {
+              if (!grouped[s.semester]) grouped[s.semester] = [];
+              grouped[s.semester].push(s);
+            });
+            Object.keys(grouped).forEach(sem => {
+              html += `
+                <div style="margin-bottom: 8px;">
+                  <h4 style="font-size: 11px; text-transform: uppercase; color: var(--text-3); font-weight: 700; margin: 0 0 6px 0;">Semester ${sem}</h4>
+                  <div style="display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
+                    ${grouped[sem].map(s => {
+                      const isChecked = preselectedArr.includes(s.name) ? 'checked' : '';
+                      return `
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);">
+                          <input type="checkbox" class="profile-teacher-subject-checkbox" value="${s.name}" data-semester="${sem}" ${isChecked} style="width: 16px; height: 16px;" />
+                          <span>${s.code ? s.code + ' - ' : ''}${s.name}</span>
+                        </label>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+            });
+            container.innerHTML = html;
+          }
+        }
       }
 
       const curColor = colorInput?.value;
@@ -2205,8 +2249,25 @@ async function initProfilePage() {
         user.photoUrl = base64;
       }
 
-      const updateData = { name, projectRole, avatarColor, password, subjects };
-      if (semesterInput) updateData.semester = parseInt(semesterInput);
+      const updateData = { name, projectRole, avatarColor, password };
+      if (user.role === 'student') {
+        updateData.subjects = subjects;
+        if (semesterInput) updateData.semester = parseInt(semesterInput);
+      } else {
+        const selectedSubjs = [];
+        const selectedSems = new Set();
+        document.querySelectorAll('.profile-teacher-subject-checkbox:checked').forEach(cb => {
+          selectedSubjs.push(cb.value);
+          selectedSems.add(parseInt(cb.getAttribute('data-semester')));
+        });
+        if (selectedSubjs.length === 0) {
+          showToast('Please select at least one subject you teach.', 'error');
+          return;
+        }
+        updateData.subjects = selectedSubjs;
+        updateData.semesters = Array.from(selectedSems);
+        updateData.semester = updateData.semesters[0];
+      }
       if (user.photoUrl) updateData.photoUrl = user.photoUrl;
 
       await updateUserProfile(user.id||user._id, updateData);
@@ -2596,14 +2657,62 @@ window.openGroupInspectionModal = async function(groupId) {
       remarksInput.value = group.remarks || '';
     }
 
-    // Populate Evaluation Tab Inputs
-    const evalGrade = document.getElementById('evalGradeSelect');
-    const evalScore = document.getElementById('evalScoreInput');
-    const evalRemarks = document.getElementById('evalRemarksTextarea');
-    
-    if (evalGrade) evalGrade.value = group.grade || '';
-    if (evalScore) evalScore.value = group.score !== undefined ? group.score : '';
-    if (evalRemarks) evalRemarks.value = group.evaluationRemarks || '';
+    // Populate Student-wise Evaluation List
+    const evalStudentsList = document.getElementById('evalStudentsList');
+    if (evalStudentsList) {
+      evalStudentsList.innerHTML = '<p style="font-size:12px;color:var(--text-3);text-align:center;padding:12px 0;">Loading students...</p>';
+      const members = await getGroupMembers(groupId);
+      const studentGrades = group.studentGrades || {};
+      
+      evalStudentsList.innerHTML = members.map(m => {
+        const sg = studentGrades[m.id || m._id] || {};
+        const grade = sg.grade || '';
+        const score = sg.score !== undefined && sg.score !== null ? sg.score : '';
+        const remarks = sg.remarks || '';
+        
+        return `
+          <div class="card eval-student-card" data-student-id="${m.id || m._id}" style="padding: 20px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              ${avatarHtml(m, 36)}
+              <div>
+                <h4 style="font-size: 14px; font-weight: 700; color: var(--text); margin: 0;">${escapeHtml(m.name)}</h4>
+                <p style="font-size: 11.5px; color: var(--text-3); margin: 2px 0 0 0;">${escapeHtml(m.projectRole || 'Team Member')} · ${escapeHtml(m.email)}</p>
+              </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group" style="margin: 0;">
+                <label style="font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; display: block;">Letter Grade</label>
+                <select class="form-control eval-student-grade" style="background: var(--surface-2); border-color: var(--border);">
+                  <option value="">Select Grade...</option>
+                  <option value="A+" ${grade === 'A+' ? 'selected' : ''}>A+</option>
+                  <option value="A" ${grade === 'A' ? 'selected' : ''}>A</option>
+                  <option value="B+" ${grade === 'B+' ? 'selected' : ''}>B+</option>
+                  <option value="B" ${grade === 'B' ? 'selected' : ''}>B</option>
+                  <option value="C" ${grade === 'C' ? 'selected' : ''}>C</option>
+                  <option value="D" ${grade === 'D' ? 'selected' : ''}>D</option>
+                  <option value="F" ${grade === 'F' ? 'selected' : ''}>F</option>
+                </select>
+              </div>
+              
+              <div class="form-group" style="margin: 0;">
+                <label style="font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; display: block;">Score / Marks (out of 100)</label>
+                <input type="number" min="0" max="100" class="form-control eval-student-score" value="${score}" placeholder="e.g. 90" style="background: var(--surface-2); border-color: var(--border);" />
+              </div>
+            </div>
+
+            <div class="form-group" style="margin: 0;">
+              <label style="font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; display: block;">Individual Remarks & Feedback</label>
+              <textarea class="form-control eval-student-remarks" style="height: 60px; resize: vertical; background: var(--surface-2); border-color: var(--border);" placeholder="Feedback on their individual contributions...">${escapeHtml(remarks)}</textarea>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      if (members.length === 0) {
+        evalStudentsList.innerHTML = '<p style="font-size:12px;color:var(--text-3);text-align:center;padding:12px 0;">No members in this group yet.</p>';
+      }
+    }
 
     await reloadInspectionDetails();
   } catch (e) {
@@ -4075,42 +4184,52 @@ window.renderChatMessages = function(msgs, rolePrefix) {
   area.scrollTop = area.scrollHeight; // Auto-scroll to bottom
 };
 
-window.saveGroupEvaluation = async function() {
+window.saveAllStudentEvaluations = async function() {
   if (!activeInspectionGroupId) return;
-  const grade = document.getElementById('evalGradeSelect')?.value;
-  const scoreVal = document.getElementById('evalScoreInput')?.value;
-  const remarks = document.getElementById('evalRemarksTextarea')?.value.trim();
 
-  const score = scoreVal !== '' ? parseInt(scoreVal) : '';
-
-  const btn = document.getElementById('btnSaveEvaluation');
+  const btn = document.getElementById('btnSaveAllEvaluations');
   if (btn) {
     btn.disabled = true;
     btn.textContent = 'Saving...';
   }
 
   try {
+    const studentGrades = {};
+    const cards = document.querySelectorAll('.eval-student-card');
+    
+    cards.forEach(card => {
+      const studentId = card.getAttribute('data-student-id');
+      const grade = card.querySelector('.eval-student-grade')?.value || '';
+      const scoreVal = card.querySelector('.eval-student-score')?.value || '';
+      const remarks = card.querySelector('.eval-student-remarks')?.value.trim() || '';
+
+      studentGrades[studentId] = {
+        grade: grade || null,
+        score: scoreVal !== '' ? parseInt(scoreVal) : null,
+        remarks: remarks || null,
+        evaluatedAt: new Date().toISOString()
+      };
+    });
+
     await window.db.collection('groups').doc(activeInspectionGroupId).update({
-      grade: grade || null,
-      score: score !== '' ? score : null,
-      evaluationRemarks: remarks || null,
+      studentGrades: studentGrades,
       evaluatedAt: new Date().toISOString()
     });
+
+    showToast('All student evaluations saved successfully!', 'success');
     
-    showToast('Group evaluation updated successfully!', 'success');
-    
-    // Refresh local groups list in state
+    // Refresh teacher data
     const teacher = window.__teacher;
     if (teacher) {
       await loadTeacherData(teacher);
     }
   } catch (err) {
     console.error(err);
-    showToast('Error saving evaluation: ' + err.message, 'error');
+    showToast('Error saving evaluations: ' + err.message, 'error');
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = 'Save Evaluation';
+      btn.textContent = 'Save All Grades';
     }
   }
 };
@@ -4139,29 +4258,33 @@ window.exportCombinedGradesReport = async function() {
     }
 
     const rows = [
-      ['Group Name', 'Project Name', 'Subject', 'Semester', 'Grade', 'Score (out of 100)', 'Evaluation Remarks', 'Evaluated At', 'Team Members']
+      ['Student Name', 'Email', 'Project Role', 'Group Name', 'Project Name', 'Subject', 'Semester', 'Letter Grade', 'Score (out of 100)', 'Evaluation Remarks', 'Evaluated At']
     ];
 
     for (const g of groups) {
-      let memberNamesStr = '';
+      const studentGrades = g.studentGrades || {};
       try {
         const members = await getGroupMembers(g.id || g._id);
-        memberNamesStr = members.map(m => m.name).join(', ');
+        
+        for (const m of members) {
+          const sg = studentGrades[m.id || m._id] || {};
+          rows.push([
+            m.name || 'Unnamed',
+            m.email || 'N/A',
+            m.projectRole || 'Team Member',
+            g.name || 'Unnamed',
+            g.projectName || 'None',
+            g.subject || 'General',
+            g.semester || 'N/A',
+            sg.grade || 'Not Graded',
+            sg.score !== undefined && sg.score !== null ? sg.score : 'N/A',
+            sg.remarks || 'No Remarks',
+            sg.evaluatedAt ? new Date(sg.evaluatedAt).toLocaleString() : 'N/A'
+          ]);
+        }
       } catch (err) {
         console.error('Failed to load group members for csv', err);
       }
-
-      rows.push([
-        g.name || 'Unnamed',
-        g.projectName || 'None',
-        g.subject || 'General',
-        g.semester || 'N/A',
-        g.grade || 'Not Graded',
-        g.score !== undefined && g.score !== null ? g.score : 'N/A',
-        g.evaluationRemarks || 'No Remarks',
-        g.evaluatedAt ? new Date(g.evaluatedAt).toLocaleString() : 'N/A',
-        memberNamesStr || 'No Members'
-      ]);
     }
 
     const csvContent = "data:text/csv;charset=utf-8," 
