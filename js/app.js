@@ -1857,6 +1857,20 @@ async function renderKanban(group) {
   }
   catch(e) { showToast('Could not load tasks.', 'error'); }
 
+  window.__group = group;
+  window.__groupTasks = tasks;
+  window.__groupMembers = members;
+
+  renderKanbanUI();
+}
+
+function renderKanbanUI() {
+  const group = window.__group;
+  if (!group) return;
+  
+  let tasks = window.__groupTasks || [];
+  const members = window.__groupMembers || [];
+
   tasks.forEach(t => {
     if (t.assigneeId) {
       t.assignee = members.find(m => (m.id || m._id) === t.assigneeId) || null;
@@ -1865,8 +1879,6 @@ async function renderKanban(group) {
     }
   });
 
-  window.__group = group;
-  window.__groupTasks = tasks;
   window.renderMiniCalendar();
 
   // Render AI Insights and Project Health on Student Dashboard
@@ -1910,8 +1922,7 @@ async function renderKanban(group) {
   // Update Recent Feedback
   const feedbackEl = document.getElementById('recentFeedbackList');
   if (feedbackEl) {
-    try {
-      const reports = await getReportsByGroup(group.id||group._id);
+    getReportsByGroup(group.id||group._id).then(reports => {
       const withFb = reports
         .filter(r => r.feedback && r.feedback.text)
         .sort((a, b) => new Date(b.date||b.createdAt) - new Date(a.date||a.createdAt))
@@ -1931,14 +1942,15 @@ async function renderKanban(group) {
             `;
           }).join('')
         : '<p style="font-size:12px; color:var(--text-3); text-align:center; padding:10px 0; margin:0;">No supervisor feedback yet.</p>';
-    } catch {
+    }).catch(() => {
       feedbackEl.innerHTML = '<p style="font-size:12px; color:var(--text-3); margin:0;">Could not load feedback.</p>';
-    }
+    });
   }
 
+  let displayTasks = [...tasks];
   const query = (document.getElementById('kanbanSearchInput')?.value || '').trim().toLowerCase();
   if (query) {
-    tasks = tasks.filter(t => 
+    displayTasks = displayTasks.filter(t => 
       t.title.toLowerCase().includes(query) ||
       (t.description && t.description.toLowerCase().includes(query)) ||
       (t.assignee && t.assignee.name.toLowerCase().includes(query))
@@ -1950,7 +1962,7 @@ async function renderKanban(group) {
 
   for (const [status, colId] of Object.entries(cols)) {
     const col   = document.getElementById(colId);
-    const items = tasks.filter(t => (t.status||'todo') === status);
+    const items = displayTasks.filter(t => (t.status||'todo') === status);
     counts[status] = items.length;
     if (col) col.innerHTML = items.map(t => taskCardHtml(t)).join('') || '';
   }
@@ -2037,13 +2049,22 @@ function wireKanbanDnD(group) {
       col.classList.remove('drag-over');
       if (!draggedTaskId) return;
       const status = col.getAttribute('data-status');
-      try {
-        await updateTaskStatus(draggedTaskId, status);
+      
+      const oldTasks = JSON.parse(JSON.stringify(window.__groupTasks || []));
+      const task = window.__groupTasks.find(t => (t.id || t._id) === draggedTaskId);
+      if (task) {
+        task.status = status;
+        renderKanbanUI();
         if (status === 'done' && typeof confetti === 'function') {
           confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 } });
         }
-        await renderKanban(group);
-      } catch(err) { showToast(err.message, 'error'); }
+      }
+
+      updateTaskStatus(draggedTaskId, status).catch(err => {
+        showToast('Failed to update task status.', 'error');
+        window.__groupTasks = oldTasks;
+        renderKanbanUI();
+      });
     });
   });
 }
