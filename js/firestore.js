@@ -147,6 +147,7 @@
     return snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
   }
   async function updateUserProfile(uid, data) {
+    if (window.clearQueryCache) window.clearQueryCache();
     if (data.password && data.password.trim() !== '') {
       var user = auth.currentUser;
       if (user) {
@@ -199,6 +200,7 @@
     return promise;
   }
   async function createGroup(data) {
+    if (window.clearQueryCache) window.clearQueryCache();
     data.createdAt = TS();
     var ref = await db.collection('groups').add(data);
     if (data.groupLeadId) {
@@ -207,6 +209,7 @@
     return { ...data, id: ref.id };
   }
   async function deleteGroup(gid) {
+    if (window.clearQueryCache) window.clearQueryCache();
     await db.collection('groups').doc(gid).delete();
     var members = await getGroupMembers(gid);
     for (var i = 0; i < members.length; i++) {
@@ -214,17 +217,21 @@
     }
   }
   async function addStudentToGroup(gid, sid) {
+    if (window.clearQueryCache) window.clearQueryCache();
     await db.collection('users').doc(sid).update({ groupId: gid });
   }
   async function kickStudent(gid, sid) {
+    if (window.clearQueryCache) window.clearQueryCache();
     await db.collection('users').doc(sid).update({ groupId: null });
   }
   async function joinGroup(uid, gid) {
+    if (window.clearQueryCache) window.clearQueryCache();
     await db.collection('users').doc(uid).update({ groupId: gid });
     var u = getCurrentUser();
     if (u && u.id === uid) { u.groupId = gid; setCurrentUser(u); }
   }
   async function leaveGroup(uid) {
+    if (window.clearQueryCache) window.clearQueryCache();
     await db.collection('users').doc(uid).update({ groupId: null });
     var u = getCurrentUser();
     if (u && u.id === uid) { u.groupId = null; setCurrentUser(u); }
@@ -241,17 +248,21 @@
     return promise;
   }
   async function addTask(data) {
+    if (window.clearQueryCache) window.clearQueryCache();
     data.createdAt = TS();
     var ref = await db.collection('tasks').add(data);
     return { ...data, id: ref.id };
   }
   async function updateTask(tid, data) {
+    if (window.clearQueryCache) window.clearQueryCache();
     await db.collection('tasks').doc(tid).update(data);
   }
   async function updateTaskStatus(tid, status) {
+    if (window.clearQueryCache) window.clearQueryCache();
     await db.collection('tasks').doc(tid).update({ status: status });
   }
   async function deleteTask(tid) {
+    if (window.clearQueryCache) window.clearQueryCache();
     await db.collection('tasks').doc(tid).delete();
   }
   async function getTaskById(tid) {
@@ -281,11 +292,13 @@
     return promise;
   }
   async function addReport(data) {
+    if (window.clearQueryCache) window.clearQueryCache();
     data.timestamp = Date.now();
     var ref = await db.collection('reports').add(data);
     return { ...data, id: ref.id };
   }
   async function addFeedback(rid, text, tid) {
+    if (window.clearQueryCache) window.clearQueryCache();
     await db.collection('reports').doc(rid).update({ feedback: text, teacherId: tid });
   }
 

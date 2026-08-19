@@ -4388,6 +4388,7 @@ window.saveAllStudentEvaluations = async function() {
       };
     });
 
+    if (window.clearQueryCache) window.clearQueryCache();
     await window.db.collection('groups').doc(activeInspectionGroupId).update({
       studentGrades: studentGrades,
       evaluatedAt: new Date().toISOString()
