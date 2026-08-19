@@ -556,7 +556,7 @@ label {
   gap: 16px;
   padding: 0 32px 32px;
   flex: 1;
-  align-items: start;
+  align-items: stretch;
 }
 .kanban-col {
   background: var(--surface-2);
@@ -567,6 +567,7 @@ label {
   gap: 10px;
   border: 1px solid var(--border);
   transition: background var(--transition);
+  min-height: 450px;
 }
 .kanban-col.drag-over { background: rgba(23,67,63,0.06); border-color: var(--teal); }
 [data-theme="dark"] .kanban-col.drag-over { background: rgba(85,132,103,0.1); border-color: var(--sage); }
@@ -605,7 +606,13 @@ label {
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
 }
-.kanban-cards { display: flex; flex-direction: column; gap: 8px; }
+.kanban-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+  min-height: 250px;
+}
 
 .kanban-card {
   background: var(--surface);
@@ -1449,7 +1456,9 @@ body, .shell, .sidebar, .main, .card, .kanban-card, .profile-card, .profile-left
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 70px;
+  height: 100%;
+  flex-grow: 1;
+  min-height: 150px;
   border: 2px dashed var(--border);
   border-radius: var(--radius);
   color: var(--text-3);
