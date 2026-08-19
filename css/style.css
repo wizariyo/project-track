@@ -2586,3 +2586,80 @@ input:checked + .day-night-slider::after {
 .chat-send-btn:active {
   transform: translateY(0);
 }
+
+/* ---- App Smoothness & Loading Polish ---- */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Tactile Click Micro-interactions */
+.btn:active,
+.nav-item:active,
+.group-card:active,
+.task-card:active,
+.chat-send-btn:active {
+  transform: scale(0.97) !important;
+}
+
+/* Global Top Progress Loading Indicator */
+.top-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--teal), var(--teal-light), var(--maroon));
+  width: 0%;
+  opacity: 0;
+  transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.2s ease;
+  z-index: 9999;
+  pointer-events: none;
+}
+.top-loading-bar.loading {
+  opacity: 1;
+  width: 75%;
+}
+.top-loading-bar.finish {
+  opacity: 1;
+  width: 100%;
+}
+
+/* Shimmer Pulsing Skeleton Loaders */
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 25%, rgba(23,67,63,0.08) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 6px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-title {
+  height: 18px;
+  width: 50%;
+  margin-bottom: 12px;
+}
+.skeleton-text {
+  height: 12px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+.skeleton-text.short {
+  width: 40%;
+}
+.skeleton-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+.skeleton-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+}

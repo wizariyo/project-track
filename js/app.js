@@ -167,6 +167,68 @@ function showToast(msg, type = 'success') {
 function openModal(id)  { const m = document.getElementById(id); if (m) m.classList.add('open'); }
 function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('open'); }
 
+window.startLoading = function() {
+  let bar = document.getElementById('topLoadingBar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'topLoadingBar';
+    bar.className = 'top-loading-bar';
+    document.body.appendChild(bar);
+  }
+  bar.className = 'top-loading-bar loading';
+  bar.style.width = '0%';
+  // Force browser layout recalculation (reflow)
+  bar.offsetWidth;
+  bar.style.width = '75%';
+};
+
+window.stopLoading = function() {
+  const bar = document.getElementById('topLoadingBar');
+  if (bar) {
+    bar.className = 'top-loading-bar finish';
+    bar.style.width = '100%';
+    setTimeout(() => {
+      bar.style.opacity = '0';
+      setTimeout(() => {
+        bar.className = 'top-loading-bar';
+        bar.style.width = '0%';
+        bar.style.opacity = '';
+      }, 200);
+    }, 300);
+  }
+};
+
+window.renderTeacherOverviewSkeleton = function() {
+  const grid = document.getElementById('groupGrid');
+  if (!grid) return;
+  const skeletons = [];
+  for (let i = 0; i < 3; i++) {
+    skeletons.push(`
+      <div class="skeleton-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div style="flex:1;">
+            <div class="skeleton skeleton-title" style="width: 40%; height: 10px; margin-bottom: 8px;"></div>
+            <div class="skeleton skeleton-title" style="width: 70%; height: 16px; margin-bottom: 6px;"></div>
+            <div class="skeleton skeleton-title" style="width: 50%; height: 12px;"></div>
+          </div>
+          <div class="skeleton" style="width: 70px; height: 24px; border-radius: 12px;"></div>
+        </div>
+        <div style="margin-top: 14px;">
+          <div class="skeleton skeleton-text" style="height:8px; border-radius:4px; margin-bottom:8px;"></div>
+          <div class="skeleton skeleton-text short" style="height:8px; border-radius:4px; width:60%;"></div>
+        </div>
+        <div style="display:flex; gap: 8px; margin-top: 14px;">
+          <div class="skeleton skeleton-avatar"></div>
+          <div class="skeleton skeleton-avatar"></div>
+          <div class="skeleton skeleton-avatar"></div>
+        </div>
+        <div class="skeleton" style="height: 32px; width: 100%; border-radius: var(--radius-sm); margin-top: 14px;"></div>
+      </div>
+    `);
+  }
+  grid.innerHTML = skeletons.join('');
+};
+
 function escapeHtml(s) {
   if (!s) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -499,6 +561,7 @@ async function initTeacherDashboard(teacher) {
 }
 
 async function loadTeacherData(teacher) {
+  if (typeof window.startLoading === 'function') window.startLoading();
   if (typeof window.clearQueryCache === 'function') window.clearQueryCache();
   let groups = [];
   try { 
@@ -513,7 +576,11 @@ async function loadTeacherData(teacher) {
       }
     });
   }
-  catch(e) { showToast('Could not load groups.', 'error'); return; }
+  catch(e) { 
+    if (typeof window.stopLoading === 'function') window.stopLoading();
+    showToast('Could not load groups.', 'error'); 
+    return; 
+  }
   window.__teacherGroups = groups;
   window.__teacher = teacher;
 
@@ -533,8 +600,10 @@ async function loadTeacherData(teacher) {
       document.querySelectorAll('.workspace-nav-item').forEach(w => w.style.display = 'none');
       window.switchPage('semesters');
       renderTeacherSemestersGrid(semesters);
+      if (typeof window.stopLoading === 'function') window.stopLoading();
       return;
     } else {
+      if (typeof window.renderTeacherOverviewSkeleton === 'function') window.renderTeacherOverviewSkeleton();
       document.querySelectorAll('.workspace-nav-item').forEach(w => w.style.display = 'block');
       groups = groups.filter(g => String(g.semester) === String(activeSemester));
       
@@ -610,6 +679,7 @@ async function loadTeacherData(teacher) {
   if (teacherProjectHealthEl) {
     teacherProjectHealthEl.innerHTML = window.AI.metricsCard();
   }
+  if (typeof window.stopLoading === 'function') window.stopLoading();
 }
 
 function renderTeacherSemestersGrid(semesters) {
@@ -1514,8 +1584,12 @@ async function checkUnreadFeedback(group, student) {
 }
 
 async function loadStudentSubjectsGrid() {
+  if (typeof window.startLoading === 'function') window.startLoading();
   const grid = document.getElementById('subjectsGrid');
-  if (!grid) return;
+  if (!grid) {
+    if (typeof window.stopLoading === 'function') window.stopLoading();
+    return;
+  }
   
   grid.innerHTML = '<p style="color:var(--text-3); text-align:center; grid-column:1/-1;">Loading subjects...</p>';
   try {
@@ -1558,15 +1632,20 @@ async function loadStudentSubjectsGrid() {
         </div>
       `;
     }).join('');
-
+    if (typeof window.stopLoading === 'function') window.stopLoading();
   } catch(e) {
+    if (typeof window.stopLoading === 'function') window.stopLoading();
     grid.innerHTML = `<p style="color:var(--danger); text-align:center; grid-column:1/-1;">Failed to load subjects: ${escapeHtml(e.message)}</p>`;
   }
 }
 
 window.selectSubject = async function(subjectName) {
+  if (typeof window.startLoading === 'function') window.startLoading();
   const student = window.__student;
-  if (!student) return;
+  if (!student) {
+    if (typeof window.stopLoading === 'function') window.stopLoading();
+    return;
+  }
   
   try {
     const group = await getStudentGroupBySubject(student.id||student._id, subjectName);
@@ -1669,7 +1748,9 @@ window.selectSubject = async function(subjectName) {
         if (e) e.innerHTML = '';
       });
     }
+    if (typeof window.stopLoading === 'function') window.stopLoading();
   } catch(e) {
+    if (typeof window.stopLoading === 'function') window.stopLoading();
     showToast('Failed to load subject group: ' + e.message, 'error');
   }
 };
@@ -2701,6 +2782,14 @@ window.switchInspectTab = function(tabId) {
 };
 
 window.switchPage = function(target) {
+  const heavyPages = ['semesters', 'overview', 'subjects'];
+  if (!heavyPages.includes(target)) {
+    if (typeof window.startLoading === 'function') window.startLoading();
+    setTimeout(() => {
+      if (typeof window.stopLoading === 'function') window.stopLoading();
+    }, 150);
+  }
+
   // Deselect all nav items
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   
