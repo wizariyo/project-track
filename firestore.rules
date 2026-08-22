@@ -62,5 +62,16 @@ service cloud.firestore {
         allow read, write: if signedIn();
       }
     }
+
+    // Milestones Collection
+    match /milestones/{milestoneId} {
+      allow read, write: if signedIn();
+    }
+
+    // Peer Evaluations Collection
+    match /peerEvaluations/{evalId} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && request.resource.data.fromUserId == request.auth.uid;
+    }
   }
 }

@@ -390,6 +390,60 @@
     return promise;
   }
 
+  /* ─── Deliverable Links ──────────────────────────────── */
+  async function updateGroupLinks(gid, githubUrl, liveUrl) {
+    if (window.clearQueryCache) window.clearQueryCache();
+    await db.collection('groups').doc(gid).update({
+      githubUrl: githubUrl || null,
+      liveUrl: liveUrl || null
+    });
+  }
+
+  /* ─── Milestones ────────────────────────────────────── */
+  async function getMilestonesByGroup(gid) {
+    var snap = await db.collection('milestones').where('groupId','==',gid).orderBy('dueDate','asc').get();
+    return snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
+  }
+  async function addMilestone(data) {
+    if (window.clearQueryCache) window.clearQueryCache();
+    data.createdAt = TS();
+    var ref = await db.collection('milestones').add(data);
+    return { ...data, id: ref.id };
+  }
+  async function updateMilestone(mid, data) {
+    if (window.clearQueryCache) window.clearQueryCache();
+    await db.collection('milestones').doc(mid).update(data);
+  }
+  async function deleteMilestone(mid) {
+    if (window.clearQueryCache) window.clearQueryCache();
+    await db.collection('milestones').doc(mid).delete();
+  }
+
+  /* ─── Peer Evaluations ─────────────────────────────── */
+  async function submitPeerEvaluation(groupId, fromUserId, toUserId, ratings) {
+    var docId = groupId + '_' + fromUserId + '_' + toUserId;
+    await db.collection('peerEvaluations').doc(docId).set({
+      groupId: groupId,
+      fromUserId: fromUserId,
+      toUserId: toUserId,
+      contribution: ratings.contribution || 0,
+      communication: ratings.communication || 0,
+      dependability: ratings.dependability || 0,
+      evaluatedAt: new Date().toISOString()
+    });
+  }
+  async function getPeerEvaluationsByGroup(gid) {
+    var snap = await db.collection('peerEvaluations').where('groupId','==',gid).get();
+    return snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
+  }
+  async function getMyPeerEvaluations(gid, fromUserId) {
+    var snap = await db.collection('peerEvaluations')
+      .where('groupId','==',gid)
+      .where('fromUserId','==',fromUserId)
+      .get();
+    return snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
+  }
+
   /* ─── Expose everything to window ─────────────────────── */
   var api = {
     getCurrentUser: getCurrentUser, setCurrentUser: setCurrentUser, clearCurrentUser: clearCurrentUser,
@@ -407,7 +461,10 @@
     getSubjects: getSubjects, getStudentGroupBySubject: getStudentGroupBySubject,
     getEligibleStudents: getEligibleStudents, getUnassignedLeads: getUnassignedLeads,
     getGroupProgress: getGroupProgress, getGroupStatus: getGroupStatus, updateGroupRemarks: updateGroupRemarks,
-    getUserStats: getUserStats
+    getUserStats: getUserStats,
+    updateGroupLinks: updateGroupLinks,
+    getMilestonesByGroup: getMilestonesByGroup, addMilestone: addMilestone, updateMilestone: updateMilestone, deleteMilestone: deleteMilestone,
+    submitPeerEvaluation: submitPeerEvaluation, getPeerEvaluationsByGroup: getPeerEvaluationsByGroup, getMyPeerEvaluations: getMyPeerEvaluations
   };
 
   Object.keys(api).forEach(function(k) { window[k] = api[k]; });

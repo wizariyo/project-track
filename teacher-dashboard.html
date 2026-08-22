@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1.1.0" />
+<link rel="stylesheet" href="css/style.css?v=1.2.0" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Select2 -->
   </head>
@@ -340,6 +340,8 @@
         <button class="inspect-tab-btn" id="tabInspectFiles" onclick="switchInspectTab('files')" style="padding: 16px 0; font-weight: 700; font-size: 14px; margin-bottom: -1px; border-radius:0; background:transparent!important; border-bottom: 2px solid transparent;">Files</button>
         <button class="inspect-tab-btn" id="tabInspectEvaluation" onclick="switchInspectTab('evaluation')" style="padding: 16px 0; font-weight: 700; font-size: 14px; margin-bottom: -1px; border-radius:0; background:transparent!important; border-bottom: 2px solid transparent;">Evaluation & Grades</button>
         <button class="inspect-tab-btn" id="tabInspectActivity" onclick="switchInspectTab('activity')" style="padding: 16px 0; font-weight: 600; font-size: 14px; margin-bottom: -1px; border-radius:0; background:transparent!important; border-bottom: 2px solid transparent; color: var(--text-3);">Activity</button>
+        <button class="inspect-tab-btn" id="tabInspectPeerreviews" onclick="switchInspectTab('peerreviews')" style="padding: 16px 0; font-weight: 700; font-size: 14px; margin-bottom: -1px; border-radius:0; background:transparent!important; border-bottom: 2px solid transparent;">Peer Reviews</button>
+        <button class="inspect-tab-btn" id="tabInspectDeliverables" onclick="switchInspectTab('deliverables')" style="padding: 16px 0; font-weight: 700; font-size: 14px; margin-bottom: -1px; border-radius:0; background:transparent!important; border-bottom: 2px solid transparent;">Deliverables</button>
       </div>
 
       <!-- Content -->
@@ -371,6 +373,16 @@
         
         <div class="inspect-tab-content" id="inspect-tab-activity" style="flex-direction: column; gap: 12px; ">
           <div id="inspectActivityList" style="display: flex; flex-direction: column; gap: 2px; position: relative; padding-top: 8px;"></div>
+        </div>
+
+        <!-- Peer Reviews Tab -->
+        <div class="inspect-tab-content" id="inspect-tab-peerreviews" style="flex-direction: column; gap: 16px;">
+          <div id="inspectPeerReviewsSummary"></div>
+        </div>
+
+        <!-- Deliverables Tab -->
+        <div class="inspect-tab-content" id="inspect-tab-deliverables" style="flex-direction: column; gap: 16px;">
+          <div id="inspectDeliverablesContent"></div>
         </div>
       </div>
     </section>
@@ -455,11 +467,11 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="js/firebase.js?v=1.1.0"></script>
-  <script src="js/catalog.js?v=1.1.0"></script>
-  <script src="js/firestore.js?v=1.1.0"></script>
-  <script src="js/toast.js?v=1.1.0"></script>
-  <script src="js/app.js?v=1.1.0"></script>
+  <script src="js/firebase.js?v=1.2.0"></script>
+  <script src="js/catalog.js?v=1.2.0"></script>
+  <script src="js/firestore.js?v=1.2.0"></script>
+  <script src="js/toast.js?v=1.2.0"></script>
+  <script src="js/app.js?v=1.2.0"></script>
 <script>
 async function exportReports() {
   const groups = window.__teacherGroups || [];

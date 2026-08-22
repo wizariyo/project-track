@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1.1.0" />
+<link rel="stylesheet" href="css/style.css?v=1.2.0" />
   <!-- Select2 -->
   </head>
 <body data-page="dashboard" data-role="student">
@@ -54,6 +54,14 @@
       <div class="nav-item workspace-nav-item" data-target="assistant" style="display: none;">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9.816 5.176l.86 2.548 2.548.86-2.548.86-.86 2.548-.86-2.548-2.548-.86 2.548-.86.86-2.548zM18 14.5l.7 2.1 2.1.7-2.1.7-.7 2.1-.7-2.1-2.1-.7 2.1-.7.7-2.1z"/></svg>
         AI Assistant
+      </div>
+      <div class="nav-item workspace-nav-item" data-target="milestones" style="display: none;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        Milestones
+      </div>
+      <div class="nav-item workspace-nav-item" data-target="peerreview" style="display: none;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Peer Review
       </div>
       <!-- Theme Switch Slider (pushed to bottom of nav) -->
       <div style="margin-top: auto; border-top: 1px solid var(--border); padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
@@ -321,6 +329,54 @@
     <section class="section-page" id="page-assistant" style="padding: 24px 32px 32px;">
       <div id="aiAssistantChatContainer"></div>
     </section>
+
+    <!-- MILESTONES SECTION -->
+    <section class="section-page" id="page-milestones">
+      <div class="topbar">
+        <div><h1>Milestones</h1><p class="sub">Track project checkpoints and sprint progress.</p></div>
+        <button class="btn" id="addMilestoneBtn" style="display:none;" onclick="window.openAddMilestoneModal()">+ Add Milestone</button>
+      </div>
+
+      <!-- Deliverable Links Card -->
+      <div id="deliverableLinksCard" style="padding: 0 32px; margin-bottom: 16px;">
+        <div class="card" style="padding: 20px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <div style="flex:1; min-width: 200px;">
+            <h3 style="margin:0 0 4px; font-size:14px; font-weight:700; color:var(--text);">Project Deliverables</h3>
+            <p style="margin:0; font-size:12px; color:var(--text-3);">Repository and deployment links for your project.</p>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;" id="deliverableLinksBtns">
+            <a id="linkGithub" href="#" target="_blank" class="btn btn-outline" style="font-size:12px; padding:6px 14px; display:none;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:6px;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              GitHub Repo
+            </a>
+            <a id="linkLive" href="#" target="_blank" class="btn btn-outline" style="font-size:12px; padding:6px 14px; display:none;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Live App
+            </a>
+            <button id="editLinksBtn" class="btn btn-sm" style="display:none; font-size:11px; padding:4px 10px;" onclick="window.openEditLinksModal()">Edit Links</button>
+            <span id="noLinksYet" style="font-size:12px; color:var(--text-3); font-style:italic;">No links submitted yet.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Milestones List -->
+      <div style="padding: 0 32px;">
+        <div id="milestonesList" style="display:flex; flex-direction:column; gap:12px;"></div>
+      </div>
+    </section>
+
+    <!-- PEER REVIEW SECTION -->
+    <section class="section-page" id="page-peerreview">
+      <div class="topbar">
+        <div><h1>Peer Evaluation</h1><p class="sub">Rate your teammates' contribution, communication, and dependability.</p></div>
+      </div>
+      <div style="padding: 0 32px;">
+        <div id="peerReviewContainer" style="display:flex; flex-direction:column; gap:16px;"></div>
+        <div style="margin-top:20px; text-align:right;">
+          <button class="btn" id="submitPeerReviewBtn" onclick="window.submitAllPeerReviews()" style="display:none;">Submit Peer Reviews</button>
+        </div>
+      </div>
+    </section>
     
     <!-- CHAT SECTION -->
     <section class="section-page" id="page-chat">
@@ -507,11 +563,11 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="js/firebase.js?v=1.1.0"></script>
-  <script src="js/catalog.js?v=1.1.0"></script>
-  <script src="js/firestore.js?v=1.1.0"></script>
-  <script src="js/toast.js?v=1.1.0"></script>
-  <script src="js/app.js?v=1.1.0"></script>
+  <script src="js/firebase.js?v=1.2.0"></script>
+  <script src="js/catalog.js?v=1.2.0"></script>
+  <script src="js/firestore.js?v=1.2.0"></script>
+  <script src="js/toast.js?v=1.2.0"></script>
+  <script src="js/app.js?v=1.2.0"></script>
   <!-- Select2 JS -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   </body>

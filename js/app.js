@@ -1717,6 +1717,11 @@ window.selectSubject = async function(subjectName) {
       await renderKanban(group);
       await renderStudentReports(group, student);
       checkUnreadFeedback(group, student);
+      
+      // Render new feature sections
+      if (typeof window.renderDeliverableLinks === 'function') window.renderDeliverableLinks(group);
+      if (typeof window.renderMilestones === 'function') window.renderMilestones(group);
+      if (typeof window.renderPeerReviewForm === 'function') window.renderPeerReviewForm(group, student);
     } else {
       window.__group = null;
       window.__isLead = false;
@@ -2793,13 +2798,23 @@ window.switchInspectTab = function(tabId) {
     files: 'tabInspectFiles',
     remarks: 'tabInspectRemarks',
     evaluation: 'tabInspectEvaluation',
-    activity: 'tabInspectActivity'
+    activity: 'tabInspectActivity',
+    peerreviews: 'tabInspectPeerreviews',
+    deliverables: 'tabInspectDeliverables'
   };
   const activeBtn = document.getElementById(activeBtnMap[tabId]);
   if (activeBtn) activeBtn.classList.add('active');
   
   const activeContent = document.getElementById(`inspect-tab-${tabId}`);
   if (activeContent) activeContent.classList.add('active');
+
+  // Load data for new inspection tabs
+  if (tabId === 'peerreviews' && typeof window.renderInspectPeerReviews === 'function' && activeInspectionGroupId) {
+    window.renderInspectPeerReviews(activeInspectionGroupId);
+  }
+  if (tabId === 'deliverables' && typeof window.renderInspectDeliverables === 'function' && activeInspectionGroupId) {
+    window.renderInspectDeliverables(activeInspectionGroupId);
+  }
 };
 
 window.switchPage = function(target) {
@@ -2837,6 +2852,15 @@ window.switchPage = function(target) {
     } else if (currentRole === 'teacher') {
       if (window.loadTeacherChatChannels) window.loadTeacherChatChannels();
     }
+  }
+
+  // Render milestones and peer review when their tabs are opened
+  if (target === 'milestones' && window.__group) {
+    if (typeof window.renderDeliverableLinks === 'function') window.renderDeliverableLinks(window.__group);
+    if (typeof window.renderMilestones === 'function') window.renderMilestones(window.__group);
+  }
+  if (target === 'peerreview' && window.__group && window.__student) {
+    if (typeof window.renderPeerReviewForm === 'function') window.renderPeerReviewForm(window.__group, window.__student);
   }
 };
 
@@ -4514,5 +4538,432 @@ window.exportCombinedGradesReport = async function() {
       btn.disabled = false;
       btn.textContent = 'Export Combined Grades';
     }
+  }
+};
+
+/* =========================================================
+   Deliverable Links (Student Dashboard)
+   ========================================================= */
+window.renderDeliverableLinks = function(group) {
+  const ghLink = document.getElementById('linkGithub');
+  const liveLink = document.getElementById('linkLive');
+  const editBtn = document.getElementById('editLinksBtn');
+  const noLinks = document.getElementById('noLinksYet');
+  if (!ghLink || !liveLink) return;
+
+  const hasGh = group.githubUrl && group.githubUrl.trim();
+  const hasLive = group.liveUrl && group.liveUrl.trim();
+
+  if (hasGh) { ghLink.href = group.githubUrl; ghLink.style.display = 'inline-flex'; }
+  else { ghLink.style.display = 'none'; }
+
+  if (hasLive) { liveLink.href = group.liveUrl; liveLink.style.display = 'inline-flex'; }
+  else { liveLink.style.display = 'none'; }
+
+  if (noLinks) noLinks.style.display = (hasGh || hasLive) ? 'none' : 'inline';
+
+  // Only lead can edit
+  if (editBtn) editBtn.style.display = window.__isLead ? 'inline-block' : 'none';
+};
+
+window.openEditLinksModal = function() {
+  const group = window.__group;
+  if (!group) return;
+  const html = `
+    <div class="modal-overlay open" id="editLinksOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+      <div class="modal" style="max-width:420px;">
+        <h2 style="margin:0 0 16px; font-size:18px;">Edit Project Links</h2>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--text-2); display:block; margin-bottom:4px;">GitHub Repository URL</label>
+            <input type="url" id="inputGithubUrl" class="input" placeholder="https://github.com/..." value="${escapeHtml(group.githubUrl||'')}" />
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--text-2); display:block; margin-bottom:4px;">Live Deployment URL</label>
+            <input type="url" id="inputLiveUrl" class="input" placeholder="https://your-app.vercel.app" value="${escapeHtml(group.liveUrl||'')}" />
+          </div>
+          <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:8px;">
+            <button class="btn btn-outline" onclick="document.getElementById('editLinksOverlay').classList.remove('open')">Cancel</button>
+            <button class="btn" onclick="window.saveDeliverableLinks()">Save Links</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+};
+
+window.saveDeliverableLinks = async function() {
+  const group = window.__group;
+  if (!group) return;
+  const gh = document.getElementById('inputGithubUrl')?.value.trim() || '';
+  const live = document.getElementById('inputLiveUrl')?.value.trim() || '';
+  try {
+    await updateGroupLinks(group.id || group._id, gh, live);
+    group.githubUrl = gh; group.liveUrl = live;
+    window.renderDeliverableLinks(group);
+    document.getElementById('editLinksOverlay')?.classList.remove('open');
+    setTimeout(() => document.getElementById('editLinksOverlay')?.remove(), 300);
+    showToast('Links saved!', 'success');
+  } catch(e) { showToast(e.message, 'error'); }
+};
+
+/* =========================================================
+   Milestones (Student Dashboard)
+   ========================================================= */
+window.renderMilestones = async function(group) {
+  const list = document.getElementById('milestonesList');
+  const addBtn = document.getElementById('addMilestoneBtn');
+  if (!list) return;
+  if (addBtn) addBtn.style.display = window.__isLead ? 'inline-flex' : 'none';
+
+  list.innerHTML = '<p style="color:var(--text-3); text-align:center;">Loading milestones...</p>';
+  try {
+    const milestones = await getMilestonesByGroup(group.id || group._id);
+    const tasks = window.__groupTasks || [];
+
+    if (!milestones.length) {
+      list.innerHTML = '<p style="color:var(--text-3); text-align:center; font-size:13px; padding:24px 0;">No milestones created yet.</p>';
+      return;
+    }
+
+    list.innerHTML = milestones.map(m => {
+      const mTasks = tasks.filter(t => t.milestoneId === m.id);
+      const done = mTasks.filter(t => t.status === 'done').length;
+      const total = mTasks.length;
+      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+      const dueDate = m.dueDate ? new Date(m.dueDate) : null;
+      const now = new Date(); now.setHours(0,0,0,0);
+      let dueLabel = '';
+      let dueColor = 'var(--text-3)';
+      if (dueDate) {
+        dueDate.setHours(0,0,0,0);
+        const diff = Math.ceil((dueDate - now) / (1000*60*60*24));
+        dueLabel = dueDate.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+        if (diff < 0) { dueColor = 'var(--danger)'; dueLabel += ' (Overdue)'; }
+        else if (diff <= 3) { dueColor = '#d4aa3a'; }
+        else { dueColor = 'var(--teal)'; }
+      }
+      const deleteBtn = window.__isLead ? `<button class="btn btn-sm" style="font-size:10px; padding:3px 8px; background:var(--danger); color:white; border:none;" onclick="window.removeMilestone('${m.id}')">Delete</button>` : '';
+
+      return `
+        <div class="card" style="padding:16px 20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0; font-size:14px; font-weight:700; color:var(--text);">${escapeHtml(m.title)}</h3>
+            <div style="display:flex; align-items:center; gap:8px;">
+              ${dueLabel ? `<span style="font-size:11px; font-weight:600; color:${dueColor};">${dueLabel}</span>` : ''}
+              ${deleteBtn}
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="flex:1; height:6px; background:var(--surface-2); border-radius:99px; overflow:hidden; border:1px solid var(--border);">
+              <div style="height:100%; width:${pct}%; background:var(--sage); border-radius:99px; transition:width 0.3s ease;"></div>
+            </div>
+            <span style="font-size:11px; font-weight:700; color:var(--text-2); min-width:60px; text-align:right;">${done}/${total} tasks (${pct}%)</span>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = '<p style="color:var(--danger); text-align:center;">Failed to load milestones.</p>';
+  }
+};
+
+window.openAddMilestoneModal = function() {
+  const html = `
+    <div class="modal-overlay open" id="addMilestoneOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+      <div class="modal" style="max-width:400px;">
+        <h2 style="margin:0 0 16px; font-size:18px;">Add Milestone</h2>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--text-2); display:block; margin-bottom:4px;">Milestone Title</label>
+            <input type="text" id="milestoneTitle" class="input" placeholder="e.g. Sprint 1 - Core Features" />
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:600; color:var(--text-2); display:block; margin-bottom:4px;">Due Date</label>
+            <input type="date" id="milestoneDue" class="input" />
+          </div>
+          <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:8px;">
+            <button class="btn btn-outline" onclick="document.getElementById('addMilestoneOverlay').classList.remove('open')">Cancel</button>
+            <button class="btn" onclick="window.createMilestone()">Create</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+};
+
+window.createMilestone = async function() {
+  const group = window.__group;
+  if (!group) return;
+  const title = document.getElementById('milestoneTitle')?.value.trim();
+  const due = document.getElementById('milestoneDue')?.value;
+  if (!title) { showToast('Enter a milestone title.', 'error'); return; }
+  try {
+    await addMilestone({ groupId: group.id || group._id, title, dueDate: due || null });
+    document.getElementById('addMilestoneOverlay')?.remove();
+    showToast('Milestone created!', 'success');
+    window.renderMilestones(group);
+  } catch(e) { showToast(e.message, 'error'); }
+};
+
+window.removeMilestone = async function(mid) {
+  if (!confirm('Delete this milestone?')) return;
+  try {
+    await deleteMilestone(mid);
+    showToast('Milestone deleted.', 'success');
+    if (window.__group) window.renderMilestones(window.__group);
+  } catch(e) { showToast(e.message, 'error'); }
+};
+
+/* =========================================================
+   Peer Reviews (Student Dashboard)
+   ========================================================= */
+window.renderPeerReviewForm = async function(group, student) {
+  const container = document.getElementById('peerReviewContainer');
+  const submitBtn = document.getElementById('submitPeerReviewBtn');
+  if (!container) return;
+
+  const members = window.__groupMembers || [];
+  const myId = student.id || student._id;
+  const peers = members.filter(m => (m.id || m._id) !== myId);
+
+  if (!peers.length) {
+    container.innerHTML = '<p style="color:var(--text-3); text-align:center; font-size:13px; padding:24px 0;">No teammates to evaluate.</p>';
+    if (submitBtn) submitBtn.style.display = 'none';
+    return;
+  }
+
+  // Check existing evaluations
+  let existing = [];
+  try { existing = await getMyPeerEvaluations(group.id || group._id, myId); } catch(e) {}
+  const existingMap = {};
+  existing.forEach(ev => { existingMap[ev.toUserId] = ev; });
+  const alreadyDone = existing.length >= peers.length;
+
+  if (alreadyDone) {
+    container.innerHTML = `
+      <div class="card" style="padding:24px; text-align:center;">
+        <div style="font-size:32px; margin-bottom:8px;">✅</div>
+        <h3 style="margin:0 0 6px; font-size:16px; color:var(--text);">Peer Reviews Submitted</h3>
+        <p style="margin:0; font-size:13px; color:var(--text-3);">You have already submitted evaluations for all your teammates. Thank you!</p>
+      </div>`;
+    if (submitBtn) submitBtn.style.display = 'none';
+    return;
+  }
+
+  const categories = ['contribution', 'communication', 'dependability'];
+
+  container.innerHTML = peers.map(p => {
+    const pid = p.id || p._id;
+    const ex = existingMap[pid];
+    return `
+      <div class="card peer-eval-card" data-peer-id="${pid}" style="padding:18px 20px;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+          ${avatarHtml(p, 36)}
+          <div>
+            <div style="font-size:14px; font-weight:700; color:var(--text);">${escapeHtml(p.name)}</div>
+            <div style="font-size:11px; color:var(--text-3);">${escapeHtml(p.projectRole || 'Member')}</div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px;">
+          ${categories.map(cat => {
+            const label = cat.charAt(0).toUpperCase() + cat.slice(1);
+            const val = ex ? ex[cat] : 0;
+            return `
+              <div style="text-align:center;">
+                <div style="font-size:11px; font-weight:600; color:var(--text-2); margin-bottom:6px;">${label}</div>
+                <div class="star-rating" data-peer="${pid}" data-cat="${cat}">
+                  ${[1,2,3,4,5].map(s => `<span class="star ${s <= val ? 'active' : ''}" data-val="${s}" onclick="window.setStarRating('${pid}','${cat}',${s})" style="cursor:pointer; font-size:20px; color:${s <= val ? '#d4aa3a' : 'var(--border)'}; transition:color 0.15s;">★</span>`).join('')}
+                </div>
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }).join('');
+
+  if (submitBtn) submitBtn.style.display = 'block';
+};
+
+window.setStarRating = function(peerId, category, value) {
+  const container = document.querySelector(`.star-rating[data-peer="${peerId}"][data-cat="${category}"]`);
+  if (!container) return;
+  container.querySelectorAll('.star').forEach(s => {
+    const v = parseInt(s.getAttribute('data-val'));
+    s.classList.toggle('active', v <= value);
+    s.style.color = v <= value ? '#d4aa3a' : 'var(--border)';
+  });
+};
+
+window.submitAllPeerReviews = async function() {
+  const group = window.__group;
+  const student = window.__student;
+  if (!group || !student) return;
+  const myId = student.id || student._id;
+  const cards = document.querySelectorAll('.peer-eval-card');
+  const btn = document.getElementById('submitPeerReviewBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+
+  try {
+    for (const card of cards) {
+      const peerId = card.getAttribute('data-peer-id');
+      const ratings = {};
+      ['contribution','communication','dependability'].forEach(cat => {
+        const stars = card.querySelectorAll(`.star-rating[data-cat="${cat}"] .star.active`);
+        ratings[cat] = stars.length;
+      });
+      if (ratings.contribution === 0 && ratings.communication === 0 && ratings.dependability === 0) {
+        showToast('Please rate all teammates in all categories.', 'error');
+        if (btn) { btn.disabled = false; btn.textContent = 'Submit Peer Reviews'; }
+        return;
+      }
+      await submitPeerEvaluation(group.id || group._id, myId, peerId, ratings);
+    }
+    showToast('Peer reviews submitted successfully!', 'success');
+    window.renderPeerReviewForm(group, student);
+  } catch(e) {
+    showToast('Error: ' + e.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Submit Peer Reviews'; }
+  }
+};
+
+/* =========================================================
+   Teacher Inspection: Peer Review Summary
+   ========================================================= */
+window.renderInspectPeerReviews = async function(groupId) {
+  const container = document.getElementById('inspectPeerReviewsSummary');
+  if (!container) return;
+  container.innerHTML = '<p style="text-align:center; color:var(--text-3); padding:16px 0;">Loading peer evaluations...</p>';
+
+  try {
+    const [evaluations, members] = await Promise.all([
+      getPeerEvaluationsByGroup(groupId),
+      getGroupMembers(groupId)
+    ]);
+
+    if (!evaluations.length) {
+      container.innerHTML = '<p style="text-align:center; color:var(--text-3); padding:24px 0; font-size:13px;">No peer evaluations submitted yet by this group.</p>';
+      return;
+    }
+
+    // Aggregate ratings per student
+    const memberMap = {};
+    members.forEach(m => { memberMap[m.id || m._id] = m; });
+
+    const scores = {};
+    evaluations.forEach(ev => {
+      if (!scores[ev.toUserId]) scores[ev.toUserId] = { contribution: [], communication: [], dependability: [] };
+      scores[ev.toUserId].contribution.push(ev.contribution);
+      scores[ev.toUserId].communication.push(ev.communication);
+      scores[ev.toUserId].dependability.push(ev.dependability);
+    });
+
+    const avg = arr => arr.length ? (arr.reduce((a,b) => a+b, 0) / arr.length).toFixed(1) : '—';
+
+    container.innerHTML = `
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border);">
+              <th style="text-align:left; padding:10px 12px; color:var(--text-2); font-weight:700;">Student</th>
+              <th style="text-align:center; padding:10px 12px; color:var(--text-2); font-weight:700;">Contribution</th>
+              <th style="text-align:center; padding:10px 12px; color:var(--text-2); font-weight:700;">Communication</th>
+              <th style="text-align:center; padding:10px 12px; color:var(--text-2); font-weight:700;">Dependability</th>
+              <th style="text-align:center; padding:10px 12px; color:var(--text-2); font-weight:700;">Overall</th>
+              <th style="text-align:center; padding:10px 12px; color:var(--text-2); font-weight:700;">Reviews</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Object.keys(scores).map(uid => {
+              const s = scores[uid];
+              const member = memberMap[uid];
+              const name = member ? escapeHtml(member.name) : uid;
+              const role = member ? escapeHtml(member.projectRole || 'Member') : '';
+              const c1 = avg(s.contribution);
+              const c2 = avg(s.communication);
+              const c3 = avg(s.dependability);
+              const overall = s.contribution.length ? (( parseFloat(c1) + parseFloat(c2) + parseFloat(c3) ) / 3).toFixed(1) : '—';
+              const count = s.contribution.length;
+              const overallNum = parseFloat(overall);
+              let badgeColor = 'var(--teal)';
+              if (overallNum < 2.5) badgeColor = 'var(--danger)';
+              else if (overallNum < 3.5) badgeColor = '#d4aa3a';
+              return `
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:12px; display:flex; align-items:center; gap:10px;">
+                    ${member ? avatarHtml(member, 28) : ''}
+                    <div>
+                      <div style="font-weight:600; color:var(--text);">${name}</div>
+                      <div style="font-size:11px; color:var(--text-3);">${role}</div>
+                    </div>
+                  </td>
+                  <td style="text-align:center; padding:12px; font-weight:600;">${c1} ★</td>
+                  <td style="text-align:center; padding:12px; font-weight:600;">${c2} ★</td>
+                  <td style="text-align:center; padding:12px; font-weight:600;">${c3} ★</td>
+                  <td style="text-align:center; padding:12px;"><span style="background:${badgeColor}; color:white; padding:3px 10px; border-radius:99px; font-weight:700; font-size:12px;">${overall}</span></td>
+                  <td style="text-align:center; padding:12px; color:var(--text-3);">${count}</td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } catch(e) {
+    container.innerHTML = `<p style="color:var(--danger); text-align:center;">Failed to load peer reviews: ${escapeHtml(e.message)}</p>`;
+  }
+};
+
+/* =========================================================
+   Teacher Inspection: Deliverables (Links + Milestones)
+   ========================================================= */
+window.renderInspectDeliverables = async function(groupId) {
+  const container = document.getElementById('inspectDeliverablesContent');
+  if (!container) return;
+  container.innerHTML = '<p style="text-align:center; color:var(--text-3); padding:16px 0;">Loading deliverables...</p>';
+
+  try {
+    const [group, milestones] = await Promise.all([
+      getGroupById(groupId),
+      getMilestonesByGroup(groupId)
+    ]);
+
+    const hasGh = group.githubUrl && group.githubUrl.trim();
+    const hasLive = group.liveUrl && group.liveUrl.trim();
+
+    let html = `
+      <div class="card" style="padding:20px 24px;">
+        <h3 style="margin:0 0 12px; font-size:15px; font-weight:700; color:var(--text);">Project Links</h3>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          ${hasGh ? `<a href="${escapeHtml(group.githubUrl)}" target="_blank" class="btn btn-outline" style="font-size:12px; padding:8px 16px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:6px;"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            GitHub Repository
+          </a>` : '<span style="font-size:12px; color:var(--text-3);">No GitHub link submitted</span>'}
+          ${hasLive ? `<a href="${escapeHtml(group.liveUrl)}" target="_blank" class="btn btn-outline" style="font-size:12px; padding:8px 16px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px;"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Live Deployment
+          </a>` : '<span style="font-size:12px; color:var(--text-3);">No live URL submitted</span>'}
+        </div>
+      </div>`;
+
+    // Milestones
+    if (milestones.length) {
+      html += `<h3 style="margin:20px 0 12px; font-size:15px; font-weight:700; color:var(--text);">Milestones</h3>`;
+      html += milestones.map(m => {
+        const dueDate = m.dueDate ? new Date(m.dueDate) : null;
+        let dueLabel = '';
+        if (dueDate) {
+          dueLabel = dueDate.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+        }
+        return `
+          <div class="card" style="padding:14px 20px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:13px; font-weight:600; color:var(--text);">${escapeHtml(m.title)}</span>
+            <span style="font-size:11px; color:var(--text-3);">${dueLabel || 'No due date'}</span>
+          </div>`;
+      }).join('');
+    } else {
+      html += '<p style="font-size:13px; color:var(--text-3); margin-top:16px;">No milestones created for this group.</p>';
+    }
+
+    container.innerHTML = html;
+  } catch(e) {
+    container.innerHTML = `<p style="color:var(--danger); text-align:center;">Failed to load deliverables: ${escapeHtml(e.message)}</p>`;
   }
 };
