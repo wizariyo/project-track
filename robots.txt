@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://wizariyo.github.io/project-track/sitemap.xml
