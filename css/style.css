@@ -245,7 +245,7 @@ label {
   color: var(--cream);
   font-weight: 600;
 }
-[data-theme="dark"] .nav-item.active { background: var(--sage); color: var(--bg); }
+[data-theme="dark"] .nav-item.active { background: var(--primary); color: #FFF; }
 .nav-item svg { flex-shrink: 0; opacity: 0.7; }
 .nav-item.active svg { opacity: 1; }
 
@@ -2077,8 +2077,8 @@ input:checked + .day-night-slider::after {
 .ai-prompt-card {
   cursor: pointer;
   padding: 16px;
-  background: #fbeed9;
-  border: 1px solid rgba(60, 76, 52, 0.15);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
   transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
   min-height: 64px;
@@ -2087,8 +2087,8 @@ input:checked + .day-night-slider::after {
   justify-content: center;
 }
 .ai-prompt-card:hover {
-  background: #f8e5c8;
-  border-color: #3c4c34;
+  background: var(--surface-2);
+  border-color: var(--primary);
   transform: translateY(-2px);
 }
 
@@ -2504,7 +2504,7 @@ input:checked + .day-night-slider::after {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  background: #fafafa; /* Slight contrast for messages area */
+  
 }
 .chat-msg {
   display: flex;
