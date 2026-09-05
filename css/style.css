@@ -38,25 +38,25 @@
 }
 
 [data-theme="dark"] {
-  --bg:       #0A1211; /* Very dark teal/charcoal */
-  --surface:  #101C1A; /* Dark teal surface */
-  --surface-2:#162826; /* Slightly lighter teal */
-  --border:   rgba(239, 234, 187, 0.08); /* Cream border with low opacity */
-  --text:     #F8F6E6; /* Cream text brighter */
-  --text-2:   #A9C2B4; /* Light sage */
-  --text-3:   #759986; /* Medium sage */
-  --primary:  #52BDB2; /* Brightened teal */
-  --primary-hover: #63CFC4; /* Brighter teal for hover */
-  --accent:   #A33457; /* Brightened maroon */
-  --shadow-sm:   0 2px 8px rgba(0,0,0,0.3);
-  --shadow-md:   0 8px 24px rgba(0,0,0,0.45);
-  --shadow-lg:   0 16px 40px rgba(0,0,0,0.6);
-  --glass-bg:    rgba(16, 28, 26, 0.85);
-  --glass-border:rgba(239, 234, 187, 0.05);
+  --bg:       #0A1211;
+  --surface:  #14221F; /* Slightly lighter so things are more visible */
+  --surface-2:#1A2E2A;
+  --border:   rgba(239, 234, 187, 0.16); /* Double the opacity for better boundary visibility */
+  --text:     #FFFFFF; /* Pure white for max readability */
+  --text-2:   #C5D6CC;
+  --text-3:   #9AB3A5;
+  --primary:  #52BDB2;
+  --primary-hover: #7AE0D6;
+  --accent:   #C2456B;
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.4);
+  --shadow-md:   0 8px 24px rgba(0,0,0,0.6);
+  --shadow-lg:   0 16px 40px rgba(0,0,0,0.8);
+  --glass-bg:    rgba(20, 34, 31, 0.85);
+  --glass-border:rgba(239, 234, 187, 0.12);
 }
 
 /* ---- Reset ---- */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; word-break: break-word; overflow-wrap: anywhere; }
 html, body { height: 100%; }
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;

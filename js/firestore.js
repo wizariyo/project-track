@@ -439,9 +439,9 @@
   async function getMyPeerEvaluations(gid, fromUserId) {
     var snap = await db.collection('peerEvaluations')
       .where('groupId','==',gid)
-      .where('fromUserId','==',fromUserId)
       .get();
-    return snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
+    var allEvals = snap.docs.map(function(d) { return { ...d.data(), id: d.id }; });
+    return allEvals.filter(function(e) { return e.fromUserId === fromUserId; });
   }
 
   /* ─── Expose everything to window ─────────────────────── */

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Apple Style Ad</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;800&display=swap');
+    
+    body {
+      margin: 0; padding: 0; background-color: #000; color: #fff;
+      font-family: 'Inter', -apple-system, sans-serif;
+      overflow: hidden;
+      width: 1920px; height: 1080px;
+    }
+    
+    .scene {
+      position: absolute; top: 0; left: 0; width: 1920px; height: 1080px;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column;
+      opacity: 0; visibility: hidden;
+    }
+    
+    .huge-text {
+      font-size: 110px; font-weight: 800; letter-spacing: -2px;
+      text-align: center; line-height: 1.1;
+      background: linear-gradient(180deg, #ffffff 0%, #a0a0a0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0; transform: translateY(50px);
+    }
+    
+    .macbook-wrapper {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -45%) scale(0.6);
+      width: 1600px; height: 900px;
+      opacity: 0;
+    }
+    
+    .macbook-bg {
+      position: absolute; top: -5%; left: -5%; width: 110%; height: 115%;
+      background: url('../mac_frame.png') center/contain no-repeat;
+      z-index: 10; pointer-events: none;
+    }
+    
+    .macbook-screen {
+      position: absolute; top: 40px; left: 160px; width: 1280px; height: 800px;
+      background: #111; overflow: hidden; z-index: 1;
+    }
+    
+    video {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    
+    .logo-text {
+      font-size: 150px; font-weight: 800; letter-spacing: -4px;
+      background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scene" id="scene1" style="visibility: visible;">
+    <div class="huge-text" id="t1">Project management<br>is chaotic.</div>
+  </div>
+  
+  <div class="scene" id="scene2">
+    <div class="huge-text" id="t2">We fixed it.</div>
+  </div>
+  
+  <div class="scene" id="scene3">
+    <div class="huge-text" id="t3" style="position:absolute; top:80px; font-size:70px;">Powerful Teacher Insights.</div>
+    <div class="macbook-wrapper" id="mac1">
+      <div class="macbook-bg"></div>
+      <div class="macbook-screen">
+        <video id="vid1" src="clip_teacher.mp4" muted></video>
+      </div>
+    </div>
+  </div>
+  
+  <div class="scene" id="scene4">
+    <div class="huge-text" id="t4">Zero-latency collaboration.</div>
+  </div>
+  
+  <div class="scene" id="scene5">
+    <div class="huge-text" id="t5" style="position:absolute; top:80px; font-size:70px;">Everything in sync.</div>
+    <div class="macbook-wrapper" id="mac2">
+      <div class="macbook-bg"></div>
+      <div class="macbook-screen">
+        <video id="vid2" src="clip_student.mp4" muted></video>
+      </div>
+    </div>
+  </div>
+  
+  <div class="scene" id="scene6">
+    <div class="logo-text" id="t6">ProjectTrack.</div>
+    <div class="huge-text" id="t7" style="font-size: 40px; margin-top:30px; background: #888; -webkit-background-clip: text;">The future of student projects.</div>
+  </div>
+
+  <script>
+    window.onload = () => {
+      const tl = gsap.timeline();
+      
+      // Scene 1
+      tl.to('#scene1', { opacity: 1, duration: 0.1 })
+        .to('#t1', { opacity: 1, y: 0, duration: 1.5, ease: "power3.out" })
+        .to('#t1', { scale: 1.05, duration: 2, ease: "none" }, "-=1.5")
+        .to('#scene1', { opacity: 0, duration: 0.8 }, "+=0.5");
+        
+      // Scene 2
+      tl.to('#scene2', { opacity: 1, visibility: 'visible', duration: 0.1 })
+        .to('#t2', { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" })
+        .to('#t2', { scale: 1.1, duration: 1.5, ease: "none" }, "-=1.2")
+        .to('#scene2', { opacity: 0, duration: 0.8 }, "+=0.5");
+        
+      // Scene 3 (Teacher Video)
+      tl.to('#scene3', { opacity: 1, visibility: 'visible', duration: 0.1 })
+        .call(() => { document.getElementById('vid1').play(); })
+        .to('#t3', { opacity: 1, y: 0, duration: 1 })
+        .to('#mac1', { opacity: 1, y: -20, duration: 1.5, ease: "power3.out" }, "-=0.5")
+        .to('#mac1', { scale: 0.8, duration: 6, ease: "none" }) // slow zoom in
+        .to('#scene3', { opacity: 0, duration: 0.8 });
+        
+      // Scene 4
+      tl.to('#scene4', { opacity: 1, visibility: 'visible', duration: 0.1 })
+        .to('#t4', { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" })
+        .to('#t4', { scale: 1.05, duration: 1.5, ease: "none" }, "-=1.2")
+        .to('#scene4', { opacity: 0, duration: 0.8 }, "+=0.5");
+        
+      // Scene 5 (Student Video)
+      tl.to('#scene5', { opacity: 1, visibility: 'visible', duration: 0.1 })
+        .call(() => { document.getElementById('vid2').play(); })
+        .to('#t5', { opacity: 1, y: 0, duration: 1 })
+        .to('#mac2', { opacity: 1, y: -20, duration: 1.5, ease: "power3.out" }, "-=0.5")
+        .to('#mac2', { scale: 0.9, duration: 6, ease: "none" }) // slow zoom in
+        .to('#scene5', { opacity: 0, duration: 0.8 });
+        
+      // Scene 6
+      tl.to('#scene6', { opacity: 1, visibility: 'visible', duration: 0.1 })
+        .to('#t6', { opacity: 1, y: 0, scale: 1.1, duration: 1.5, ease: "power4.out" })
+        .to('#t7', { opacity: 1, y: 0, duration: 1 }, "-=1")
+        .to('#t6', { scale: 1.15, duration: 3, ease: "none" }, "-=1.5");
+        
+      // Add a signal div so Puppeteer knows we're done
+      tl.call(() => {
+        const doneDiv = document.createElement('div');
+        doneDiv.id = 'anim-done';
+        document.body.appendChild(doneDiv);
+      }, null, "+=1");
+    };
+  </script>
+</body>
+</html>

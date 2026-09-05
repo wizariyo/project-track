@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ProjectTrack | College Project Management & Tracking Portal</title>
+<meta name="description" content="ProjectTrack is the ultimate academic project management tool for colleges. Teachers and students can track final year projects, manage sprints, evaluate peers, and submit deliverables in real-time." />
+<meta name="keywords" content="college project management, academic project tracker, student project portal, engineering project tracking, free academic kanban" />
+<meta name="author" content="Wizariyo" />
+<link rel="canonical" href="https://wizariyo.github.io/project-track/" />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://wizariyo.github.io/project-track/" />
+<meta property="og:title" content="ProjectTrack | College Project Management" />
+<meta property="og:description" content="The ultimate platform for universities to track final year projects, manage sprints, and evaluate students." />
+<meta property="og:image" content="https://wizariyo.github.io/project-track/img/og-image.png" />
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content="https://wizariyo.github.io/project-track/" />
+<meta property="twitter:title" content="ProjectTrack | College Project Management" />
+<meta property="twitter:description" content="The ultimate platform for universities to track final year projects, manage sprints, and evaluate students." />
+<meta property="twitter:image" content="https://wizariyo.github.io/project-track/img/og-image.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=1.2.0" />
+<style>
+  /* Premium Role Card Inline Styles (Guarantees cache-proof rendering) */
+  .role-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 16px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .role-card:hover {
+    border-color: var(--teal);
+    background: var(--surface-2);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-md);
+  }
+  .role-card:hover svg {
+    transform: scale(1.12);
+  }
+  [data-theme="dark"] .role-card:hover {
+    border-color: var(--sage);
+  }
+  .role-card-icon {
+    font-size: 34px;
+    margin-bottom: 12px;
+    line-height: 1;
+  }
+  .role-card-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .role-card-desc {
+    font-size: 11.0px;
+    color: var(--text-3);
+    line-height: 1.4;
+  }
+  .select2-container .select2-selection--multiple { min-height: 44px; border: 1.5px solid var(--border); border-radius: var(--radius); padding: 4px; }
+</style>
+  <!-- Select2 -->
+    <!-- jQuery for Select2 -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body data-page="auth">
+
+<div class="auth-shell">
+  <div class="auth-card fade-in-up">
+
+    <div class="auth-brand" style="display: flex; align-items: center; gap: 10px;">
+      <svg class="logo-svg" viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; color: var(--teal); filter: drop-shadow(0 2px 4px rgba(23,67,63,0.12));">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+      <span>ProjectTrack</span>
+    </div>
+
+    <!-- STEP 1: Role selection -->
+    <div id="stepRole" class="auth-step active">
+      <h1 class="auth-title">Welcome to ProjectTrack</h1>
+      <p class="auth-sub">Choose your role to get started.</p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px;">
+        <div class="role-card" id="roleTeacher" onclick="selectRole('teacher')">
+          <svg viewBox="0 0 24 24" width="34" height="34" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 12px; stroke: var(--primary); transition: transform 0.22s;">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M6 9.5V17c0 2 3 3.5 6 3.5s6-1.5 6-3.5V9.5"></path>
+            <path d="M22 7v6"></path>
+          </svg>
+          <div class="role-card-title">Teacher</div>
+          <div class="role-card-desc">Create groups & monitor progress</div>
+        </div>
+
+        <div class="role-card" id="roleStudent" onclick="selectRole('student')">
+          <svg viewBox="0 0 24 24" width="34" height="34" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 12px; stroke: var(--primary); transition: transform 0.22s;">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+          </svg>
+          <div class="role-card-title">Student</div>
+          <div class="role-card-desc">Join groups & track tasks</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Auth form -->
+    <div id="stepAuth" class="auth-step">
+      <button class="back-btn" onclick="goBackToRole()">← Back</button>
+      <h1 class="auth-title" id="authHeading">Sign In</h1>
+
+      <div id="authError" class="auth-error hidden"></div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin" onclick="setAuthMode('login')">Sign In</button>
+        <button class="auth-tab" id="tabSignup" onclick="setAuthMode('signup')">Sign Up</button>
+      </div>
+
+      <div id="signupFields" style="display:none;">
+        <div class="form-group">
+          <label for="authName">Full Name</label>
+          <input type="text" id="authName" class="form-control" placeholder="Jane Doe" />
+        </div>
+
+        <div class="form-group" id="authSemesterField" style="display:none;">
+          <label for="authSemester">Semester</label>
+          <select id="authSemester" class="form-control" onchange="updateAuthSubjectCatalog()">
+            <option value="" disabled selected>Select Semester</option>
+            <option value="1">Semester 1</option>
+            <option value="2">Semester 2</option>
+            <option value="3">Semester 3</option>
+            
+          </select>
+        </div>
+                <div id="studentProjectRoleField" class="form-group" style="display:none;">
+          <label for="authProjectRole">Project Role</label>
+          <select id="authProjectRole" class="form-control">
+            <option value="Tech Lead">Tech Lead</option>
+            <option value="Developer">Developer</option>
+            <option value="Tester">Tester</option>
+            <option value="QA">QA</option>
+          </select>
+        </div>
+        <div id="authSubjectsField" class="form-group" style="display:none;">
+          <label for="authSubjects">Subject Taught</label>
+          <select id="authSubjects" class="form-control">
+          </select>
+        </div>
+        <div id="teacherSignupSemestersField" class="form-group" style="display:none;">
+          <label style="font-weight: 600; font-size: 13px; margin-bottom: 8px; display: block; color: var(--text);">Select Semesters You Teach</label>
+          <div id="teacherSignupSemestersContainer" style="display: flex; gap: 12px; flex-wrap: wrap; background: var(--surface-2); padding: 12px; border: 1px solid var(--border); border-radius: var(--radius);">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+        <div id="teacherSignupSubjectsField" class="form-group" style="display:none;">
+          <label style="font-weight: 600; font-size: 13px; margin-bottom: 8px; display: block; color: var(--text);">Select Subjects Taught in Chosen Semesters</label>
+          <div id="teacherSignupSubjectsContainer" style="max-height: 180px; overflow-y: auto; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); display: flex; flex-direction: column; gap: 12px;">
+            <p style="font-size:12px; color:var(--text-3); margin:0;">Please select one or more semesters above first.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="authEmail">Email</label>
+        <input type="email" id="authEmail" class="form-control" placeholder="jane@college.edu" />
+      </div>
+      <div class="form-group">
+        <label for="authPassword">Password</label>
+        <input type="password" id="authPassword" class="form-control" placeholder="••••••••" />
+      </div>
+
+      <button class="btn btn-primary btn-full" id="submitAuthBtn">Sign In</button>
+      
+      <div style="text-align: center; margin: 16px 0; color: var(--text-3); font-size: 13px;">or</div>
+      <button class="btn btn-outline btn-full" id="googleAuthBtn" style="display:flex; align-items:center; justify-content:center; gap:8px;">
+        <svg viewBox="0 0 24 24" width="18" height="18" style="flex-shrink:0;"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Google Account Configuration Modal -->
+<div class="modal-overlay" id="googleConfigModal">
+  <div class="modal" style="max-width: 420px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px;">
+    <div class="modal-head" style="margin-bottom: 12px;">
+      <h3>Complete Your Profile</h3>
+    </div>
+    <div class="modal-body" style="display: flex; flex-direction: column; gap: 16px;">
+      <p style="font-size: 13px; color: var(--text-3); line-height: 1.45; margin: 0;">Since this is your first time signing in with Google, please select your role and academic details below to complete your setup.</p>
+      
+      <div class="form-group" style="margin-top: 10px;">
+        <label for="googleRole">Role</label>
+        <select id="googleRole" class="form-control" onchange="toggleGoogleFields()">
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="googleSemesterGroup">
+        <label for="googleSemester">Semester</label>
+        <select id="googleSemester" class="form-control" onchange="updateGoogleSubjects()">
+          <option value="" disabled selected>Select Semester</option>
+          <option value="1">Semester 1</option>
+          <option value="2">Semester 2</option>
+          <option value="3">Semester 3</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="googleProjectRoleGroup">
+        <label for="googleProjectRole">Project Role</label>
+        <select id="googleProjectRole" class="form-control">
+          <option value="Tech Lead">Tech Lead</option>
+          <option value="Developer">Developer</option>
+          <option value="Tester">Tester</option>
+          <option value="QA">QA</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="googleSubjectsGroup" style="display: none;">
+        <label for="googleSubjects">Subject Taught</label>
+        <select id="googleSubjects" class="form-control"></select>
+      </div>
+      <div class="form-group" id="googleTeacherSemestersField" style="display: none;">
+        <label style="font-weight: 600; font-size: 13px; margin-bottom: 8px; display: block; color: var(--text);">Select Semesters You Teach</label>
+        <div id="googleTeacherSemestersContainer" style="display: flex; gap: 12px; flex-wrap: wrap; background: var(--surface-2); padding: 12px; border: 1px solid var(--border); border-radius: var(--radius);">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+      <div class="form-group" id="googleTeacherSubjectsField" style="display: none;">
+        <label style="font-weight: 600; font-size: 13px; margin-bottom: 8px; display: block; color: var(--text);">Select Subjects Taught in Chosen Semesters</label>
+        <div id="googleTeacherSubjectsContainer" style="max-height: 180px; overflow-y: auto; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); display: flex; flex-direction: column; gap: 12px;">
+          <p style="font-size:12px; color:var(--text-3); margin:0;">Please select one or more semesters above first.</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="margin-top: 24px; display: flex; gap: 10px;">
+      <button class="btn btn-primary btn-full" id="submitGoogleConfigBtn">Complete Profile</button>
+    </div>
+  </div>
+</div>
+
+<!-- Email OTP Verification Modal -->
+<div class="modal-overlay" id="otpModal">
+  <div class="modal" style="max-width: 400px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; text-align: center;">
+    <div class="modal-head" style="justify-content: center; margin-bottom: 8px;">
+      <h3 style="font-size: 20px; font-weight: 700; color: var(--text); margin: 0;">Email Verification</h3>
+    </div>
+    <div class="modal-body" style="display: flex; flex-direction: column; gap: 20px; margin-top: 12px;">
+      <p style="font-size: 13px; color: var(--text-3); line-height: 1.5; margin: 0;">We've sent a 6-digit verification code to <strong id="otpEmailSpan" style="color: var(--text);"></strong>. Please enter it below.</p>
+      
+      <!-- Premium OTP Input Row -->
+      <div style="display: flex; gap: 8px; justify-content: center; margin: 10px 0;" id="otpInputsContainer">
+        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
+        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
+        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
+        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
+        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
+        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
+      </div>
+
+      <div id="otpError" class="auth-error hidden" style="font-size: 12.5px; padding: 10px; margin: 0; border-radius: var(--radius);"></div>
+      
+      <div style="font-size: 12.5px; color: var(--text-3);">
+        Didn't receive the code? 
+        <span id="otpResendLink" style="color: var(--teal); font-weight: 600; cursor: pointer; text-decoration: underline;">Resend</span>
+        <span id="otpTimerSpan" style="display: none;">in <strong id="otpCountdown">30</strong>s</span>
+      </div>
+    </div>
+    <div class="modal-footer" style="margin-top: 24px; display: flex; gap: 10px;">
+      <button class="btn btn-ghost" data-close="otpModal" style="flex: 1; justify-content: center;">Cancel</button>
+      <button class="btn btn-primary" id="btnVerifyOTP" style="flex: 1; justify-content: center;">Verify & Proceed</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="js/firebase.js?v=1.2.0"></script>
+  <script src="js/catalog.js?v=1.2.0"></script>
+  <script src="js/firestore.js?v=1.2.0"></script>
+  <script src="js/toast.js?v=1.2.0"></script>
+  <script src="js/otp.js?v=1.2.0"></script>
+<script>
+  function openModal(id)  { const m = document.getElementById(id); if (m) m.classList.add('open'); }
+  function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('open'); }
+
+  window.selectedRole = null;
+  window.authMode = 'login';
+
+  
+  /* Catalog loaded via js/catalog.js */
+  function loadSubjectCatalog() {
+    updateAuthSubjectCatalog && updateAuthSubjectCatalog();
+    renderTeacherSignupSemesters();
+  }
+  
+  function updateAuthSubjectCatalog() {
+    const semester = document.getElementById('authSemester').value;
+    const select = document.getElementById('authSubjects');
+    if (!select) return;
+    
+    if (!semester) {
+      select.innerHTML = '<option value="" disabled selected>Please select Semester first</option>';
+      return;
+    }
+    
+    const filtered = window.SUBJECT_CATALOG.filter(c => c.semester == semester);
+    if (filtered.length === 0) {
+      select.innerHTML = '<option value="" disabled selected>No subjects found for this semester</option>';
+    } else {
+      select.innerHTML = filtered.map(c => `<option value="${c.name}">${c.code}: ${c.name}</option>`).join('');
+    }
+  }
+
+  window.__selectedSignupSubjects = new Set();
+  window.__selectedSignupSemesters = new Set();
+
+  function renderTeacherSignupSemesters() {
+    const container = document.getElementById('teacherSignupSemestersContainer');
+    if (!container) return;
+
+    const sems = [...new Set(window.SUBJECT_CATALOG.map(s => s.semester))].sort((a,b) => a-b);
+    
+    container.innerHTML = sems.map(sem => `
+      <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);">
+        <input type="checkbox" class="signup-semester-checkbox" value="${sem}" style="width: 16px; height: 16px;" onchange="toggleSignupSemester(this, ${sem})" />
+        <span>Sem ${sem}</span>
+      </label>
+    `).join('');
+  }
+
+  window.toggleSignupSemester = function(el, sem) {
+    if (el.checked) {
+      window.__selectedSignupSemesters.add(sem);
+    } else {
+      window.__selectedSignupSemesters.delete(sem);
+      // Remove any previously selected subjects of this deselected semester
+      window.SUBJECT_CATALOG.filter(s => s.semester === sem).forEach(s => {
+        window.__selectedSignupSubjects.delete(s.name);
+      });
+    }
+    renderTeacherSignupSubjects();
+  };
+
+  function renderTeacherSignupSubjects() {
+    const container = document.getElementById('teacherSignupSubjectsContainer');
+    if (!container) return;
+
+    if (window.__selectedSignupSemesters.size === 0) {
+      container.innerHTML = '<p style="font-size:12px; color:var(--text-3); margin:0;">Please select one or more semesters above first.</p>';
+      return;
+    }
+
+    let html = '';
+    const grouped = {};
+    window.SUBJECT_CATALOG.forEach(s => {
+      if (window.__selectedSignupSemesters.has(s.semester)) {
+        if (!grouped[s.semester]) grouped[s.semester] = [];
+        grouped[s.semester].push(s);
+      }
+    });
+
+    Object.keys(grouped).forEach(sem => {
+      html += `
+        <div style="margin-bottom: 8px;">
+          <h4 style="font-size: 11px; text-transform: uppercase; color: var(--text-3); font-weight: 700; margin: 0 0 6px 0;">Semester ${sem}</h4>
+          <div style="display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
+            ${grouped[sem].map(s => {
+              const isChecked = window.__selectedSignupSubjects.has(s.name) ? 'checked' : '';
+              return `
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);">
+                  <input type="checkbox" class="signup-teacher-subject-checkbox" value="${s.name}" data-semester="${sem}" ${isChecked} onchange="toggleSignupSubjectSelection(this)" style="width: 16px; height: 16px;" />
+                  <span>${s.code ? s.code + ' - ' : ''}${s.name}</span>
+                </label>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+  }
+
+  window.toggleSignupSubjectSelection = function(el) {
+    if (el.checked) {
+      window.__selectedSignupSubjects.add(el.value);
+    } else {
+      window.__selectedSignupSubjects.delete(el.value);
+    }
+  };
+  
+  loadSubjectCatalog();
+  
+  function selectRole(role) {
+    window.selectedRole = role;
+    document.getElementById('stepRole').classList.remove('active');
+    document.getElementById('stepAuth').classList.add('active');
+    document.getElementById('studentProjectRoleField').style.display = role === 'student' ? 'block' : 'none';
+    
+    document.getElementById('authSemesterField').style.display = role === 'student' ? 'block' : 'none';
+    document.getElementById('authSubjectsField').style.display = 'none';
+    document.getElementById('teacherSignupSemestersField').style.display = role === 'teacher' ? 'block' : 'none';
+    document.getElementById('teacherSignupSubjectsField').style.display = role === 'teacher' ? 'block' : 'none';
+
+    setAuthMode('login');
+  }
+
+  function goBackToRole() {
+    document.getElementById('stepAuth').classList.remove('active');
+    document.getElementById('stepRole').classList.add('active');
+    document.getElementById('authError').classList.add('hidden');
+  }
+
+  function setAuthMode(mode) {
+    window.authMode = mode;
+    document.getElementById('authError').classList.add('hidden');
+    if (mode === 'login') {
+      document.getElementById('tabLogin').classList.add('active');
+      document.getElementById('tabSignup').classList.remove('active');
+      document.getElementById('signupFields').style.display = 'none';
+      document.getElementById('submitAuthBtn').textContent = 'Sign In';
+      document.getElementById('authHeading').textContent = 'Sign In as ' + (window.selectedRole === 'teacher' ? 'Teacher' : 'Student');
+    } else {
+      document.getElementById('tabLogin').classList.remove('active');
+      document.getElementById('tabSignup').classList.add('active');
+      document.getElementById('signupFields').style.display = 'block';
+      document.getElementById('submitAuthBtn').textContent = 'Create Account';
+      document.getElementById('authHeading').textContent = 'Sign Up as ' + (window.selectedRole === 'teacher' ? 'Teacher' : 'Student');
+    }
+  }
+
+  function initAuth() {
+    const submitBtn = document.getElementById('submitAuthBtn');
+    if (submitBtn) {
+      submitBtn.addEventListener('click', handleAuth);
+    }
+    const googleBtn = document.getElementById('googleAuthBtn');
+    if (googleBtn) {
+      googleBtn.addEventListener('click', handleGoogleAuth);
+    }
+    
+    // Wire close modal buttons
+    document.querySelectorAll('[data-close]').forEach(btn => {
+      btn.addEventListener('click', () => closeModal(btn.getAttribute('data-close')));
+    });
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay.id); });
+    });
+    
+    // Check if user is already logged in
+    const user = window.getCurrentUser();
+    if (user) {
+      redirectUser(user.role);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuth);
+  } else {
+    initAuth();
+  }
+
+  let tempAuthData = null;
+  let resendInterval = null;
+
+  async function handleAuth(e) {
+    if (e) e.preventDefault();
+    
+    const errorDiv = document.getElementById('authError');
+    const submitBtn = document.getElementById('submitAuthBtn');
+    
+    errorDiv.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Please wait...';
+
+    const email = document.getElementById('authEmail').value.trim();
+    const password = document.getElementById('authPassword').value;
+
+    try {
+      if (!email || !password) {
+        throw new Error("Please enter both email and password.");
+      }
+
+      if (window.authMode === 'login') {
+        const user = await window.apiLogin(email, password);
+        if (!user) throw new Error("Invalid credentials or user not found.");
+        
+        if (window.showToast) window.showToast('Logged in successfully!', 'success');
+        setTimeout(() => redirectUser(user.role), 500);
+      } else {
+        const name = document.getElementById('authName').value.trim();
+        
+        if (!name) {
+          throw new Error("Please enter your name.");
+        }
+
+        const data = {
+          name,
+          email,
+          password,
+          role: window.selectedRole === 'teacher' ? 'teacher' : 'student',
+          avatarColor: getRandomColor()
+        };
+
+        if (window.selectedRole === 'student') {
+          const semester = parseInt(document.getElementById('authSemester').value);
+          if (!semester) throw new Error("Please select a semester.");
+          data.semester = semester;
+          data.projectRole = document.getElementById('authProjectRole').value;
+        } else if (window.selectedRole === 'teacher') {
+          const selectedSubjs = [];
+          const selectedSems = new Set();
+          document.querySelectorAll('.signup-teacher-subject-checkbox:checked').forEach(cb => {
+            selectedSubjs.push(cb.value);
+            selectedSems.add(parseInt(cb.getAttribute('data-semester')));
+          });
+          
+          if (selectedSubjs.length === 0) {
+            throw new Error("Please select at least one subject you teach.");
+          }
+          data.subjects = selectedSubjs;
+          data.semesters = Array.from(selectedSems);
+          data.semester = data.semesters[0];
+        }
+
+        const user = await window.apiSignup(data);
+        if (!user) throw new Error("Signup failed.");
+        
+        if (window.showToast) window.showToast('Account created successfully!', 'success');
+        setTimeout(() => redirectUser(user.role), 500);
+      }
+    } catch (error) {
+      console.error("Auth Error:", error);
+      errorDiv.textContent = error.message || "An error occurred during authentication.";
+      errorDiv.classList.remove('hidden');
+      submitBtn.disabled = false;
+      submitBtn.textContent = window.authMode === 'login' ? 'Sign In' : 'Sign Up';
+    }
+  }
+
+  // OTP Verification helper functions
+  function resetOtpInputs() {
+    const inputs = document.querySelectorAll('.otp-box');
+    inputs.forEach(input => {
+      input.value = '';
+    });
+    document.getElementById('otpError').classList.add('hidden');
+    
+    const verifyBtn = document.getElementById('btnVerifyOTP');
+    if (verifyBtn) {
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = 'Verify & Proceed';
+    }
+    
+    if (inputs.length > 0) inputs[0].focus();
+  }
+
+  // Handle auto-focus shift for OTP boxes
+  document.querySelectorAll('.otp-box').forEach((box, idx, arr) => {
+    box.addEventListener('input', (e) => {
+      box.value = box.value.replace(/[^0-9]/g, '');
+      if (box.value && idx < arr.length - 1) {
+        arr[idx + 1].focus();
+      }
+    });
+
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !box.value && idx > 0) {
+        arr[idx - 1].focus();
+      }
+    });
+  });
+
+  // Resend Timer logic
+  function startOtpResendTimer() {
+    const link = document.getElementById('otpResendLink');
+    const timerSpan = document.getElementById('otpTimerSpan');
+    const countdown = document.getElementById('otpCountdown');
+    
+    if (!link || !timerSpan || !countdown) return;
+    
+    link.style.display = 'none';
+    timerSpan.style.display = 'inline';
+    
+    let secondsLeft = 30;
+    countdown.textContent = secondsLeft;
+    
+    clearInterval(resendInterval);
+    resendInterval = setInterval(() => {
+      secondsLeft--;
+      countdown.textContent = secondsLeft;
+      if (secondsLeft <= 0) {
+        clearInterval(resendInterval);
+        link.style.display = 'inline';
+        timerSpan.style.display = 'none';
+      }
+    }, 1000);
+  }
+
+  // Resend Click
+  document.getElementById('otpResendLink')?.addEventListener('click', async () => {
+    if (!tempAuthData) return;
+    try {
+      tempAuthData.otp = window.OTP.generate();
+      resetOtpInputs();
+      await window.OTP.send(tempAuthData.email, tempAuthData.name, tempAuthData.otp);
+      startOtpResendTimer();
+    } catch (err) {
+      document.getElementById('otpError').textContent = err.message;
+      document.getElementById('otpError').classList.remove('hidden');
+    }
+  });
+
+  // Verify OTP button click
+  document.getElementById('btnVerifyOTP')?.addEventListener('click', async () => {
+    if (!tempAuthData) return;
+    
+    const inputs = document.querySelectorAll('.otp-box');
+    let enteredCode = '';
+    inputs.forEach(input => enteredCode += input.value);
+    
+    const errorDiv = document.getElementById('otpError');
+    errorDiv.classList.add('hidden');
+    
+    if (enteredCode.length < 6) {
+      errorDiv.textContent = "Please enter the 6-digit code.";
+      errorDiv.classList.remove('hidden');
+      return;
+    }
+    
+    if (enteredCode !== tempAuthData.otp) {
+      errorDiv.textContent = "Invalid verification code. Please try again.";
+      errorDiv.classList.remove('hidden');
+      return;
+    }
+    
+    const verifyBtn = document.getElementById('btnVerifyOTP');
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = 'Verifying...';
+    
+    try {
+      if (tempAuthData.mode === 'login') {
+        const user = await window.apiLogin(tempAuthData.email, tempAuthData.password);
+        if (window.showToast) window.showToast('Logged in successfully!', 'success');
+        closeModal('otpModal');
+        setTimeout(() => redirectUser(user.role), 500);
+      } else {
+        const user = await window.apiSignup(tempAuthData.payload);
+        if (window.showToast) window.showToast('Account created successfully!', 'success');
+        closeModal('otpModal');
+        setTimeout(() => redirectUser(user.role), 500);
+      }
+    } catch (err) {
+      errorDiv.textContent = err.message || "Authentication failed.";
+      errorDiv.classList.remove('hidden');
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = 'Verify & Proceed';
+    }
+  });
+
+  function redirectUser(role) {
+    if (role === 'teacher') {
+      window.location.href = 'teacher-dashboard.html';
+    } else {
+      window.location.href = 'student-dashboard.html';
+    }
+  }
+
+  function getRandomColor() {
+    const colors = ['#f87171', '#fb923c', '#fbbf24', '#34d399', '#2dd4bf', '#38bdf8', '#818cf8', '#a78bfa', '#f472b6'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+  let tempGoogleUser = null;
+
+  async function handleGoogleAuth() {
+    const errorDiv = document.getElementById('authError');
+    errorDiv.classList.add('hidden');
+    
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      const result = await firebase.auth().signInWithPopup(provider);
+      const firebaseUser = result.user;
+      
+      const doc = await window.db.collection('users').doc(firebaseUser.uid).get();
+      
+      if (doc.exists) {
+        const user = { ...doc.data(), id: doc.id };
+        window.setCurrentUser(user);
+        if (window.showToast) window.showToast('Logged in with Google!', 'success');
+        setTimeout(() => redirectUser(user.role), 500);
+      } else {
+        tempGoogleUser = firebaseUser;
+        window.toggleGoogleFields();
+        openModal('googleConfigModal');
+      }
+    } catch (err) {
+      console.error("Google login failed:", err);
+      errorDiv.textContent = err.message || "Google Authentication failed.";
+      errorDiv.classList.remove('hidden');
+    }
+  }
+
+  window.__googleSelectedSubjects = new Set();
+  window.__googleSelectedSemesters = new Set();
+
+  window.toggleGoogleFields = function() {
+    const role = document.getElementById('googleRole').value;
+    document.getElementById('googleSemesterGroup').style.display = role === 'student' ? 'block' : 'none';
+    document.getElementById('googleProjectRoleGroup').style.display = role === 'student' ? 'block' : 'none';
+    document.getElementById('googleSubjectsGroup').style.display = 'none';
+    
+    const semField = document.getElementById('googleTeacherSemestersField');
+    const subjField = document.getElementById('googleTeacherSubjectsField');
+    
+    if (semField) semField.style.display = role === 'teacher' ? 'block' : 'none';
+    if (subjField) subjField.style.display = role === 'teacher' ? 'block' : 'none';
+    
+    if (role === 'teacher') {
+      window.renderGoogleTeacherSemesters();
+      window.renderGoogleTeacherSubjects();
+    }
+  };
+
+  window.renderGoogleTeacherSemesters = function() {
+    const container = document.getElementById('googleTeacherSemestersContainer');
+    if (!container) return;
+    const sems = [...new Set(window.SUBJECT_CATALOG.map(s => s.semester))].sort((a,b) => a-b);
+    container.innerHTML = sems.map(sem => `
+      <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);">
+        <input type="checkbox" class="google-semester-checkbox" value="${sem}" style="width: 16px; height: 16px;" onchange="toggleGoogleSemester(this, ${sem})" />
+        <span>Sem ${sem}</span>
+      </label>
+    `).join('');
+  };
+
+  window.toggleGoogleSemester = function(el, sem) {
+    if (el.checked) {
+      window.__googleSelectedSemesters.add(sem);
+    } else {
+      window.__googleSelectedSemesters.delete(sem);
+      window.SUBJECT_CATALOG.filter(s => s.semester === sem).forEach(s => {
+        window.__googleSelectedSubjects.delete(s.name);
+      });
+    }
+    window.renderGoogleTeacherSubjects();
+  };
+
+  window.renderGoogleTeacherSubjects = function() {
+    const container = document.getElementById('googleTeacherSubjectsContainer');
+    if (!container) return;
+
+    if (window.__googleSelectedSemesters.size === 0) {
+      container.innerHTML = '<p style="font-size:12px; color:var(--text-3); margin:0;">Please select one or more semesters above first.</p>';
+      return;
+    }
+
+    let html = '';
+    const grouped = {};
+    window.SUBJECT_CATALOG.forEach(s => {
+      if (window.__googleSelectedSemesters.has(s.semester)) {
+        if (!grouped[s.semester]) grouped[s.semester] = [];
+        grouped[s.semester].push(s);
+      }
+    });
+
+    Object.keys(grouped).forEach(sem => {
+      html += `
+        <div style="margin-bottom: 8px;">
+          <h4 style="font-size: 11px; text-transform: uppercase; color: var(--text-3); font-weight: 700; margin: 0 0 6px 0;">Semester ${sem}</h4>
+          <div style="display: flex; flex-direction: column; gap: 8px; padding-left: 4px;">
+            ${grouped[sem].map(s => {
+              const isChecked = window.__googleSelectedSubjects.has(s.name) ? 'checked' : '';
+              return `
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text);">
+                  <input type="checkbox" class="google-teacher-subject-checkbox" value="${s.name}" data-semester="${sem}" ${isChecked} onchange="toggleGoogleSubjectSelection(this)" style="width: 16px; height: 16px;" />
+                  <span>${s.code ? s.code + ' - ' : ''}${s.name}</span>
+                </label>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    });
+    container.innerHTML = html;
+  };
+
+  window.toggleGoogleSubjectSelection = function(el) {
+    if (el.checked) {
+      window.__googleSelectedSubjects.add(el.value);
+    } else {
+      window.__googleSelectedSubjects.delete(el.value);
+    }
+  };
+
+  window.updateGoogleSubjects = function() {
+    // Keep dummy
+  };
+
+  document.getElementById('submitGoogleConfigBtn')?.addEventListener('click', async () => {
+    if (!tempGoogleUser) return;
+    const role = document.getElementById('googleRole').value;
+    
+    const data = {
+      id: tempGoogleUser.uid,
+      name: tempGoogleUser.displayName || 'Google User',
+      email: tempGoogleUser.email.toLowerCase(),
+      role: role,
+      avatarColor: getRandomColor(),
+      branch: 'AI',
+      groupId: null
+    };
+    
+    if (role === 'student') {
+      const semesterInput = document.getElementById('googleSemester').value;
+      if (!semesterInput) {
+        alert("Please select your semester.");
+        return;
+      }
+      data.semester = parseInt(semesterInput);
+      data.projectRole = document.getElementById('googleProjectRole').value;
+    } else {
+      const selectedSubjs = Array.from(window.__googleSelectedSubjects);
+      const selectedSems = Array.from(window.__googleSelectedSemesters);
+      
+      if (selectedSubjs.length === 0) {
+        alert("Please select at least one subject you teach.");
+        return;
+      }
+      data.subjects = selectedSubjs;
+      data.semesters = selectedSems;
+      data.semester = selectedSems[0];
+    }
+    
+    try {
+      await window.db.collection('users').doc(tempGoogleUser.uid).set(data);
+      window.setCurrentUser(data);
+      closeModal('googleConfigModal');
+      if (window.showToast) window.showToast('Profile created successfully!', 'success');
+      setTimeout(() => redirectUser(role), 500);
+    } catch (err) {
+      alert("Failed to complete profile: " + err.message);
+    }
+  });
+
+</script>
+  <!-- Select2 JS -->
+  </body>
+</html>

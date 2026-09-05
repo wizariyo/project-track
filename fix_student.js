@@ -1,0 +1,1 @@
+const fs = require("fs"); let d = fs.readFileSync("Detailed_Record.js", "utf8"); d = d.replace("await window.db.collection(`users`).doc(u.id).update({role: `student`});", "u.semester=1; window.setCurrentUser(u); await window.db.collection(`users`).doc(u.id).update({role: `student`, semester: 1});"); fs.writeFileSync("Detailed_Record.js", d);

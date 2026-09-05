@@ -1,5 +1,5 @@
-﻿/* =========================================================
-   ProjectTrack â€” app.js
+/* =========================================================
+   ProjectTrack — app.js
    ========================================================= */
 
 // Dynamically inject tooltip layout and hover triggers to bypass CSS cache!
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else if (user.role === 'student') {
         window.location.href = 'student-dashboard.html';
       } else {
-        // window.location.href = 'index.html';
+        window.location.href = 'index.html';
       }
       return;
     }
@@ -159,7 +159,7 @@ function showToast(msg, type = 'success') {
   if (!c) { c = document.createElement('div'); c.id = 'toast-container'; c.className = 'toast-container'; document.body.appendChild(c); }
   const t = document.createElement('div');
   t.className = 'toast' + (type === 'error' ? ' error' : '');
-  t.innerHTML = `<span>${type === 'error' ? 'âœ•' : 'âœ“'}</span><span>${escapeHtml(String(msg))}</span>`;
+  t.innerHTML = `<span>${type === 'error' ? '✕' : '✓'}</span><span>${escapeHtml(String(msg))}</span>`;
   c.appendChild(t);
   setTimeout(() => { t.classList.add('fade-out'); setTimeout(() => t.remove(), 300); }, 3500);
 }
@@ -266,7 +266,7 @@ function statusBadgeHtml(s) {
   return `<span class="status-badge ${m[s]||'on-track'}">${escapeHtml(s||'On Track')}</span>`;
 }
 function formatRelativeDate(ts) {
-  if (!ts) return 'â€”';
+  if (!ts) return '—';
   const d = Date.now() - new Date(ts).getTime(), h = 3600000, day = 86400000;
   if (d < h) return 'Just now';
   if (d < day) return Math.floor(d/h) + 'h ago';
@@ -353,7 +353,7 @@ async function handleAuthSubmit() {
 
   errBox.classList.add('hidden');
   btn.disabled = true;
-  btn.textContent = authMode === 'login' ? 'Signing inâ€¦' : 'Creating accountâ€¦';
+  btn.textContent = authMode === 'login' ? 'Signing in…' : 'Creating account…';
 
   const email    = (document.getElementById('authEmail')?.value || '').trim();
   const password = (document.getElementById('authPassword')?.value || '').trim();
@@ -742,7 +742,7 @@ async function renderTeacherOverview(groups, teacher) {
               .catch(e=>showToast(e.message,'error'));
           }">
           ${avatarHtml(m, 32)}
-          ${m.isLead ? `<span style="position:absolute; bottom:-4px; right:-4px; font-size:9px; background:var(--teal); color:#fff; border-radius:50%; width:14px; height:14px; display:grid; place-items:center;" title="Group Lead">âœ¦</span>` : ''}
+          ${m.isLead ? `<span style="position:absolute; bottom:-4px; right:-4px; font-size:9px; background:var(--teal); color:#fff; border-radius:50%; width:14px; height:14px; display:grid; place-items:center;" title="Group Lead">✦</span>` : ''}
         </div>`;
     }).join('');
 
@@ -847,7 +847,7 @@ async function renderTeacherReports(groups) {
 async function renderTeacherActivity(groups) {
   const tbody = document.getElementById('activityBody');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-3)">Loadingâ€¦</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-3)">Loading…</td></tr>';
 
   const rows = [];
   for (const g of groups) {
@@ -871,7 +871,7 @@ async function renderTeacherActivity(groups) {
   if (tbody) {
     tbody.innerHTML = rows.slice(0,40).map(r => `
       <tr>
-        <td>â€”</td>
+        <td>—</td>
         <td>${escapeHtml(r.group)}</td>
         <td>${escapeHtml(r.type)}: ${escapeHtml(r.name)}</td>
         <td>${formatRelativeDate(r.date)}</td>
@@ -897,7 +897,7 @@ async function renderTeacherAnalytics(groups) {
   let todo = 0, inp = 0, done = 0;
   const labels = [], hrs = [], rptCounts = [], tasksDoneArr = [], tasksOpenArr = [];
   for (const g of groups) {
-    labels.push(g.name.length > 12 ? g.name.slice(0, 12) + 'â€¦' : g.name);
+    labels.push(g.name.length > 12 ? g.name.slice(0, 12) + '…' : g.name);
     let gDone = 0, gOpen = 0;
     try {
       const t = await getTasksByGroup(g.id||g._id);
@@ -929,7 +929,7 @@ async function renderTeacherAnalytics(groups) {
   const tc   = dark ? '#EFEABB' : '#4A4A4A';
   const gc   = dark ? 'rgba(239,234,187,0.06)' : 'rgba(23,67,63,0.05)';
 
-  // â”€â”€ Gradient helper â”€â”€
+  // ── Gradient helper ──
   function makeGrad(canvas, topHex, bottomHex) {
     const ctx = canvas.getContext('2d');
     const grad = ctx.createLinearGradient(0, 0, 0, canvas.offsetHeight || 220);
@@ -953,7 +953,7 @@ async function renderTeacherAnalytics(groups) {
     teal:     '#3c4c34',
   };
 
-  // 3D-ish bar options â€” drop shadow plugin + gradient-ready
+  // 3D-ish bar options — drop shadow plugin + gradient-ready
   const shadowPlugin = {
     id: 'barShadow',
     beforeDraw(chart) {
@@ -985,7 +985,7 @@ async function renderTeacherAnalytics(groups) {
 
   const destroy = (...keys) => keys.forEach(k => { if (window[k]) { window[k].destroy(); window[k] = null; } });
 
-  // â”€â”€ Doughnut: Task Status Breakdown â€” center text drawn on canvas â”€â”€
+  // ── Doughnut: Task Status Breakdown — center text drawn on canvas ──
   const cT = document.getElementById('tasksChart');
   if (cT) {
     destroy('_tc');
@@ -1054,7 +1054,7 @@ async function renderTeacherAnalytics(groups) {
     `).join('');
   }
 
-  // â”€â”€ Bar: Group Completion Rate (gradient) â”€â”€
+  // ── Bar: Group Completion Rate (gradient) ──
   const cComp = document.getElementById('completionChart');
   if (cComp) {
     destroy('_cc');
@@ -1086,7 +1086,7 @@ async function renderTeacherAnalytics(groups) {
     });
   }
 
-  // â”€â”€ Bar: Hours Logged (gradient) â”€â”€
+  // ── Bar: Hours Logged (gradient) ──
   const cH = document.getElementById('hoursChart');
   if (cH) {
     destroy('_hc');
@@ -1107,7 +1107,7 @@ async function renderTeacherAnalytics(groups) {
     });
   }
 
-  // â”€â”€ Bar: Reports Submitted (gradient) â”€â”€
+  // ── Bar: Reports Submitted (gradient) ──
   const cR = document.getElementById('reportsCountChart');
   if (cR) {
     destroy('_rc');
@@ -1128,7 +1128,7 @@ async function renderTeacherAnalytics(groups) {
     });
   }
 
-  // â”€â”€ Stat chips with color glow â”€â”€
+  // ── Stat chips with color glow ──
   const statRow = document.getElementById('analyticsStatRow');
   if (statRow) {
     const chips = [
@@ -1147,7 +1147,7 @@ async function renderTeacherAnalytics(groups) {
     `).join('');
   }
 
-  // â”€â”€ Mini doughnut in sidebar â”€â”€
+  // ── Mini doughnut in sidebar ──
   const cM = document.getElementById('miniTasksChart');
   if (cM) {
     destroy('_mtc');
@@ -1169,7 +1169,7 @@ async function renderActivityBarChart(groups) {
 
   const labels = [], tasksDone = [], reportsArr = [];
   for (const g of groups) {
-    labels.push(g.name.length > 12 ? g.name.slice(0, 12) + 'â€¦' : g.name);
+    labels.push(g.name.length > 12 ? g.name.slice(0, 12) + '…' : g.name);
     let gd = 0;
     try { const t = await getTasksByGroup(g.id||g._id); gd = t.filter(x => x.status === 'done').length; } catch {}
     let gr = 0;
@@ -1340,7 +1340,7 @@ async function initStudentDashboard(student) {
                   deleteSubtask('${s.id}')
                     .then(() => { showToast('Subtask deleted'); window.__loadSubtasks('${taskId}'); renderKanban(window.__group); })
                     .catch(e => showToast(e.message, 'error'));
-                }" style="padding: 2px 8px; font-size: 10.5px;">âœ•</button>
+                }" style="padding: 2px 8px; font-size: 10.5px;">✕</button>
             </div>
           `).join('')
         : '<p style="font-size:12px; color:var(--text-3); text-align:center; padding:8px 0; margin: 0;">No subtasks yet.</p>';
@@ -2080,7 +2080,7 @@ async function populateAssigneeSelect(group) {
     if (!sel) return;
     try {
       const m = await getGroupMembers(group.id||group._id);
-      sel.innerHTML = m.map(x => `<option value="${x.id||x._id}">${escapeHtml(x.name)} â€” ${escapeHtml(x.projectRole||'Member')}</option>`).join('');
+      sel.innerHTML = m.map(x => `<option value="${x.id||x._id}">${escapeHtml(x.name)} — ${escapeHtml(x.projectRole||'Member')}</option>`).join('');
     } catch { sel.innerHTML = '<option>Could not load members</option>'; }
   };
   await fill('taskAssignee');
@@ -2111,7 +2111,7 @@ async function renderStudentReports(group, student) {
       </div>
       ${r.feedback?.text
         ? `<div class="feedback-box"><div class="fb-label">Teacher Feedback</div><p>${escapeHtml(r.feedback.text)}</p></div>`
-        : `<div class="no-feedback">Awaiting teacher feedbackâ€¦</div>`
+        : `<div class="no-feedback">Awaiting teacher feedback…</div>`
       }
     </div>`).join('') || emptyState("No reports submitted yet.");
 }
@@ -2150,10 +2150,10 @@ async function initProfilePage() {
       if (el('profileName'))   el('profileName').textContent   = user.name;
       if (el('profileRole')) {
         if (user.role === 'teacher') {
-          const tRole = user.projectRole ? user.projectRole.toUpperCase() + ' Â· ' : '';
-          el('profileRole').textContent = `${tRole}TEACHER${user.subjects ? ' Â· ' + user.subjects : ''}`;
+          const tRole = user.projectRole ? user.projectRole.toUpperCase() + ' · ' : '';
+          el('profileRole').textContent = `${tRole}TEACHER${user.subjects ? ' · ' + user.subjects : ''}`;
         } else {
-          el('profileRole').textContent = (user.projectRole || 'Student') + (user.role ? ' Â· ' + user.role.charAt(0).toUpperCase() + user.role.slice(1) : '');
+          el('profileRole').textContent = (user.projectRole || 'Student') + (user.role ? ' · ' + user.role.charAt(0).toUpperCase() + user.role.slice(1) : '');
         }
       }
 
@@ -2430,7 +2430,7 @@ async function initProfilePage() {
     if (!confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
     try {
       await window.deleteUserAccount();
-      // window.location.href = 'index.html';
+      window.location.href = 'index.html';
     } catch(e) {
       showToast(e.message, 'error');
     }
@@ -2898,7 +2898,7 @@ window.openGroupInspectionModal = async function(groupId) {
               ${avatarHtml(m, 36)}
               <div>
                 <h4 style="font-size: 14px; font-weight: 700; color: var(--text); margin: 0;">${escapeHtml(m.name)}</h4>
-                <p style="font-size: 11.5px; color: var(--text-3); margin: 2px 0 0 0;">${escapeHtml(m.projectRole || 'Team Member')} Â· ${escapeHtml(m.email)}</p>
+                <p style="font-size: 11.5px; color: var(--text-3); margin: 2px 0 0 0;">${escapeHtml(m.projectRole || 'Team Member')} · ${escapeHtml(m.email)}</p>
               </div>
             </div>
             
@@ -2950,9 +2950,9 @@ async function reloadInspectionDetails() {
   const reportsList = document.getElementById('inspectReportsList');
   const activityList = document.getElementById('inspectActivityList');
 
-  tasksList.innerHTML = '<p style="font-size:12px;color:var(--text-3);text-align:center;padding:12px 0;">Loading tasksâ€¦</p>';
-  reportsList.innerHTML = '<p style="font-size:12px;color:var(--text-3);text-align:center;padding:12px 0;">Loading reportsâ€¦</p>';
-  activityList.innerHTML = '<p style="font-size:12px;color:var(--text-3);text-align:center;padding:12px 0;">Loading activity logâ€¦</p>';
+  tasksList.innerHTML = '<p style="font-size:12px;color:var(--text-3);text-align:center;padding:12px 0;">Loading tasks…</p>';
+  reportsList.innerHTML = '<p style="font-size:12px;color:var(--text-3);text-align:center;padding:12px 0;">Loading reports…</p>';
+  activityList.innerHTML = '<p style="font-size:12px;color:var(--text-3);text-align:center;padding:12px 0;">Loading activity log…</p>';
 
   try {
     // Tasks
@@ -3074,7 +3074,43 @@ async function reloadInspectionDetails() {
     }).join('') : '<p style="font-size:12px;color:var(--text-3);text-align:center;padding:20px 0;">No reports submitted yet.</p>';
 
     // Activities
-    const res = []; // Mock activity feed
+    
+    // Files
+    const inspectFilesList = document.getElementById('inspectFilesList');
+    if (inspectFilesList) {
+      inspectFilesList.innerHTML = '<p style="font-size:12px;color:var(--text-3);text-align:center;padding:12px 0;">Loading files...</p>';
+      const files = await getProjectFiles(gid);
+      inspectFilesList.innerHTML = files.length ? files.map(f => {
+        const fileUrl = f.fileContent || f.fileData || '#';
+        const fileDate = formatFileDate(f.timestamp || f.uploadedAt);
+        return `
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:13px; font-weight:600; color:var(--text); word-break:break-all;" title="${escapeHtml(f.fileName)}">${escapeHtml(f.fileName)}</div>
+              <div style="font-size:10.5px; color:var(--text-3); margin-top:4px;">Uploaded by ${escapeHtml(f.uploaderName || 'Student')} on ${fileDate}</div>
+            </div>
+            <a href="${fileUrl}" download="${f.fileName}" class="btn btn-sm" style="background:var(--teal); color:var(--cream); padding:6px 12px; font-size:11px; text-decoration:none;">Download</a>
+          </div>
+        `;
+      }).join('') : '<p style="font-size:12px;color:var(--text-3);text-align:center;padding:20px 0;">No files uploaded yet.</p>';
+    }
+
+    // Generate Activity Feed dynamically from Tasks, Reports, and Files
+    let allActivities = [];
+    tasks.forEach(t => {
+      allActivities.push({ userName: t.assigneeName || 'Someone', action: t.status === 'done' ? 'completed task' : (t.status === 'inprogress' ? 'started working on' : 'added task'), target: t.title, timestamp: t.updatedAt || t.createdAt || Date.now() });
+    });
+    reports.forEach(r => {
+      allActivities.push({ userName: r.studentName || r.uploaderName || 'Student', action: 'submitted report', target: r.title, timestamp: r.date || r.createdAt || Date.now() });
+    });
+    const prjFiles = await getProjectFiles(gid);
+    prjFiles.forEach(f => {
+      allActivities.push({ userName: f.uploaderName || 'Student', action: 'uploaded file', target: f.fileName, timestamp: f.timestamp || f.uploadedAt || Date.now() });
+    });
+    
+    allActivities.sort((a,b) => b.timestamp - a.timestamp);
+    const res = allActivities.slice(0, 20);
+
     activityList.innerHTML = res.length ? res.map((a, idx) => {
       const isLast = idx === res.length - 1;
       const lineDisplay = isLast ? 'display:none;' : '';
@@ -3149,16 +3185,16 @@ window.AI = {
     if (blocked.length) {
       out.push({
         c: 'red',
-        icon: 'âœ¦',
+        icon: '✦',
         conf: 'High',
         title: `${blocked.length} blocked task${blocked.length > 1 ? 's' : ''} stalling progress`,
-        desc: `${blocked.slice(0, 2).map(t => t.title).join(', ')}${blocked.length > 2 ? 'â€¦' : ''} â€” clearing these first unblocks the most work.`
+        desc: `${blocked.slice(0, 2).map(t => t.title).join(', ')}${blocked.length > 2 ? '…' : ''} — clearing these first unblocks the most work.`
       });
     }
     if (overdue.length) {
       out.push({
         c: 'amber',
-        icon: 'âœ¦',
+        icon: '✦',
         conf: 'High',
         title: `${overdue.length} task${overdue.length > 1 ? 's are' : ' is'} past the due date`,
         desc: `Oldest: <b>${escapeHtml(overdue[0].title)}</b>, which is overdue.`
@@ -3167,10 +3203,10 @@ window.AI = {
     if (risk.length) {
       out.push({
         c: 'blue',
-        icon: 'âœ¦',
+        icon: '✦',
         conf: 'Medium',
         title: `${risk.length} deadline${risk.length > 1 ? 's' : ''} at risk this week`,
-        desc: `Due within 3 days with low completion progress â€” current pace suggests a likely delay.`
+        desc: `Due within 3 days with low completion progress — current pace suggests a likely delay.`
       });
     }
 
@@ -3185,7 +3221,7 @@ window.AI = {
       if (max.open >= avg + 2 && max.open >= 3) {
         out.push({
           c: 'amber',
-          icon: 'âœ¦',
+          icon: '✦',
           conf: 'Medium',
           title: `Workload looks uneven`,
           desc: `${escapeHtml(max.m.name.split(' ')[0])} is carrying ${max.open} open tasks vs a team average of ${avg.toFixed(1)}. Consider rebalancing.`
@@ -3199,7 +3235,7 @@ window.AI = {
     
     out.push({
       c: p >= 70 ? 'green' : 'teal',
-      icon: 'âœ¦',
+      icon: '✦',
       conf: 'High',
       bar: p,
       title: `Overall completion at ${p}%`,
@@ -3215,7 +3251,7 @@ window.AI = {
       return `
         <div class="ai-card">
           <div class="ch">
-            <div class="ai-orb">âœ¦</div>
+            <div class="ai-orb">✦</div>
             <h3>AI Insights</h3>
             <div style="flex:1;"></div>
             <span class="aibadge">Live</span>
@@ -3229,7 +3265,7 @@ window.AI = {
     return `
       <div class="ai-card">
         <div class="ch">
-          <div class="ai-orb">âœ¦</div>
+          <div class="ai-orb">✦</div>
           <h3>AI Insights</h3>
           <div style="flex:1;"></div>
           <span class="aibadge">Live</span>
@@ -3245,7 +3281,7 @@ window.AI = {
                   <div style="height:100%; width:${x.bar}%; background:var(--sage); border-radius:99px;"></div>
                 </div>
               ` : ''}
-              <div class="conf" style="font-size:10.5px; color:var(--text-3); margin-top:6px; display:flex; align-items:center; gap:4px;">âœ¦ ${x.conf} confidence</div>
+              <div class="conf" style="font-size:10.5px; color:var(--text-3); margin-top:6px; display:flex; align-items:center; gap:4px;">✦ ${x.conf} confidence</div>
             </div>
           </div>
         `).join('')}
@@ -3321,7 +3357,7 @@ window.AI = {
     const nm = me ? me.name.split(' ')[0] : 'User';
     AI.msgs = [{
       r: 'a',
-      html: `Hi ${escapeHtml(nm)}! I'm your ProjectTrack AI assistant. I've scanned ${currentRole === 'teacher' ? 'the groups you supervise' : 'your project workspace'} â€” <b>${tasks.length}</b> tasks in total${overdue ? `, <b>${overdue}</b> overdue` : ''}${blocked ? ` and <b>${blocked}</b> blocked` : ''}. Ask me anything, or tap a suggestion below.`
+      html: `Hi ${escapeHtml(nm)}! I'm your ProjectTrack AI assistant. I've scanned ${currentRole === 'teacher' ? 'the groups you supervise' : 'your project workspace'} — <b>${tasks.length}</b> tasks in total${overdue ? `, <b>${overdue}</b> overdue` : ''}${blocked ? ` and <b>${blocked}</b> blocked` : ''}. Ask me anything, or tap a suggestion below.`
     }];
   },
 
@@ -3361,7 +3397,7 @@ window.AI = {
         </div>
         
         <div style="display: flex; align-items: center; gap: 16px;">
-          <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; opacity: 0.8; color: var(--cream);">âœ¦ Live Assistant</span>
+          <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; opacity: 0.8; color: var(--cream);">✦ Live Assistant</span>
         </div>
       </div>
       
@@ -3470,15 +3506,15 @@ window.AI = {
     const overdue = tasks.filter(t => t.status !== 'done' && t.dueDate && new Date(t.dueDate) < nowTs).sort((a,b) => new Date(a.dueDate) - new Date(b.dueDate));
     
     if (!blocked.length && !overdue.length) {
-      return `Awesome! No blocked or overdue tasks detected. The project scope looks clear. âœ¦`;
+      return `Awesome! No blocked or overdue tasks detected. The project scope looks clear. ✦`;
     }
     
     let h = `Here's what requires immediate attention: <ul style="margin-top: 6px; padding-left: 20px;">`;
     blocked.forEach(t => {
-      h += `<li>â€¢ <b>Blocked</b>: ${AI._line(t)}</li>`;
+      h += `<li>• <b>Blocked</b>: ${AI._line(t)}</li>`;
     });
     overdue.forEach(t => {
-      h += `<li>â€¢ <b>Overdue</b>: ${AI._line(t)}</li>`;
+      h += `<li>• <b>Overdue</b>: ${AI._line(t)}</li>`;
     });
     h += `</ul>`;
     return h;
@@ -3491,13 +3527,13 @@ window.AI = {
     const missed = open.filter(t => t.dueDate && new Date(t.dueDate) < nowTs);
     const highRisk = open.filter(t => t.dueDate && (new Date(t.dueDate) - nowTs) >= 0 && (new Date(t.dueDate) - nowTs) < 2 * 86400000 && (t.subtaskCount > 0 ? (t.subtaskDone / t.subtaskCount < 0.7) : true));
     
-    if (!open.length) return `No open tasks left to analyze. Everything is complete! âœ¦`;
+    if (!open.length) return `No open tasks left to analyze. Everything is complete! ✦`;
     
     let h = `Deadline status across ${open.length} open task${open.length > 1 ? 's' : ''}:
       <ul style="margin-top: 6px; padding-left: 20px;">
-        <li>â€¢ <b>${missed.length}</b> overdue</li>
-        <li>â€¢ <b>${highRisk.length}</b> high risk (due in â‰¤ 2 days, low progress)</li>
-        <li>â€¢ <b>${open.length - missed.length - highRisk.length}</b> on track</li>
+        <li>• <b>${missed.length}</b> overdue</li>
+        <li>• <b>${highRisk.length}</b> high risk (due in ≤ 2 days, low progress)</li>
+        <li>• <b>${open.length - missed.length - highRisk.length}</b> on track</li>
       </ul>`;
     
     const slips = [...missed, ...highRisk].slice(0, 3);
@@ -3524,7 +3560,7 @@ window.AI = {
     
     let h = `Current workload distribution (open tasks):
       <ul style="margin-top: 6px; padding-left: 20px;">
-        ${rows.map(r => `<li><b>${escapeHtml(r.m.name)}</b> (${escapeHtml(r.m.projectRole || 'Member')}) â€” <b>${r.open}</b> open tasks</li>`).join('')}
+        ${rows.map(r => `<li><b>${escapeHtml(r.m.name)}</b> (${escapeHtml(r.m.projectRole || 'Member')}) — <b>${r.open}</b> open tasks</li>`).join('')}
       </ul>`;
       
     const top = rows[0], low = rows[rows.length - 1];
@@ -3556,7 +3592,7 @@ window.AI = {
     const { tasks } = AI.scope();
     const mine = tasks.filter(t => (t.assigneeId || t.assignee_id) === (me?.id || me?._id) && t.status !== 'done');
     
-    if (!mine.length) return `You have no active open tasks assigned. Nice job! âœ¦`;
+    if (!mine.length) return `You have no active open tasks assigned. Nice job! ✦`;
     
     const ranked = mine.sort((a, b) => {
       const nowTs = Date.now();
@@ -3586,14 +3622,14 @@ window.AI = {
           ${groups.map(g => {
             const gt = tasks.filter(t => t.groupId === (g.id || g._id));
             const gp = gt.length ? Math.round((gt.filter(t => t.status === 'done').length / gt.length) * 100) : 0;
-            return `<li><b>${escapeHtml(g.name)}</b> â€” ${escapeHtml(g.projectName)} (${gp}% complete)</li>`;
+            return `<li><b>${escapeHtml(g.name)}</b> — ${escapeHtml(g.projectName)} (${gp}% complete)</li>`;
           }).join('')}
         </ul>`;
     }
     
     const groupName = groups[0] ? groups[0].name : 'your group';
     const project = groups[0] ? groups[0].projectName : 'your project';
-    return `<b>${escapeHtml(groupName)}</b> â€” ${escapeHtml(project)} is <b>${p}%</b> complete.<br>
+    return `<b>${escapeHtml(groupName)}</b> — ${escapeHtml(project)} is <b>${p}%</b> complete.<br>
       Breakdown: <b>${completed}</b> completed, <b>${total - completed}</b> remaining tasks.`;
   }
 };
@@ -4107,9 +4143,9 @@ function setupGlobalSearch() {
         } else {
           resultsEl.innerHTML = data.map(item => {
             let icon = '';
-            if (item.type === 'Task') icon = 'âœ“';
-            else if (item.type === 'Group') icon = 'ðŸ“';
-            else icon = 'ðŸ‘¤';
+            if (item.type === 'Task') icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            else if (item.type === 'Group') icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>';
+            else icon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
             
             return `
               <div style="padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; gap: 10px;" 
@@ -4257,8 +4293,8 @@ window.loadStudentChatChannels = async function() {
     el.className = 'chat-channel';
     el.id = `chat-ch-${ch.id}`;
     let icon = '#';
-    if(ch.type === 'faculty') icon = 'ðŸ‘¨â€ðŸ«';
-    if(ch.type === 'dm') icon = 'ðŸ’¬';
+    if(ch.type === 'faculty') icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>';
+    if(ch.type === 'dm') icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
     
     el.innerHTML = `
       <div class="ch-icon">${icon}</div>
@@ -4316,7 +4352,7 @@ window.loadTeacherChatChannels = async function() {
       el.className = 'chat-channel';
       el.id = `chat-ch-${chId}`;
       el.innerHTML = `
-        <div class="ch-icon">ðŸ‘¥</div>
+        <div class="ch-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
         <div class="ch-details">
           <div class="ch-title">${escapeHtml(title)}</div>
           <div class="ch-sub">${escapeHtml(sub)}</div>
@@ -4742,7 +4778,7 @@ window.renderPeerReviewForm = async function(group, student) {
   if (alreadyDone) {
     container.innerHTML = `
       <div class="card" style="padding:24px; text-align:center;">
-        <div style="font-size:32px; margin-bottom:8px;">âœ…</div>
+        <div style="margin-bottom:8px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--teal)"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
         <h3 style="margin:0 0 6px; font-size:16px; color:var(--text);">Peer Reviews Submitted</h3>
         <p style="margin:0; font-size:13px; color:var(--text-3);">You have already submitted evaluations for all your teammates. Thank you!</p>
       </div>`;
@@ -4772,7 +4808,7 @@ window.renderPeerReviewForm = async function(group, student) {
               <div style="text-align:center;">
                 <div style="font-size:11px; font-weight:600; color:var(--text-2); margin-bottom:6px;">${label}</div>
                 <div class="star-rating" data-peer="${pid}" data-cat="${cat}">
-                  ${[1,2,3,4,5].map(s => `<span class="star ${s <= val ? 'active' : ''}" data-val="${s}" onclick="window.setStarRating('${pid}','${cat}',${s})" style="cursor:pointer; font-size:20px; color:${s <= val ? '#d4aa3a' : 'var(--border)'}; transition:color 0.15s;">â˜…</span>`).join('')}
+                  ${[1,2,3,4,5].map(s => `<span class="star ${s <= val ? 'active' : ''}" data-val="${s}" onclick="window.setStarRating('${pid}','${cat}',${s})" style="cursor:pointer; font-size:20px; color:${s <= val ? '#d4aa3a' : 'var(--border)'}; transition:color 0.15s;"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></span>`).join('')}
                 </div>
               </div>`;
           }).join('')}
@@ -4857,7 +4893,7 @@ window.renderInspectPeerReviews = async function(groupId) {
       scores[ev.toUserId].dependability.push(ev.dependability);
     });
 
-    const avg = arr => arr.length ? (arr.reduce((a,b) => a+b, 0) / arr.length).toFixed(1) : 'â€”';
+    const avg = arr => arr.length ? (arr.reduce((a,b) => a+b, 0) / arr.length).toFixed(1) : '—';
 
     container.innerHTML = `
       <div style="overflow-x:auto;">
@@ -4881,7 +4917,7 @@ window.renderInspectPeerReviews = async function(groupId) {
               const c1 = avg(s.contribution);
               const c2 = avg(s.communication);
               const c3 = avg(s.dependability);
-              const overall = s.contribution.length ? (( parseFloat(c1) + parseFloat(c2) + parseFloat(c3) ) / 3).toFixed(1) : 'â€”';
+              const overall = s.contribution.length ? (( parseFloat(c1) + parseFloat(c2) + parseFloat(c3) ) / 3).toFixed(1) : '—';
               const count = s.contribution.length;
               const overallNum = parseFloat(overall);
               let badgeColor = 'var(--teal)';
@@ -4896,9 +4932,9 @@ window.renderInspectPeerReviews = async function(groupId) {
                       <div style="font-size:11px; color:var(--text-3);">${role}</div>
                     </div>
                   </td>
-                  <td style="text-align:center; padding:12px; font-weight:600;">${c1} â˜…</td>
-                  <td style="text-align:center; padding:12px; font-weight:600;">${c2} â˜…</td>
-                  <td style="text-align:center; padding:12px; font-weight:600;">${c3} â˜…</td>
+                  <td style="text-align:center; padding:12px; font-weight:600;">${c1} <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></td>
+                  <td style="text-align:center; padding:12px; font-weight:600;">${c2} <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></td>
+                  <td style="text-align:center; padding:12px; font-weight:600;">${c3} <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></td>
                   <td style="text-align:center; padding:12px;"><span style="background:${badgeColor}; color:white; padding:3px 10px; border-radius:99px; font-weight:700; font-size:12px;">${overall}</span></td>
                   <td style="text-align:center; padding:12px; color:var(--text-3);">${count}</td>
                 </tr>`;

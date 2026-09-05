@@ -1,0 +1,46 @@
+{
+  "sections": [
+    {
+      "id": "intro",
+      "title": "Seamless Onboarding",
+      "durationFrames": 280,
+      "vidStartFrame": 6000,
+      "audio": "assets/promo_vo_intro.mp3"
+    },
+    {
+      "id": "teacher",
+      "title": "Teacher Command Center",
+      "durationFrames": 280,
+      "vidStartFrame": 1950,
+      "audio": "assets/promo_vo_teacher.mp3"
+    },
+    {
+      "id": "kanban",
+      "title": "Zero-Latency Kanban",
+      "durationFrames": 340,
+      "vidStartFrame": 6900,
+      "audio": "assets/promo_vo_kanban.mp3"
+    },
+    {
+      "id": "reports",
+      "title": "Reports & File Sync",
+      "durationFrames": 280,
+      "vidStartFrame": 8040,
+      "audio": "assets/promo_vo_reports.mp3"
+    },
+    {
+      "id": "chat",
+      "title": "Chat & Peer Review",
+      "durationFrames": 330,
+      "vidStartFrame": 9060,
+      "audio": "assets/promo_vo_chat.mp3"
+    },
+    {
+      "id": "outro",
+      "title": "Dark Mode & AI Assistant",
+      "durationFrames": 300,
+      "vidStartFrame": 9450,
+      "audio": "assets/promo_vo_outro.mp3"
+    }
+  ]
+}

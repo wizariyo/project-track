@@ -1,0 +1,1 @@
+const fs = require("fs"); let data = fs.readFileSync("record_max_10min.js", "utf8"); data = data.replace(/10000\)/g, "3000)").replace(/15000\)/g, "3000)"); fs.writeFileSync("record_max_10min.js", data);

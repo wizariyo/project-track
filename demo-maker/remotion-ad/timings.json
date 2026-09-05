@@ -1,0 +1,84 @@
+{
+  "fps": 30,
+  "totalDurationInFrames": 1206,
+  "scenes": [
+    {
+      "id": 1,
+      "feature": "Intro",
+      "title": "Meet ProjectTrack",
+      "highlight": "ProjectTrack",
+      "script": "Managing college projects shouldn't feel like chaos. Meet ProjectTrack.",
+      "clip": "assets/clip_1.mp4",
+      "audio": "assets/voice_1.mp3",
+      "audioDurationMs": 5784,
+      "videoDurationMs": 10000,
+      "startFrame": 0,
+      "durationInFrames": 186
+    },
+    {
+      "id": 2,
+      "feature": "Multi-role Auth",
+      "title": "One Platform. Every Role.",
+      "highlight": "Every Role",
+      "script": "One secure login for everyone. Teachers and students, instantly connected.",
+      "clip": "assets/clip_2.mp4",
+      "audio": "assets/voice_2.mp3",
+      "audioDurationMs": 6096,
+      "videoDurationMs": 10000,
+      "startFrame": 186,
+      "durationInFrames": 195
+    },
+    {
+      "id": 3,
+      "feature": "Teacher Dashboard",
+      "title": "Build Your Team",
+      "highlight": "Team",
+      "script": "Teachers create groups in seconds, assign a lead, and watch progress unfold in real time.",
+      "clip": "assets/clip_3.mp4",
+      "audio": "assets/voice_3.mp3",
+      "audioDurationMs": 5568,
+      "videoDurationMs": 10000,
+      "startFrame": 381,
+      "durationInFrames": 180
+    },
+    {
+      "id": 4,
+      "feature": "Kanban Board",
+      "title": "Work, Visualized",
+      "highlight": "Visualized",
+      "script": "Drag. Drop. Done. A Kanban board that keeps every student on track.",
+      "clip": "assets/clip_4.mp4",
+      "audio": "assets/voice_4.mp3",
+      "audioDurationMs": 7680,
+      "videoDurationMs": 10000,
+      "startFrame": 561,
+      "durationInFrames": 243
+    },
+    {
+      "id": 5,
+      "feature": "Chat & Files",
+      "title": "Never Miss a Beat",
+      "highlight": "Never Miss",
+      "script": "Chat with your teacher, share files instantly, and keep every conversation in one place.",
+      "clip": "assets/clip_5.mp4",
+      "audio": "assets/voice_5.mp3",
+      "audioDurationMs": 5448,
+      "videoDurationMs": 10000,
+      "startFrame": 804,
+      "durationInFrames": 176
+    },
+    {
+      "id": 6,
+      "feature": "Dark Mode & Outro",
+      "title": "ProjectTrack. Reimagined.",
+      "highlight": "Reimagined",
+      "script": "Beautifully designed, effortlessly dark. This is ProjectTrack. Try it today.",
+      "clip": "assets/clip_6.mp4",
+      "audio": "assets/voice_6.mp3",
+      "audioDurationMs": 7128,
+      "videoDurationMs": 10000,
+      "startFrame": 980,
+      "durationInFrames": 226
+    }
+  ]
+}

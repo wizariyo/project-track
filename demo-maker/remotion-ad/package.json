@@ -1,0 +1,20 @@
+{
+  "name": "projecttrack-remotion",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "remotion studio src/index.ts",
+    "build": "remotion render src/index.ts WalkthroughDemo out/video.mp4",
+    "build-ultimate": "remotion render src/index.ts UltimateDemoPromo out/ProjectTrack_Ultimate_Promo.mp4",
+    "build-promo": "remotion render src/index.ts EditedPromo out/ProjectTrack_Fast_Promo.mp4"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+}

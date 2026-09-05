@@ -1,0 +1,47 @@
+{
+  "sections": [
+    {
+      "id": "1",
+      "title": "Seamless Onboarding",
+      "startFrame": 0,
+      "durationFrames": 2400,
+      "audio": "assets/full_vo_1.mp3"
+    },
+    {
+      "id": "2",
+      "title": "Teacher Command Center",
+      "startFrame": 2400,
+      "durationFrames": 2400,
+      "audio": "assets/full_vo_2.mp3"
+    },
+    {
+      "id": "3",
+      "title": "Analytics & AI Integration",
+      "startFrame": 4800,
+      "durationFrames": 2400,
+      "audio": "assets/full_vo_3.mp3"
+    },
+    {
+      "id": "4",
+      "title": "Student Workspace & Kanban",
+      "startFrame": 6900,
+      "durationFrames": 2400,
+      "audio": "assets/full_vo_4.mp3"
+    },
+    {
+      "id": "5",
+      "title": "Reports, Files & Peer Review",
+      "startFrame": 9000,
+      "durationFrames": 2400,
+      "audio": "assets/full_vo_5.mp3"
+    },
+    {
+      "id": "6",
+      "title": "End-to-End Lifecycle",
+      "startFrame": 11700,
+      "durationFrames": 2400,
+      "audio": "assets/full_vo_6.mp3"
+    }
+  ],
+  "totalFrames": 14334
+}

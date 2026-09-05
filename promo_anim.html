@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ProjectTrack Promo Cinematic</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <style>
+    body, html { margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; background: #17433f; font-family: 'Inter', sans-serif; }
+    #container { width: 100%; height: 100%; position: relative; display: flex; align-items: center; justify-content: center; perspective: 1000px; }
+    
+    .scene { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; opacity: 0; }
+    
+    /* Typography */
+    .title { color: #f2ede4; font-size: 5rem; font-weight: 800; text-align: center; line-height: 1.1; margin: 0; }
+    .subtitle { color: #d5e6e3; font-size: 2rem; font-weight: 400; margin-top: 20px; }
+    
+    /* UI Mockup Window */
+    .browser-window {
+      width: 1200px; height: 750px; background: #f4f6f8; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.5); transform: translateY(100px) scale(0.8) rotateX(10deg);
+      display: flex; flex-direction: column; opacity: 0;
+    }
+    .browser-header { height: 40px; background: #e0e4e8; display: flex; align-items: center; padding: 0 20px; gap: 8px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot.r { background: #ff5f56; } .dot.y { background: #ffbd2e; } .dot.g { background: #27c93f; }
+    .browser-body { flex: 1; display: flex; }
+    
+    /* Fake Teacher UI */
+    .sidebar { width: 250px; background: #ffffff; border-right: 1px solid #e1e4e8; padding: 20px; }
+    .sb-item { height: 40px; border-radius: 6px; margin-bottom: 10px; background: #f0f2f5; }
+    .sb-item.active { background: #17433f; }
+    .main-content { flex: 1; padding: 40px; background: #f9fafb; display: flex; flex-direction: column; gap: 20px; }
+    .header-bar { height: 60px; background: #fff; border-radius: 8px; display:flex; align-items:center; padding: 0 20px;}
+    .stats-row { display: flex; gap: 20px; }
+    .stat-card { flex: 1; height: 120px; background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    .stat-title { font-size: 14px; color: #666; margin-bottom: 10px; font-weight: 600;}
+    .stat-value { font-size: 36px; color: #17433f; font-weight: 800; }
+    
+    /* Fake Kanban UI */
+    .kanban-board { display: flex; gap: 20px; flex: 1; margin-top: 20px; }
+    .kanban-col { flex: 1; background: #f0f2f5; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+    .k-task { height: 80px; background: #fff; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); padding: 15px; position: relative;}
+    .k-tag { width: 50px; height: 15px; background: #d5e6e3; border-radius: 4px; margin-bottom: 10px; }
+    .k-line { width: 80%; height: 10px; background: #e1e4e8; border-radius: 4px; }
+    
+    /* Overlays */
+    .text-overlay { position: absolute; bottom: 10%; left: 10%; z-index: 10; opacity: 0; }
+    .badge { background: #f2ede4; color: #17433f; padding: 15px 30px; font-size: 2rem; font-weight: 700; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+
+    .play-btn {
+      position: absolute; z-index: 100; padding: 20px 40px; font-size: 24px; font-weight: bold; cursor: pointer;
+      background: #f2ede4; color: #17433f; border: none; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <button class="play-btn" id="playBtn">Play Promo Video</button>
+
+  <div id="container">
+    <!-- Scene 1 -->
+    <div class="scene" id="scene1">
+      <h1 class="title">Managing college projects<br>is chaotic.</h1>
+    </div>
+
+    <!-- Scene 2 -->
+    <div class="scene" id="scene2" style="background: #f2ede4;">
+      <h1 class="title" style="color: #17433f;">Until now.</h1>
+    </div>
+
+    <!-- Scene 3: Teacher Dashboard -->
+    <div class="scene" id="scene3" style="background: #d5e6e3;">
+      <div class="text-overlay" id="overlay1">
+        <div class="badge">Powerful Teacher Insights</div>
+      </div>
+      <div class="browser-window" id="ui1">
+        <div class="browser-header">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        </div>
+        <div class="browser-body">
+          <div class="sidebar">
+            <div class="sb-item active"></div>
+            <div class="sb-item"></div>
+            <div class="sb-item"></div>
+            <div class="sb-item"></div>
+          </div>
+          <div class="main-content">
+            <div class="header-bar"><h2 style="margin:0; color:#17433f;">Teacher Dashboard</h2></div>
+            <div class="stats-row">
+              <div class="stat-card"><div class="stat-title">TOTAL GROUPS</div><div class="stat-value">12</div></div>
+              <div class="stat-card"><div class="stat-title">STUDENTS</div><div class="stat-value">48</div></div>
+              <div class="stat-card"><div class="stat-title">PENDING REVIEWS</div><div class="stat-value" style="color:#ff5f56;">5</div></div>
+            </div>
+            <div style="flex:1; background:#fff; border-radius:8px; margin-top:20px; padding: 20px;">
+              <h3 style="margin-top:0;">Active Projects</h3>
+              <div style="height: 40px; background: #f0f2f5; margin-bottom:10px; border-radius:4px;"></div>
+              <div style="height: 40px; background: #f0f2f5; margin-bottom:10px; border-radius:4px;"></div>
+              <div style="height: 40px; background: #f0f2f5; margin-bottom:10px; border-radius:4px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene 4: Kanban Board -->
+    <div class="scene" id="scene4" style="background: #17433f;">
+      <div class="text-overlay" id="overlay2">
+        <div class="badge">Zero-Latency Kanban</div>
+      </div>
+      <div class="browser-window" id="ui2">
+        <div class="browser-header">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        </div>
+        <div class="browser-body">
+          <div class="main-content" style="padding: 20px;">
+            <div class="header-bar"><h2 style="margin:0; color:#17433f;">Team Alpha Workspace</h2></div>
+            <div class="kanban-board">
+              <div class="kanban-col">
+                <h4 style="margin:0">To Do</h4>
+                <div class="k-task"><div class="k-tag"></div><div class="k-line"></div></div>
+                <div class="k-task" id="movingTask"><div class="k-tag" style="background:#ffbd2e;"></div><div class="k-line"></div></div>
+              </div>
+              <div class="kanban-col" id="inProgressCol">
+                <h4 style="margin:0">In Progress</h4>
+                <div class="k-task"><div class="k-tag" style="background:#27c93f;"></div><div class="k-line"></div></div>
+              </div>
+              <div class="kanban-col">
+                <h4 style="margin:0">Done</h4>
+                <div class="k-task"><div class="k-tag"></div><div class="k-line"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scene 5 -->
+    <div class="scene" id="scene5">
+      <h1 class="title">ProjectTrack</h1>
+      <h2 class="subtitle">wizariyo.github.io/project-track</h2>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('playBtn').addEventListener('click', () => {
+      document.getElementById('playBtn').style.display = 'none';
+      
+      const tl = gsap.timeline();
+      
+      // Scene 1
+      tl.to("#scene1", { opacity: 1, duration: 1 })
+        .to("#scene1 .title", { scale: 1.1, duration: 3, ease: "power1.inOut" }, "-=1")
+        .to("#scene1", { opacity: 0, duration: 0.5 });
+        
+      // Scene 2
+      tl.to("#scene2", { opacity: 1, duration: 0.5 })
+        .to("#scene2 .title", { scale: 1.1, duration: 2, ease: "power1.inOut" }, "-=0.5")
+        .to("#scene2", { opacity: 0, duration: 0.5 });
+        
+      // Scene 3: Teacher UI
+      tl.to("#scene3", { opacity: 1, duration: 0.5 })
+        .to("#ui1", { opacity: 1, y: 0, scale: 1, rotateX: 0, duration: 1.5, ease: "power3.out" })
+        .to("#overlay1", { opacity: 1, y: -20, duration: 0.5 }, "-=0.5")
+        // Zoom in slowly
+        .to("#ui1", { scale: 1.05, duration: 3, ease: "none" })
+        .to("#scene3", { opacity: 0, duration: 0.5 });
+
+      // Scene 4: Kanban UI
+      tl.to("#scene4", { opacity: 1, duration: 0.5 })
+        .to("#ui2", { opacity: 1, y: 0, scale: 1, rotateX: 0, duration: 1.5, ease: "power3.out" })
+        .to("#overlay2", { opacity: 1, y: -20, duration: 0.5 }, "-=0.5")
+        // Animate task moving!
+        .to("#movingTask", { x: 390, y: -95, rotation: 5, duration: 1, ease: "power2.inOut" })
+        .to("#movingTask", { rotation: 0, duration: 0.2 })
+        .to("#scene4", { opacity: 0, duration: 0.5, delay: 1 });
+
+      // Scene 5: Outro
+      tl.to("#scene5", { opacity: 1, duration: 1 })
+        .from("#scene5 .title", { y: 50, opacity: 0, duration: 1, ease: "back.out(1.7)" })
+        .from("#scene5 .subtitle", { y: 20, opacity: 0, duration: 1, ease: "power2.out" }, "-=0.5");
+    });
+  </script>
+</body>
+</html>

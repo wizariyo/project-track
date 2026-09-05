@@ -1,0 +1,30 @@
+{
+    "name":  "project",
+    "version":  "1.0.0",
+    "description":  "",
+    "main":  "index.js",
+    "scripts":  {
+                    "test":  "echo \"Error: no test specified\" \u0026\u0026 exit 1"
+                },
+    "repository":  {
+                       "type":  "git",
+                       "url":  "git+https://github.com/wizariyo/project-track.git"
+                   },
+    "keywords":  [
+
+                 ],
+    "type":  "commonjs",
+    "bugs":  {
+                 "url":  "https://github.com/wizariyo/project-track/issues"
+             },
+    "homepage":  "https://github.com/wizariyo/project-track#readme",
+    "dependencies":  {
+                         "ghost-cursor":  "^1.2.0",
+                         "puppeteer":  "^19.11.1",
+                         "puppeteer-screen-recorder":  "^2.1.2"
+                     },
+    "allowScripts":  {
+                         "puppeteer@25.9.0":  true,
+                         "puppeteer@19.11.1":  true
+                     }
+}
