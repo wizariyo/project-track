@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initAuthPage();
   } else if (page === 'dashboard') {
     let user = getCurrentUser();
-    if (!user) { /* window.location.href = 'index.html'; */ return; }
+    if (!user) { window.location.href = 'index.html'; return; }
     
     try {
       const fresh = await getUser(user.id || user._id);
@@ -2121,7 +2121,7 @@ async function renderStudentReports(group, student) {
    ========================================================= */
 async function initProfilePage() {
   let user = getCurrentUser();
-  if (!user) { /* window.location.href = 'index.html'; */ return; }
+  if (!user) { window.location.href = 'index.html'; return; }
   try {
     const fresh = await getUser(user.id || user._id);
     if (fresh) { setCurrentUser(fresh); user = fresh; }
