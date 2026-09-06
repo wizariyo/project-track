@@ -692,7 +692,7 @@ function renderTeacherSemestersGrid(semesters) {
          onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--teal)'; this.querySelector('.enter-arrow').style.transform='translateX(4px)'; this.querySelector('.enter-arrow').style.color='var(--teal)';"
          onmouseout="this.style.transform='none'; this.style.boxShadow='var(--shadow-sm)'; this.style.borderColor='var(--border)'; this.querySelector('.enter-arrow').style.transform='none'; this.querySelector('.enter-arrow').style.color='var(--text-3)';"
     >
-      <span class="badge" style="background: rgba(23, 67, 63, 0.08); color: var(--teal); font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 6px; margin-bottom: 12px; display: inline-block; align-self: flex-start;">Academic</span>
+      <span class="badge" style="background: var(--surface-2); color: var(--primary); border: 1px solid var(--border); font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 6px; margin-bottom: 12px; display: inline-block; align-self: flex-start;">Academic</span>
       <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.4;">Semester ${sem}</h3>
       <div style="border-top: 1px solid var(--border); padding-top: 14px; margin-top: auto; display: flex; align-items: center; justify-content: space-between;">
         <span style="font-size: 12.5px; color: var(--text-3);">Manage all groups in this semester</span>
@@ -1622,7 +1622,7 @@ async function loadStudentSubjectsGrid() {
              onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)'; this.style.borderColor='var(--teal)'; this.querySelector('.enter-arrow').style.transform='translateX(4px)'; this.querySelector('.enter-arrow').style.color='var(--teal)';"
              onmouseout="this.style.transform='none'; this.style.boxShadow='var(--shadow-sm)'; this.style.borderColor='var(--border)'; this.querySelector('.enter-arrow').style.transform='none'; this.querySelector('.enter-arrow').style.color='var(--text-3)';"
         >
-          ${sCode ? `<span class="badge" style="background: rgba(23, 67, 63, 0.08); color: var(--teal); font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 6px; margin-bottom: 12px; display: inline-block; align-self: flex-start;">${escapeHtml(sCode)}</span>` : ''}
+          ${sCode ? `<span class="badge" style="background: var(--surface-2); color: var(--primary); border: 1px solid var(--border); font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 6px; margin-bottom: 12px; display: inline-block; align-self: flex-start;">${escapeHtml(sCode)}</span>` : ''}
           <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.4; word-break: break-word;">${escapeHtml(sName)}</h3>
           <div style="border-top: 1px solid var(--border); padding-top: 14px; margin-top: auto; display: flex; align-items: center; justify-content: space-between;">
             ${g ? `<span class="badge" style="background: rgba(85, 132, 103, 0.12); color: var(--teal-light); font-weight: 600; font-size: 11px; padding: 4px 8px; border-radius: 4px;">Team: ${escapeHtml(g.name)}</span>` 
