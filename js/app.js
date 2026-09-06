@@ -4544,24 +4544,20 @@ window.exportCombinedGradesReport = async function() {
       }
     }
 
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + rows.map(r => r.map(val => {
-          let str = String(val).replace(/"/g, '""');
-          if (str.search(/("|,|\n)/g) >= 0) {
-            str = `"${str}"`;
-          }
-          return str;
-        }).join(',')).join('\n');
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    
-    const semSuffix = activeSem ? `_Semester_${activeSem}` : '';
-    link.setAttribute("download", `Combined_Grades_Report${semSuffix}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+        const semSuffix = activeSem ? `_Semester_${activeSem}` : '';
+    if (typeof XLSX === 'undefined') {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Grades");
+    XLSX.writeFile(wb, `Combined_Grades_Report${semSuffix}.xlsx`);
 
     showToast('Grades report exported successfully!', 'success');
   } catch (err) {
@@ -4570,7 +4566,7 @@ window.exportCombinedGradesReport = async function() {
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = 'Export Combined Grades';
+      btn.textContent = 'Export Excel';
     }
   }
 };
