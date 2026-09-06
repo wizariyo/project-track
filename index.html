@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1.2.7" />
+<link rel="stylesheet" href="css/style.css?v=1.2.8" />
 <style>
   /* Premium Role Card Inline Styles (Guarantees cache-proof rendering) */
   .role-card {
@@ -85,12 +85,12 @@
         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
         <polyline points="22 4 12 14.01 9 11.01"></polyline>
       </svg>
-      <span>ProjectTrack</span>
+      <span>ProjectTrack&trade;</span>
     </div>
 
     <!-- STEP 1: Role selection -->
     <div id="stepRole" class="auth-step active">
-      <h1 class="auth-title">Welcome to ProjectTrack</h1>
+      <h1 class="auth-title">Welcome to ProjectTrack&trade;</h1>
       <p class="auth-sub">Choose your role to get started.</p>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px;">
@@ -258,10 +258,10 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="js/firebase.js?v=1.2.7"></script>
-  <script src="js/catalog.js?v=1.2.7"></script>
-  <script src="js/firestore.js?v=1.2.7"></script>
-  <script src="js/toast.js?v=1.2.7"></script>
+  <script src="js/firebase.js?v=1.2.8"></script>
+  <script src="js/catalog.js?v=1.2.8"></script>
+  <script src="js/firestore.js?v=1.2.8"></script>
+  <script src="js/toast.js?v=1.2.8"></script>
   
 <script>
   function openModal(id)  { const m = document.getElementById(id); if (m) m.classList.add('open'); }
@@ -752,44 +752,24 @@
       </div>
 
       <div style="opacity: 0.8; margin-top: 8px;">
-        &copy; 2026 ProjectTrack Inc. All rights reserved. Registered Trademark.
+        &copy; 2026 Yathaarth Bhardwaj. All Rights Reserved. Protected by International IP Laws.
       </div>
     </div>
   </footer>
 
   <!-- Info Modals -->
   <div class="modal-overlay" id="aboutModal">
-    <div class="modal" style="max-width: 500px;">
-      <div class="modal-head"><h3>About Us</h3><button class="btn btn-ghost" data-close="aboutModal">X</button></div>
-      <div class="modal-body" style="font-size: 14px; line-height: 1.6; color: var(--text); height: 300px; overflow-y: auto;">
-        <p><strong>ProjectTrack</strong> is the leading platform for academic project management.</p>
-        <p>Built for modern universities and engineering colleges, we bridge the gap between students and teachers by offering real-time collaboration, peer evaluation, and Kanban-style milestone tracking.</p>
-        <p>Our mission is to make academic grading completely transparent and help students build projects using industry-standard agile workflows.</p>
+    
+      <div class="modal" style="max-width: 500px;">
+        <div class="modal-head"><h3>Terms of Service & IP Policy</h3><button class="btn btn-ghost" data-close="termsModal">X</button></div>
+        <div class="modal-body" style="font-size: 14px; line-height: 1.6; color: var(--text); height: 300px; overflow-y: auto;">
+          <p><strong>LEGAL WARNING:</strong> This software architecture, UI, and underlying code are the exclusive intellectual property of Yathaarth Bhardwaj. Any unauthorized cloning, reverse-engineering, or copying of the features will face immediate legal action under the IT Act 2000 and applicable international copyright laws.</p>
+          <p>1. <strong>Usage:</strong> The platform is restricted to educational use only.<br>
+          2. <strong>Plagiarism:</strong> Uploading copyrighted material without permission will lead to an immediate account suspension.<br>
+          3. <strong>Jurisdiction:</strong> Any legal disputes will be resolved exclusively in the jurisdiction of the courts of India.</p>
+        </div>
       </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="privacyModal">
-    <div class="modal" style="max-width: 500px;">
-      <div class="modal-head"><h3>Privacy Policy</h3><button class="btn btn-ghost" data-close="privacyModal">X</button></div>
-      <div class="modal-body" style="font-size: 14px; line-height: 1.6; color: var(--text); height: 300px; overflow-y: auto;">
-        <p>Last Updated: September 2026</p>
-        <p>Your privacy is our priority. ProjectTrack uses industry-standard 256-bit AES encryption to store all your data securely on Google Cloud servers.</p>
-        <p>We do not sell, rent, or share your academic data, project files, or personal information with third parties. All project uploads remain the intellectual property of the respective students and university.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="termsModal">
-    <div class="modal" style="max-width: 500px;">
-      <div class="modal-head"><h3>Terms of Service</h3><button class="btn btn-ghost" data-close="termsModal">X</button></div>
-      <div class="modal-body" style="font-size: 14px; line-height: 1.6; color: var(--text); height: 300px; overflow-y: auto;">
-        <p>By accessing ProjectTrack, you agree to comply with our academic integrity guidelines.</p>
-        <p>1. <strong>Usage:</strong> The platform is restricted to educational use only.<br>
-        2. <strong>Plagiarism:</strong> Uploading copyrighted material without permission will lead to an immediate account suspension.<br>
-        3. <strong>Availability:</strong> We strive for 99.99% uptime but are not liable for missed academic deadlines due to unforeseen network outages.</p>
-      </div>
-    </div>
+    
   </div>
 
 
