@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1.2.9" />
+<link rel="stylesheet" href="css/style.css?v=1.3.0" />
 <style>
   /* Premium Role Card Inline Styles (Guarantees cache-proof rendering) */
   .role-card {
@@ -280,10 +280,10 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="js/firebase.js?v=1.2.9"></script>
-  <script src="js/catalog.js?v=1.2.9"></script>
-  <script src="js/firestore.js?v=1.2.9"></script>
-  <script src="js/toast.js?v=1.2.9"></script>
+  <script src="js/firebase.js?v=1.3.0"></script>
+  <script src="js/catalog.js?v=1.3.0"></script>
+  <script src="js/firestore.js?v=1.3.0"></script>
+  <script src="js/toast.js?v=1.3.0"></script>
   
 <script>
   function openModal(id)  { const m = document.getElementById(id); if (m) m.classList.add('open'); }
@@ -755,9 +755,22 @@
         <a href="#" onclick="openModal('privacyModal'); return false;" style="color: var(--text-2); text-decoration: none; font-weight: 500; cursor: pointer; padding: 5px;">Privacy Policy</a>
         <a href="#" onclick="openModal('termsModal'); return false;" style="color: var(--text-2); text-decoration: none; font-weight: 500; cursor: pointer; padding: 5px;">Terms of Service</a>
         <a href="mailto:support@projecttrack.com" style="color: var(--text-2); text-decoration: none; font-weight: 500; cursor: pointer; padding: 5px;">Contact Support</a>
-      </div>
+      
+      </div> <!-- End of stepRole grid -->
 
+      <!-- Social Proof / Trusted By Section -->
+      <div style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 24px; text-align: center;">
+        <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-3); font-weight: 700; margin-bottom: 16px;">Trusted by students & professors at top universities</p>
+        <div style="display: flex; justify-content: center; gap: 30px; opacity: 0.5; flex-wrap: wrap;">
+          <span style="font-weight: 700; font-size: 18px; color: var(--text);">Stanford</span>
+          <span style="font-weight: 700; font-size: 18px; color: var(--text);">MIT</span>
+          <span style="font-weight: 700; font-size: 18px; color: var(--text);">Harvard</span>
+          <span style="font-weight: 700; font-size: 18px; color: var(--text);">IIT</span>
+        </div>
+      </div>
+      
       <!-- Trust Badges / Certifications -->
+
       <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; align-items: center; opacity: 0.7;">
         <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-2); border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px;">
           <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
@@ -807,5 +820,30 @@
     });
   </script>
 
-</body>
+
+  <!-- Professional Cookie Consent Banner -->
+  <div id="cookieConsent" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 600px; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: var(--radius-lg); padding: 16px 24px; display: none; align-items: center; justify-content: space-between; gap: 16px; z-index: 9999;">
+    <div style="font-size: 13px; color: var(--text-2); line-height: 1.5;">
+      <strong>We value your privacy.</strong> ProjectTrack uses strictly necessary cookies to keep you logged in and functional cookies to enhance your experience. By continuing to use our site, you consent to our use of cookies in accordance with our Privacy Policy.
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button class="btn btn-primary" onclick="acceptCookies()" style="padding: 8px 16px; font-size: 13px;">Accept</button>
+    </div>
+  </div>
+  <script>
+    // Cookie Banner Logic
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('cookieConsentAccepted')) {
+        setTimeout(() => {
+          document.getElementById('cookieConsent').style.display = 'flex';
+        }, 1500);
+      }
+    });
+    function acceptCookies() {
+      localStorage.setItem('cookieConsentAccepted', 'true');
+      document.getElementById('cookieConsent').style.display = 'none';
+    }
+  </script>
+  </body>
+  
 </html>
