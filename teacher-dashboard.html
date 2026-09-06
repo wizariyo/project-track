@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1.2.3" />
+<link rel="stylesheet" href="css/style.css?v=1.2.4" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Select2 -->
   </head>
@@ -175,7 +175,7 @@
     <section class="section-page" id="page-reports">
       <div class="topbar">
         <div><h1>Reports</h1><p class="sub">Progress reports from all student teams.</p></div>
-        <button class="btn btn-ghost" id="exportReportsBtn" onclick="exportReports()">Export CSV</button>
+        <button class="btn btn-ghost" id="exportReportsBtn" onclick="exportReports()">Export Excel</button>
       </div>
       <div class="search-row">
         <input type="text" id="reportSearch" class="form-control search-input" placeholder="Search reports…">
@@ -329,7 +329,7 @@
           </div>
         </div>
         <div style="display:flex; gap:12px;">
-          <button class="btn btn-secondary" onclick="window.exportGroupDataToCSV(window.activeInspectionGroupId)">Export Group Data</button>
+          <button class="btn btn-secondary" onclick="window.exportGroupDataToCSV(window.activeInspectionGroupId)">Export Group Data (Excel)</button>
         </div>
       </div>
 
@@ -467,49 +467,55 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="js/firebase.js?v=1.2.3"></script>
-  <script src="js/catalog.js?v=1.2.3"></script>
-  <script src="js/firestore.js?v=1.2.3"></script>
-  <script src="js/toast.js?v=1.2.3"></script>
-  <script src="js/app.js?v=1.2.3"></script>
+  <script src="js/firebase.js?v=1.2.4"></script>
+  <script src="js/catalog.js?v=1.2.4"></script>
+  <script src="js/firestore.js?v=1.2.4"></script>
+  <script src="js/toast.js?v=1.2.4"></script>
+  <script src="js/app.js?v=1.2.4"></script>
 <script>
 async function exportReports() {
-  const groups = window.__teacherGroups || [];
-  if (!groups.length) { showToast('No groups to export.', 'error'); return; }
-  showToast('Generating Global Report...');
-  try {
-    const headers = ['Group Name', 'Project', 'Status', 'Tasks Done', 'Tasks Total', 'Workload (hrs)'];
-    let allRows = [];
-    for (const g of groups) {
-      const gid = g.id || g._id;
-      const tasks = await getTasksByGroup(gid);
-      const totalTasks = tasks.length;
-      const doneTasks = tasks.filter(t => t.status === 'done').length;
-      const totalTimeSecs = tasks.reduce((sum, t) => sum + (t.timeSpent || 0), 0);
-      const workloadHrs = (totalTimeSecs / 3600).toFixed(1);
+    const groups = window.__teacherGroups || [];
+    if (!groups.length) { showToast('No groups to export.', 'error'); return; }
+    showToast('Generating Global Report...');
+    try {
+      const rows = [['Group Name', 'Project', 'Status', 'Tasks Done', 'Tasks Total', 'Workload (hrs)']];
+      for (const g of groups) {
+        const gid = g.id || g._id;
+        const tasks = await getTasksByGroup(gid);
+        const totalTasks = tasks.length;
+        const doneTasks = tasks.filter(t => t.status === 'done').length;
+        const totalTimeSecs = tasks.reduce((sum, t) => sum + (t.timeSpent || 0), 0);
+        const workloadHrs = (totalTimeSecs / 3600).toFixed(1);
+        
+        rows.push([
+          g.name || '',
+          g.projectName || '',
+          g.status || 'active',
+          doneTasks,
+          totalTasks,
+          workloadHrs
+        ]);
+      }
       
-      allRows.push([
-        '"' + (g.name||'').replace(/"/g, '""') + '"',
-        '"' + (g.projectName||'').replace(/"/g, '""') + '"',
-        g.status || 'active',
-        doneTasks,
-        totalTasks,
-        workloadHrs
-      ]);
+      if (typeof XLSX === 'undefined') {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Global Report");
+      XLSX.writeFile(wb, 'global_groups_report.xlsx');
+      
+      showToast('Global Report Exported!');
+    } catch (e) {
+      showToast('Export failed.', 'error');
     }
-    const csv = [headers.join(','), ...allRows.map(r => r.join(','))].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'global_groups_report.csv';
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast('Global Report Exported!');
-  } catch (e) {
-    showToast('Export failed.', 'error');
   }
-}
 </script>
   <!-- Select2 JS -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
