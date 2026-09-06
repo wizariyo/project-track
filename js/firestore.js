@@ -472,6 +472,24 @@
     submitPeerEvaluation: submitPeerEvaluation, getPeerEvaluationsByGroup: getPeerEvaluationsByGroup, getMyPeerEvaluations: getMyPeerEvaluations
   };
 
+  
+  window.createNotification = async function(userId, message, link) {
+    if(!userId) return;
+    try {
+      await db.collection('notifications').add({
+        userId: userId,
+        message: message,
+        link: link || '',
+        read: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } catch(e) { console.error("Notification Error:", e); }
+  };
+  
+  window.markNotificationRead = async function(notifId) {
+    await db.collection('notifications').doc(notifId).update({read: true});
+  };
+  
   Object.keys(api).forEach(function(k) { window[k] = api[k]; });
 })();
 

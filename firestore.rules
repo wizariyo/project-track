@@ -65,7 +65,7 @@ service cloud.firestore {
       }
     }
 
-    match /milestones/{milestoneId} {
+    match /notifications/{notifId} { allow read, update, delete: if signedIn() && resource.data.userId == request.auth.uid; allow create: if signedIn(); } match /milestones/{milestoneId} {
       allow read, write: if signedIn();
     }
 
