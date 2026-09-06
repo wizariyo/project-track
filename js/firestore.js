@@ -49,6 +49,7 @@
   /* ─── Auth ────────────────────────────────────────────── */
   async function apiSignup(data) {
     var cred = await auth.createUserWithEmailAndPassword(data.email, data.password);
+    await cred.user.sendEmailVerification();
     var uid  = cred.user.uid;
     var user = {
       id: uid, name: data.name, email: data.email.toLowerCase(),
@@ -61,12 +62,16 @@
       groupId: null
     };
     await db.collection('users').doc(uid).set(user);
-    setCurrentUser(user);
-    return user;
+    await auth.signOut(); // Force them to login to check verification
+    return { ...user, requiresVerification: true };
   }
 
   async function apiLogin(email, password) {
     var cred = await auth.signInWithEmailAndPassword(email, password);
+    if (!cred.user.emailVerified) {
+      await auth.signOut();
+      throw new Error('Please verify your email to continue. A verification link was sent to your email.');
+    }
     var doc  = await db.collection('users').doc(cred.user.uid).get();
     if (!doc.exists) throw new Error('User profile not found in database.');
     var user = { ...doc.data(), id: doc.id };

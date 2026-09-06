@@ -10,24 +10,33 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
 
+    function isTeacher() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher';
+    }
+
     match /users/{userId} {
       allow read: if signedIn();
       allow create: if signedIn() && isOwner(userId);
-      allow update: if signedIn() && (isOwner(userId) || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher');
+      allow update: if signedIn() && (isOwner(userId) || isTeacher());
       allow delete: if signedIn() && isOwner(userId);
     }
 
     match /groups/{groupId} {
       allow read: if signedIn();
-      allow create, update, delete: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if signedIn() && (isTeacher() || resource.data.groupLeadId == request.auth.uid || resource.data.teacherId == request.auth.uid);
     }
 
     match /tasks/{taskId} {
-      allow read, write: if signedIn();
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if signedIn();
     }
 
     match /comments/{commentId} {
-      allow read, write: if signedIn();
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if signedIn() && resource.data.author.id == request.auth.uid;
     }
 
     match /subtasks/{subtaskId} {
@@ -35,7 +44,9 @@ service cloud.firestore {
     }
 
     match /reports/{reportId} {
-      allow read, write: if signedIn();
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if signedIn() && (resource.data.submittedBy == request.auth.uid || isTeacher());
     }
 
     match /files/{fileId} {
@@ -43,9 +54,14 @@ service cloud.firestore {
     }
 
     match /chats/{chatId} {
-      allow read, write: if signedIn();
+      allow read: if signedIn();
+      allow create: if signedIn();
+      allow update, delete: if signedIn();
+      
       match /messages/{messageId} {
-        allow read, write: if signedIn();
+        allow read: if signedIn();
+        allow create: if signedIn();
+        allow update, delete: if signedIn() && resource.data.senderId == request.auth.uid;
       }
     }
 

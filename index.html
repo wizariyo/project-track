@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ProjectTrack | College Project Management & Tracking Portal</title>
+<title>ProjectTrack | Best Academic Project Manager</title>
 <meta name="description" content="ProjectTrack is the ultimate academic project management tool for colleges. Teachers and students can track final year projects, manage sprints, evaluate peers, and submit deliverables in real-time." />
-<meta name="keywords" content="college project management, academic project tracker, student project portal, engineering project tracking, free academic kanban" />
+<meta name="keywords" content="project manager, college project management, academic project tracker, student project portal, engineering project tracking, free academic kanban" />
 <meta name="author" content="Wizariyo" />
 <link rel="canonical" href="https://wizariyo.github.io/project-track/" />
 
@@ -26,7 +26,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=1.2.5" />
+<link rel="stylesheet" href="css/style.css?v=1.2.6" />
 <style>
   /* Premium Role Card Inline Styles (Guarantees cache-proof rendering) */
   .role-card {
@@ -75,7 +75,7 @@
     <!-- jQuery for Select2 -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
-<body data-page="auth">
+<body data-page="auth" style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
 
 <div class="auth-shell">
   <div class="auth-card fade-in-up">
@@ -252,49 +252,17 @@
   </div>
 </div>
 
-<!-- Email OTP Verification Modal -->
-<div class="modal-overlay" id="otpModal">
-  <div class="modal" style="max-width: 400px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px; text-align: center;">
-    <div class="modal-head" style="justify-content: center; margin-bottom: 8px;">
-      <h3 style="font-size: 20px; font-weight: 700; color: var(--text); margin: 0;">Email Verification</h3>
-    </div>
-    <div class="modal-body" style="display: flex; flex-direction: column; gap: 20px; margin-top: 12px;">
-      <p style="font-size: 13px; color: var(--text-3); line-height: 1.5; margin: 0;">We've sent a 6-digit verification code to <strong id="otpEmailSpan" style="color: var(--text);"></strong>. Please enter it below.</p>
-      
-      <!-- Premium OTP Input Row -->
-      <div style="display: flex; gap: 8px; justify-content: center; margin: 10px 0;" id="otpInputsContainer">
-        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
-        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
-        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
-        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
-        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
-        <input type="text" maxlength="1" class="form-control otp-box" style="width: 44px; height: 52px; font-size: 22px; text-align: center; font-weight: 700; border-radius: var(--radius);" />
-      </div>
 
-      <div id="otpError" class="auth-error hidden" style="font-size: 12.5px; padding: 10px; margin: 0; border-radius: var(--radius);"></div>
-      
-      <div style="font-size: 12.5px; color: var(--text-3);">
-        Didn't receive the code? 
-        <span id="otpResendLink" style="color: var(--teal); font-weight: 600; cursor: pointer; text-decoration: underline;">Resend</span>
-        <span id="otpTimerSpan" style="display: none;">in <strong id="otpCountdown">30</strong>s</span>
-      </div>
-    </div>
-    <div class="modal-footer" style="margin-top: 24px; display: flex; gap: 10px;">
-      <button class="btn btn-ghost" data-close="otpModal" style="flex: 1; justify-content: center;">Cancel</button>
-      <button class="btn btn-primary" id="btnVerifyOTP" style="flex: 1; justify-content: center;">Verify & Proceed</button>
-    </div>
-  </div>
-</div>
 
 <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="js/firebase.js?v=1.2.5"></script>
-  <script src="js/catalog.js?v=1.2.5"></script>
-  <script src="js/firestore.js?v=1.2.5"></script>
-  <script src="js/toast.js?v=1.2.5"></script>
-  <script src="js/otp.js?v=1.2.5"></script>
+  <script src="js/firebase.js?v=1.2.6"></script>
+  <script src="js/catalog.js?v=1.2.6"></script>
+  <script src="js/firestore.js?v=1.2.6"></script>
+  <script src="js/toast.js?v=1.2.6"></script>
+  
 <script>
   function openModal(id)  { const m = document.getElementById(id); if (m) m.classList.add('open'); }
   function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('open'); }
@@ -539,10 +507,22 @@
         }
 
         const user = await window.apiSignup(data);
-        if (!user) throw new Error("Signup failed.");
-        
-        if (window.showToast) window.showToast('Account created successfully!', 'success');
-        setTimeout(() => redirectUser(user.role), 500);
+          if (!user) throw new Error("Signup failed.");
+          
+          if (user.requiresVerification) {
+            if (window.showToast) window.showToast('Account created! A verification link has been sent to your email.', 'success');
+            errorDiv.innerHTML = '<span style="color:var(--teal)">Registration successful! Please check your email to verify your account before signing in.</span>';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('authEmail').value = '';
+            document.getElementById('authPassword').value = '';
+            submitBtn.textContent = 'Sign In';
+            submitBtn.disabled = false;
+            setAuthMode('login');
+            return;
+          }
+          
+          if (window.showToast) window.showToast('Account created successfully!', 'success');
+          setTimeout(() => redirectUser(user.role), 500);
       }
     } catch (error) {
       console.error("Auth Error:", error);
@@ -553,125 +533,7 @@
     }
   }
 
-  // OTP Verification helper functions
-  function resetOtpInputs() {
-    const inputs = document.querySelectorAll('.otp-box');
-    inputs.forEach(input => {
-      input.value = '';
-    });
-    document.getElementById('otpError').classList.add('hidden');
-    
-    const verifyBtn = document.getElementById('btnVerifyOTP');
-    if (verifyBtn) {
-      verifyBtn.disabled = false;
-      verifyBtn.textContent = 'Verify & Proceed';
-    }
-    
-    if (inputs.length > 0) inputs[0].focus();
-  }
-
-  // Handle auto-focus shift for OTP boxes
-  document.querySelectorAll('.otp-box').forEach((box, idx, arr) => {
-    box.addEventListener('input', (e) => {
-      box.value = box.value.replace(/[^0-9]/g, '');
-      if (box.value && idx < arr.length - 1) {
-        arr[idx + 1].focus();
-      }
-    });
-
-    box.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' && !box.value && idx > 0) {
-        arr[idx - 1].focus();
-      }
-    });
-  });
-
-  // Resend Timer logic
-  function startOtpResendTimer() {
-    const link = document.getElementById('otpResendLink');
-    const timerSpan = document.getElementById('otpTimerSpan');
-    const countdown = document.getElementById('otpCountdown');
-    
-    if (!link || !timerSpan || !countdown) return;
-    
-    link.style.display = 'none';
-    timerSpan.style.display = 'inline';
-    
-    let secondsLeft = 30;
-    countdown.textContent = secondsLeft;
-    
-    clearInterval(resendInterval);
-    resendInterval = setInterval(() => {
-      secondsLeft--;
-      countdown.textContent = secondsLeft;
-      if (secondsLeft <= 0) {
-        clearInterval(resendInterval);
-        link.style.display = 'inline';
-        timerSpan.style.display = 'none';
-      }
-    }, 1000);
-  }
-
-  // Resend Click
-  document.getElementById('otpResendLink')?.addEventListener('click', async () => {
-    if (!tempAuthData) return;
-    try {
-      tempAuthData.otp = window.OTP.generate();
-      resetOtpInputs();
-      await window.OTP.send(tempAuthData.email, tempAuthData.name, tempAuthData.otp);
-      startOtpResendTimer();
-    } catch (err) {
-      document.getElementById('otpError').textContent = err.message;
-      document.getElementById('otpError').classList.remove('hidden');
-    }
-  });
-
-  // Verify OTP button click
-  document.getElementById('btnVerifyOTP')?.addEventListener('click', async () => {
-    if (!tempAuthData) return;
-    
-    const inputs = document.querySelectorAll('.otp-box');
-    let enteredCode = '';
-    inputs.forEach(input => enteredCode += input.value);
-    
-    const errorDiv = document.getElementById('otpError');
-    errorDiv.classList.add('hidden');
-    
-    if (enteredCode.length < 6) {
-      errorDiv.textContent = "Please enter the 6-digit code.";
-      errorDiv.classList.remove('hidden');
-      return;
-    }
-    
-    if (enteredCode !== tempAuthData.otp) {
-      errorDiv.textContent = "Invalid verification code. Please try again.";
-      errorDiv.classList.remove('hidden');
-      return;
-    }
-    
-    const verifyBtn = document.getElementById('btnVerifyOTP');
-    verifyBtn.disabled = true;
-    verifyBtn.textContent = 'Verifying...';
-    
-    try {
-      if (tempAuthData.mode === 'login') {
-        const user = await window.apiLogin(tempAuthData.email, tempAuthData.password);
-        if (window.showToast) window.showToast('Logged in successfully!', 'success');
-        closeModal('otpModal');
-        setTimeout(() => redirectUser(user.role), 500);
-      } else {
-        const user = await window.apiSignup(tempAuthData.payload);
-        if (window.showToast) window.showToast('Account created successfully!', 'success');
-        closeModal('otpModal');
-        setTimeout(() => redirectUser(user.role), 500);
-      }
-    } catch (err) {
-      errorDiv.textContent = err.message || "Authentication failed.";
-      errorDiv.classList.remove('hidden');
-      verifyBtn.disabled = false;
-      verifyBtn.textContent = 'Verify & Proceed';
-    }
-  });
+  
 
   function redirectUser(role) {
     if (role === 'teacher') {
@@ -859,5 +721,33 @@
 
 </script>
   <!-- Select2 JS -->
-  </body>
+  
+  <!-- Corporate Footer -->
+  <footer style="margin-top: auto; padding: 40px 24px 24px; text-align: center; border-top: 1px solid var(--border); background: var(--bg); color: var(--text-3); font-size: 13px;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;">
+        <a href="#" style="color: var(--text-2); text-decoration: none; font-weight: 500;">About Us</a>
+        <a href="#" style="color: var(--text-2); text-decoration: none; font-weight: 500;">Privacy Policy</a>
+        <a href="#" style="color: var(--text-2); text-decoration: none; font-weight: 500;">Terms of Service</a>
+        <a href="#" style="color: var(--text-2); text-decoration: none; font-weight: 500;">Contact Support</a>
+      </div>
+      <div style="opacity: 0.8;">
+        &copy; 2026 ProjectTrack Inc. All rights reserved. Registered Trademark.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Anti-Copying Script (Deterrent) -->
+  <script>
+    document.addEventListener('contextmenu', event => event.preventDefault()); // Disable Right Click
+    document.addEventListener('dragstart', event => event.preventDefault()); // Disable Image Dragging
+    document.addEventListener('selectstart', event => {
+      // Allow selection inside inputs/textareas, disable elsewhere
+      if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
+        event.preventDefault();
+      }
+    });
+  </script>
+
+</body>
 </html>

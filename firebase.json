@@ -1,1 +1,1 @@
-﻿{"hosting": {"public": ".", "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "**/*.mp4", "**/*.ps1", "**/*.bat", "**/*.exe", "demo-maker/**", "temp-chrome-profile/**", "uploads/**", "AI-Content-Studio/**", "*.js"]}}
+{"firestore": {"rules": "firestore.rules"}, "hosting": {"public": ".", "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "**/*.mp4", "**/*.ps1", "**/*.bat", "**/*.exe", "demo-maker/**", "temp-chrome-profile/**", "uploads/**", "AI-Content-Studio/**", "*.js"]}}

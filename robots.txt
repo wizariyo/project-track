@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://wizariyo.github.io/project-track/sitemap.xml
+Sitemap: https://protrack-51ca3.web.app/sitemap.xml
